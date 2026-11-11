@@ -306,3 +306,62 @@ button {
         gap: 20px;
     }
 }
+/* DESKTOP 1366px */
+@media (min-width: 769px) {
+    .header-container,
+    .navbar-container,
+    .home-container,
+    .footer-container {
+        width: 92%;
+        max-width: 1200px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .header-container {
+        gap: 20px;
+    }
+
+    .logo {
+        font-size: 26px;
+        white-space: nowrap;
+    }
+
+    .search-box {
+        flex: 1;
+        max-width: 550px;
+        min-width: 200px;
+    }
+
+    .header-actions {
+        gap: 15px;
+    }
+
+    .nav-list {
+        display: flex;
+        flex-wrap: nowrap;
+    }
+
+    .nav-list li a {
+        padding: 15px 16px;
+        white-space: nowrap;
+    }
+
+    .home-container {
+        margin-top: 30px;
+        margin-bottom: 30px;
+    }
+
+    .product-list {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 20px;
+    }
+
+    .product-card {
+        min-width: 0;
+    }
+
+    .footer-container {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}

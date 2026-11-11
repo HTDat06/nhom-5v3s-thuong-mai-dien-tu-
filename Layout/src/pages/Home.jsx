@@ -1,27 +1,6 @@
+import ProductCard from "../components/ProductCard";
+import {products} from "../data/product";
 function Home() {
-    const products = [
-    {
-        id: 1,
-        name: "RTX 4060",
-        category: "VGA",
-        price: "7.500.000đ",
-        image: "https://placehold.co/300x220?text=RTX+4060"
-    },
-    {
-        id: 2,
-        name: "Corsair Vengeance DDR5",
-        category: "RAM",
-        price: "2.200.000đ",
-        image: "https://placehold.co/300x220?text=RAM+DDR5"
-    },
-    {
-        id: 3,
-        name: "AMD Ryzen 5 7600",
-        category: "CPU",
-        price: "4.500.000đ",
-        image: "https://placehold.co/300x220?text=Ryzen+5"
-    }
-];
     return (
         <div className="home-container">
 
@@ -36,22 +15,7 @@ function Home() {
 
                 <div className="product-list">
                     {products.map((product) => (
-                        <div className="product-card" key={product.id}>
-
-                            <img
-                                src={product.image}
-                                alt={product.name}
-                            />
-
-                            <h3>{product.name}</h3>
-
-                            <p className="price">
-                                {product.price}
-                            </p>
-
-                            <button>Xem chi tiết</button>
-
-                        </div>
+                        <ProductCard key={product.id} product={product} />
                     ))}
                 </div>
             </section>
