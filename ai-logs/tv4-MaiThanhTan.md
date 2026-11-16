@@ -1,3 +1,11 @@
+
+| Mục | Thông tin |
+| --- | --- |
+| Họ tên, MSSV | Mai Thanh Tân – 0306241241 |
+| Nhóm, đề tài | Nhóm 8 – Thương mại điện tử |
+| Vai trò | TV4 – BE (csdl) |
+| Công cụ AI dùng | ChatGPT, Claude |
+###[AI-01]
 1.Yêu cầu xác định mối quan hệ giữa các bảng
 2.Tạo code để vẽ sơ đồ trên dbdiagram.io
 
