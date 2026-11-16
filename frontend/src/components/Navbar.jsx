@@ -1,19 +1,31 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 
 function Navbar() {
     const [menuOpen, setMenuOpen] = useState(false);
+    const [categories, setCategories] = useState([]);
 
-    const categories = [
-        "Trang chủ",
-        "VGA",
-        "RAM",
-        "CPU",
-        "Mainboard",
-        "SSD",
-        "PSU",
-        "Case PC",
-        "Tản nhiệt"
-    ];
+    useEffect(() => {
+        const getCategories = async () => {
+            try {
+                const response = await fetch(
+                    "http://localhost:5000/api/categories"
+                );
+
+                const result = await response.json();
+
+                console.log("Dữ liệu API:", result);
+
+                if (result.success) {
+                    setCategories(result.data);
+                }
+            } catch (error) {
+                console.error("Lỗi lấy danh mục:", error);
+            }
+        };
+
+        getCategories();
+    }, []);
 
     return (
         <nav className="navbar">
@@ -27,10 +39,14 @@ function Navbar() {
                 </button>
 
                 <ul className={`nav-list ${menuOpen ? "active" : ""}`}>
-                    {categories.map((category, index) => (
-                        <li key={category}>
-                            <a href={index === 0 ? "/" : "#"}>
-                                {category}
+                    <li>
+                        <a href="/">Trang chủ</a>
+                    </li>
+
+                    {categories.map((category) => (
+                        <li key={category.category_id}>
+                            <a href={`/products?category=${category.category_id}`}>
+                                {category.category_name}
                             </a>
                         </li>
                     ))}
