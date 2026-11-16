@@ -11,14 +11,17 @@
 
 | Mã | Ngày | Giai đoạn | Nội dung | Commit / PR |
 | --- | --- | --- | --- | --- |
-| AI-01 | 09/11 | Thiết lập môi trường Backend | Cấu hình Prisma kết nối SQL Server | PR |
-| AI-02 | 10/11 | Xây dựng cơ sở dữ liệu | Chạy migration và seeder | PR |
-| AI-03 | 11/11 | Phát triển chức năng Backend | Xây dựng chức năng đăng ký tài khoản Backend | PR |
-| AI-04 | 11/11 | Phân tích và thiết kế hệ thống | Vẽ sơ đồ kiến trúc tổng thể hệ thống | PR |
-| AI-05 | 11/11 | Phát triển Backend | Xây dựng chức năng đăng ký Backend | PR |
-| AI-06 | 12/11 | Phát triển Backend | Xây dựng chức năng đăng nhập và đăng xuất | PR |
-| AI-07 | 12/11 | Phát triển Backend | Phân quyền Admin và điều hướng theo vai trò | PR |
-| AI-08 | 12/11 | Phát triển Backend | Xử lý lỗi CORS khi kết nối Frontend với Backend | PR |
+| AI-01 | 09/11 | Thiết lập môi trường Backend | Cấu hình Prisma kết nối SQL Server | | | |
+| AI-02 | 10/11 | Xây dựng cơ sở dữ liệu | Chạy migration và seeder | | | |
+| AI-03 | 11/11 | Phát triển chức năng Backend | Xây dựng chức năng đăng ký tài khoản Backend | AI-assisted feat(TM-04): dang ky tai khoan bam mat khau | | |
+| AI-04 | 11/11 | Phân tích và thiết kế hệ thống | Vẽ sơ đồ kiến trúc tổng thể hệ thống | AI-assisted - so do kien truc tong the | | |
+| AI-05 | 11/11 | Phát triển Backend | Xây dựng chức năng đăng ký Backend | AI-assisted feat(TM-04): dang ky tai khoan bam mat khau | | |
+| AI-06 | 12/11 | Phát triển Backend | Xây dựng chức năng đăng nhập và đăng xuất | | | |
+| AI-07 | 12/11 | Phát triển Backend | Phân quyền Admin và điều hướng theo vai trò | | | |
+| AI-08 | 12/11 | Phát triển Backend | Xử lý lỗi CORS khi kết nối Frontend với Backend | commit feat(TM-04): dang nhap dang xuat phan quyen | | |
+| AI-09 | 16/11 | Phát triển Backend | Tìm hiểu quy trình OrderService.placeOrder() | | | |
+| AI-10 | 16/11 | Phát triển Backend | Viết OrderController và orderRoutes | | | |
+| AI-11 | 16/11 | Phát triển Backend | Viết mã giả | "AI-assisted - commit feat(TM-06): khung OrderService." | PR |
 
 
 ### AI LOG 01 – [AI-01] Cấu hình Prisma kết nối SQL Server
@@ -145,7 +148,7 @@
 - Ngày / Người dùng: 2026-11-12 / Trần Ngọc Duy
 - Công cụ: ChatGPT – GPT-6
 - Giai đoạn: Tích hợp và kiểm thử hệ thống
-- Task / Commit / PR: Cấu hình CORS cho API đăng ký / commit feat(TM-04): dang nhap dang xuat phan quyen
+- Task / Commit / PR  / commit feat(TM-04): dang nhap dang xuat phan quyen / Cấu hình CORS cho API đăng ký
 - Mục đích: Khắc phục lỗi trình duyệt chặn request từ Frontend tại `localhost:5173` đến Backend tại `localhost:5000`.
 - Prompt chính: "Hướng dẫn xử lý lỗi CORS khi Frontend gọi API đăng ký từ localhost:5173 đến Backend localhost:5000."
 - Kết quả AI trả về (tóm tắt): Xác định nguyên nhân do Backend chưa trả về header `Access-Control-Allow-Origin`, hướng dẫn cài thư viện `cors` và cấu hình middleware Express.
@@ -154,3 +157,48 @@
 - Cách kiểm chứng: Gửi lại request đăng ký từ trình duyệt, kiểm tra Console và Network để xác nhận request không còn bị trình duyệt chặn.
 - Tỷ lệ nội dung AI còn giữ lại: 90%.
 - Điều học được: Hiểu nguyên nhân lỗi CORS, cách cấu hình middleware và cách kiểm tra lỗi tích hợp Frontend – Backend.
+- 
+### AI LOG – [AI-09] Tìm hiểu quy trình OrderService.placeOrder()
+
+- Ngày / Người dùng: 2026-11-16 / Nguyễn Văn A
+- Công cụ: ChatGPT
+- Giai đoạn: Phân tích và thiết kế
+- Task / Commit / PR: TM-06 – Đặt hàng COD / Chưa commit / Chưa tạo PR
+- Mục đích: Hiểu quy trình đặt hàng và cách sử dụng transaction trong Prisma.
+- Prompt chính: “Thiết kế OrderService.placeOrder(): đọc giỏ, kiểm tra tồn kho, tạo order + order_items, trừ kho, xóa giỏ – trong 1 transaction. Là gì vậy?”
+- Kết quả AI trả về: Giải thích quy trình đặt hàng gồm đọc giỏ hàng, kiểm tra tồn kho, tính tiền, tạo đơn hàng, lưu chi tiết đơn hàng, trừ kho và xóa giỏ hàng trong một transaction.
+- Đánh giá: Đúng – giải thích rõ vai trò của COMMIT và ROLLBACK.
+- Đã chỉnh sửa gì: Chưa cần chỉnh sửa.
+- Cách kiểm chứng: Đối chiếu quy trình với các bảng orders, order_items, products và cart_items.
+- Tỷ lệ nội dung AI còn giữ lại: 90%
+- Điều học được: Hiểu transaction giúp đảm bảo các thao tác đặt hàng thành công hoặc thất bại đồng bộ.
+
+### AI LOG – [AI-10] Viết OrderController và orderRoutes
+
+- Ngày / Người dùng: 2026-11-16 / Trần Ngọc Duy
+- Công cụ: ChatGPT, GitHub
+- Giai đoạn: Phát triển Backend
+- Task / Commit / PR: TM-06 – API đặt hàng / Chưa commit / Chưa tạo PR
+- Mục đích: Kết nối OrderService với API POST /api/orders và đảm bảo người dùng chỉ đặt hàng bằng tài khoản đã đăng nhập.
+- Prompt chính: “Viết OrderController.js và orderRoutes.js, kết nối placeOrder() với API POST /api/orders. Trước khi làm, cần đối chiếu authMiddleware.js để lấy đúng user_id từ JWT, tránh đặt hàng nhầm tài khoản.”
+- Kết quả AI trả về: Đề xuất OrderController lấy req.user.user_id từ JWT, gọi OrderService và trả response; orderRoutes sử dụng middleware authenticate để bảo vệ API.
+- Đánh giá: Đúng về hướng xử lý – cần kiểm tra lại code thực tế và chạy API.
+- Đã chỉnh sửa gì: Không nhận user_id từ request body; chỉ lấy user_id từ JWT. Không yêu cầu role admin vì khách hàng cũng được phép đặt hàng.
+- Cách kiểm chứng: Gửi request không có JWT, JWT không hợp lệ và JWT hợp lệ bằng Postman.
+- Tỷ lệ nội dung AI còn giữ lại: 80%
+- Điều học được: Hiểu cách kết hợp JWT middleware, Controller, Service và Route để bảo vệ API.
+
+### AI LOG – [AI-11] Viết mã giả
+
+Ngày / Người dùng: 2026-11-16 / Trần Ngọc Duy
+- Công cụ: ChatGPT
+- Giai đoạn: Phát triển Backend
+- Task / Commit / PR: TM-06 – Mã giả và checklist / "AI-assisted | commit feat(TM-06): khung OrderService." / 
+- Mục đích: Chia nhỏ công việc đặt hàng thành các bước để dễ triển khai và kiểm thử.
+- Prompt chính: “Viết mã giả và chia checklist cho TM-06.”
+- Kết quả AI trả về: Mã giả quy trình đặt hàng.
+- Đánh giá: Đúng – bao quát các công việc chính theo yêu cầu TM-06.
+- Đã chỉnh sửa gì: Chia checklist thành các nhóm công việc riêng để dễ theo dõi tiến độ.
+- Cách kiểm chứng: Đối chiếu với yêu cầu TM-06 và kiểm tra từng chức năng sau khi triển khai.
+- Tỷ lệ nội dung AI còn giữ lại: 90%
+- Điều học được: Biết cách chia một chức năng lớn thành các đầu việc nhỏ và có tiêu chí kiểm thử cụ thể.
