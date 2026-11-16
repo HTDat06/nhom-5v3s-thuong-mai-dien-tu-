@@ -1,6 +1,24 @@
-Với đề tài website thương mại điện tử, nhóm 5 người, 3 tuần, hãy liệt kê chức năng theo mức Must/Could và 3 rủi ro lớn nhất
+| Mục | Thông tin |
+| --- | --- |
+| Họ tên, MSSV | Nguyễn Chí Hải – 0306241276 |
+| Nhóm, đề tài | Nhóm 8 – Thương mại điện tử (Website bán linh kiện máy tính) |
+| Vai trò | TV1 – LE (Leader / Scrum Master) |
+| Công cụ AI dùng | Gemini / ChatGPT |
 
-[AI-02] Hỗ trợ thiết kế Use Case Diagram và đặc tả 3 Use Case
+### [AI-01] Brainstorm chức năng Must/Could và rủi ro của đề tài
+- Ngày / Người dùng: 2026-11-09 / Nguyễn Chí Hải
+- Công cụ: Gemini
+- Giai đoạn: Phân tích yêu cầu
+- Task / Commit / PR: [DOC] Đề cương / `docs: de cuong ban dau` / [PR #1]
+- Mục đích: Phân loại danh sách chức năng theo mức độ ưu tiên (Must-have / Could-have) và xác định 3 rủi ro lớn nhất cùng cách phòng tránh cho đồ án website thương mại điện tử trong 3 tuần với 5 thành viên
+- Prompt chính (nguyên văn hoặc link chia sẻ hội thoại): "Với đề tài website thương mại điện tử, nhóm 5 người, 3 tuần, hãy liệt kê chức năng theo mức Must/Could và 3 rủi ro lớn nhất".
+- Kết quả AI trả về (tóm tắt): AI đề xuất bảng phân chia các nhóm chức năng bắt buộc (Xác thực, Sản phẩm, Giỏ hàng, Đặt hàng, Quản trị) và tùy chọn (Đánh giá, Lịch sử đơn, Bộ lọc nâng cao), đồng thời chỉ ra 3 rủi ro chính (Git conflict, Trễ tiến độ, Lỗi CSDL/Transaction).
+- Đánh giá: Đúng và sát thực tế – các nhóm chức năng bám sát đặc tả yêu cầu của giảng viên, các rủi ro phản ánh đúng khó khăn khi làm việc nhóm 5 người.
+- Đã chỉnh sửa gì: Giữ nguyên các nhóm chức năng Must-have khớp với mã chức năng `TM-01` đến `TM-16` của đề tài; bổ sung cụ thể vai trò kiểm duyệt PR của TV5 và quy tắc Trello của nhóm vào phần cách phòng tránh rủi ro.
+- Cách kiểm chứng: Đối chiếu danh sách chức năng bắt buộc trong tài liệu đặc tả 6 đề tài mẫu; thống nhất phạm vi trong buổi họp nhóm Ngày 1 và trình giảng viên duyệt đề cương.
+- Tỷ lệ nội dung AI còn giữ lại (ước lượng): 65%
+- Điều học được: Nêu rõ ràng ràng buộc về thời gian (3 tuần) và nhân sự (5 người) ngay trong prompt giúp AI phân loại mức độ ưu tiên (Must/Could) chuẩn xác và khả thi hơn.
+### [AI-02] Hỗ trợ thiết kế Use Case Diagram và đặc tả 3 Use Case
 Ngày / Người dùng: 2026-11-10 / Nguyễn Chí Hải
 Công cụ: ChatGPT (GPT-6)
 - Giai đoạn: Thiết kế
@@ -15,9 +33,9 @@ Task / Commit / PR: [DOC] Use case / [Commit ID] / [PR #...]
 - Tỷ lệ nội dung AI còn giữ lại (ước lượng): [50]%
 - Điều học được: Cần mô tả rõ vai trò của từng tác nhân và các trường hợp ngoại lệ khi xây dựng Use Case. Không nên sử dụng nguyên bản kết quả AI mà cần đối chiếu với yêu cầu của hệ thống.
 
-[AI-03] Hỗ trợ thiết kế Sequence Diagram đặt hàng và biên bản họp 02
+### [AI-03] Hỗ trợ thiết kế Sequence Diagram đặt hàng và biên bản họp 02
 Ngày / Người dùng: 2026-11-11 / Nguyễn Chí Hải
-Công cụ: ChatGPT (GPT-6)
+Công cụ: Gemini
 - Giai đoạn: Thiết kế, Tài liệu
 Task / Commit / PR: [DOC] Sequence diagram, [DOC] Biên bản họp 02 / [Commit ID] / [PR #...]
 - Mục đích: Hỗ trợ xây dựng Sequence Diagram mô tả quy trình đặt hàng trên website bán linh kiện máy tính, thể hiện sự tương tác giữa Khách hàng, Giao diện Website, OrderController, OrderService và Cơ sở dữ liệu. Đồng thời hỗ trợ soạn biên bản họp nhóm số 02.
@@ -29,3 +47,31 @@ Task / Commit / PR: [DOC] Sequence diagram, [DOC] Biên bản họp 02 / [Commit
 - Cách kiểm chứng:Đối chiếu Sequence Diagram với quy trình đặt hàng của hệ thống và kiến trúc Controller – Service – Database. Kiểm tra mã Mermaid trên Mermaid Live Editor. Đối chiếu biên bản họp với tiến độ thực tế và kết quả trao đổi trong cuộc họp nhóm.
 - Tỷ lệ nội dung AI còn giữ lại (ước lượng): [75]%
 - Điều học được: AI có thể hỗ trợ tạo sơ đồ và tài liệu nhanh chóng, những người phát triển cần hiểu rõ luồng nghiệp vụ, kiểm tra Transaction và cập nhật nội dung theo tình hình thực tế của nhóm.
+
+
+### [AI-04] Tổng hợp tài liệu Mốc 1 và lên cấu trúc phân công trình bày
+- Ngày / Người dùng: 2026-11-12 / Nguyễn Chí Hải
+- Công cụ: Gemini
+- Giai đoạn: Tài liệu
+- Task / Commit / PR: [DOC] Chuẩn bị Mốc 1 / `docs: tai lieu tom tat moc 1` / [PR #...]
+- Mục đích: Hoàn thiện tệp báo cáo tổng hợp Mốc 1 (`docs/moc-1.md`) bám sát đặc tả đề tài Thương mại điện tử, đồng thời cấu trúc thời lượng trình bày 10 phút cho 5 thành viên trong nhóm.
+- Prompt chính (nguyên văn hoặc link chia sẻ hội thoại): "Gợi ý cấu trúc báo cáo Mốc 1 cho website thương mại điện tử gồm các phần Giới thiệu, Công nghệ (Node.js, Express, React, SQL Server), Kiến trúc, ERD, User Story, Kế hoạch Sprint S2 và gợi ý phân bổ thời gian thuyết trình 10 phút cho 5 thành viên."
+- Kết quả AI trả về (tóm tắt): AI cung cấp khung nội dung chi tiết cho báo cáo tổng hợp và kịch bản phân chia thời lượng trình bày (mỗi thành viên 2 phút).
+- Đánh giá: Đúng và rất sát yêu cầu – giúp trưởng nhóm nhanh chóng hoàn thiện tài liệu nộp và lên lịch điều phối công việc cho nhóm trong ngày.
+- Đã chỉnh sửa gì: Chuẩn hóa lại các bảng Markdown, đồng bộ tên công nghệ thực tế của nhóm (SQL Server, Sequelize, Node.js + Express) và bổ sung mã chức năng (TM-xx) vào kế hoạch Sprint 2.
+- Cách kiểm chứng: Kiểm tra hiển thị Markdown trên GitHub; đối chiếu nội dung báo cáo với hướng dẫn chi tiết Ngày 4 của giảng viên.
+- Tỷ lệ nội dung AI còn giữ lại (ước lượng): 80%
+
+
+### [AI-05] Lập biên bản họp Mốc 1, phân rã góp ý giảng viên và lập kế hoạch Sprint S2
+- Ngày / Người dùng: 2026-11-13 / Nguyễn Chí Hải
+- Công cụ: Gemini
+- Giai đoạn: Quản lý dự án & Tài liệu
+- Task / Commit / PR: [DOC] Mốc 1 / `docs: gop y moc 1 va ke hoach s2` / [PR #...]
+- Mục đích: Tổng hợp nội dung bảo vệ Mốc 1, chuyển các góp ý của giảng viên thành các thẻ công việc trên Trello, lập kế hoạch Sprint S2 (giao các thẻ TM-11, TM-14, TM-01, TM-05) và hoàn thiện biên bản cuộc họp `docs/meetings/03.md`.
+- Prompt chính (nguyên văn hoặc link chia sẻ hội thoại): "Dựa trên hướng dẫn Ngày 5 (Mốc 1 - Bảo vệ thiết kế) của đề tài Thương mại điện tử, hãy gợi ý mẫu biên bản họp docs/meetings/03.md ghi nhận góp ý của giảng viên và bảng phân công kế hoạch Sprint S2 cho 5 thành viên (TM-11, TM-14, TM-01, TM-05) kèm checklist kiểm tra cuối ngày."
+- Kết quả AI trả về (tóm tắt): AI cung cấp cấu trúc biên bản họp `docs/meetings/03.md` gồm kết quả Sprint Review S1, danh sách góp ý từ giảng viên cần khắc phục và bảng giao việc chi tiết cho Sprint S2 trên Trello.
+- Đánh giá: Đúng và bám sát biểu mẫu quản lý dự án của môn học – giúp trưởng nhóm nhanh chóng hệ thống hóa các góp ý sau buổi bảo vệ Mốc 1 và phân bổ kịp thời các thẻ chức năng trọng tâm cho Sprint 2.
+- Đã chỉnh sửa gì: Cập nhật đúng nội dung góp ý thực tế của giảng viên trên lớp cho nhóm 5v3s, gắn tên người phụ trách cụ thể và điều chỉnh thời hạn (deadline) trên Trello đến Thứ 2 tuần 2.
+- Cách kiểm chứng: Đối chiếu nội dung biên bản `docs/meetings/03.md` và trạng thái các thẻ trên bảng Trello của nhóm với danh mục kiểm tra cuối ngày của hướng dẫn Ngày 5.
+- Tỷ lệ nội dung AI còn giữ lại (ước lượng): 80%
