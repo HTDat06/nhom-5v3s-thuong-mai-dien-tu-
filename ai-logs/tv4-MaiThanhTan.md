@@ -42,6 +42,19 @@
 - Kết quả AI trả về: Danh sách các điểm chưa khớp giữa Migration và ERD, hướng dẫn bổ sung cột `price`, `subtotal` cho `order_items`, bổ sung CHECK và INDEX, điều chỉnh `role` trong `Users`, sửa `quality` thành `quantity`, cập nhật mô tả 6 bảng và code DBML để xuất ERD.
 - Đánh giá: Đúng phần lớn. AI giúp phát hiện các điểm chưa thống nhất, tuy nhiên ban đầu có một số hướng dẫn theo MySQL. Sau khi xác nhận sử dụng SQL Server, AI đã điều chỉnh nội dung phù hợp. Các thay đổi cần được kiểm tra lại bằng SSMS.
 - Đã chỉnh sửa gì: Đối chiếu tên bảng, tên cột, kiểu dữ liệu, khóa chính, khóa ngoại và các ràng buộc giữa Migration với ERD. Bổ sung `role`, sửa `quality` thành `quantity`, cập nhật `price`, `subtotal`, CHECK, INDEX và điều chỉnh các cột `allowNull` cho phù hợp với mô tả thiết kế.
-- Cách kiểm chứng: Chạy `db:migrate:undo` rồi `db:migrate`, sử dụng các truy vấn trong SSMS để kiểm tra cấu trúc bảng, khóa ngoại, CHECK và INDEX; sau đó so sánh với ERD xuất từ dbdiagram.io và kiểm tra lại bằng `db:seed:all`.
-- Tỷ lệ mã AI còn giữ lại (ước lượng): 80%.
-- Điều học được: Biết cách đối chiếu Migration với ERD, kiểm tra sự thống nhất giữa thiết kế và CSDL thực tế, hiểu vai trò của PK, FK, CHECK, INDEX và cách Sequelize tạo cấu trúc SQL Server. Khi sử dụng AI cần nêu rõ hệ quản trị CSDL ngay từ đầu để nhận được hướng dẫn chính xác hơn.
+
+### [AI-05] Hỗ trợ xây dựng chức năng CRUD danh mục (TM-11)
+
+- **Ngày / Người dùng:** 2026-11-16 / Mai Thanh Tân
+- **Công cụ:** ChatGPT (GPT-6)
+- **Giai đoạn:** Phát triển | Backend
+- **Nội dung công việc:**
+  - Xây dựng hướng triển khai chức năng CRUD danh mục theo kiến trúc Controllers, Services, Repositories và Routes.
+  - Hỗ trợ viết code `CategoryRepository.js`, `CategoryService.js`, `CategoryController.js` và `categoryRoutes.js`.
+  - Bổ sung đăng ký API danh mục trong `app.js`.
+  - Xây dựng kiểm tra tên danh mục trùng lặp khi thêm và cập nhật.
+  - Kiểm tra số lượng sản phẩm thuộc danh mục trước khi xóa, không cho phép xóa danh mục đang có sản phẩm.
+  - Hướng dẫn kiểm thử API bằng Postman và quy trình Git tạo nhánh, commit, push, Pull Request.
+- **Kết quả:** Đã có code đề xuất cho chức năng CRUD danh mục phía Backend theo yêu cầu TM-11. Chưa xác nhận kiểm thử thực tế trên môi trường dự án.
+- **Phần có AI hỗ trợ:** Phân tích cấu trúc dự án, đề xuất kiến trúc và viết code Backend.
+- **Phần tự thực hiện:** Tích hợp code vào dự án, chạy thử API, kiểm tra kết quả và hoàn thiện Pull Request.
