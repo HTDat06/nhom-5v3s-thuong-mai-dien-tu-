@@ -61,3 +61,17 @@ Task / Commit / PR: [DOC] Sequence diagram, [DOC] Biên bản họp 02 / [Commit
 - Đã chỉnh sửa gì: Chuẩn hóa lại các bảng Markdown, đồng bộ tên công nghệ thực tế của nhóm (SQL Server, Sequelize, Node.js + Express) và bổ sung mã chức năng (TM-xx) vào kế hoạch Sprint 2.
 - Cách kiểm chứng: Kiểm tra hiển thị Markdown trên GitHub; đối chiếu nội dung báo cáo với hướng dẫn chi tiết Ngày 4 của giảng viên.
 - Tỷ lệ nội dung AI còn giữ lại (ước lượng): 80%
+
+
+### [AI-05] Lập biên bản họp Mốc 1, phân rã góp ý giảng viên và lập kế hoạch Sprint S2
+- Ngày / Người dùng: 2026-11-13 / Nguyễn Chí Hải
+- Công cụ: Gemini
+- Giai đoạn: Quản lý dự án & Tài liệu
+- Task / Commit / PR: [DOC] Mốc 1 / `docs: gop y moc 1 va ke hoach s2` / [PR #...]
+- Mục đích: Tổng hợp nội dung bảo vệ Mốc 1, chuyển các góp ý của giảng viên thành các thẻ công việc trên Trello, lập kế hoạch Sprint S2 (giao các thẻ TM-11, TM-14, TM-01, TM-05) và hoàn thiện biên bản cuộc họp `docs/meetings/03.md`.
+- Prompt chính (nguyên văn hoặc link chia sẻ hội thoại): "Dựa trên hướng dẫn Ngày 5 (Mốc 1 - Bảo vệ thiết kế) của đề tài Thương mại điện tử, hãy gợi ý mẫu biên bản họp docs/meetings/03.md ghi nhận góp ý của giảng viên và bảng phân công kế hoạch Sprint S2 cho 5 thành viên (TM-11, TM-14, TM-01, TM-05) kèm checklist kiểm tra cuối ngày."
+- Kết quả AI trả về (tóm tắt): AI cung cấp cấu trúc biên bản họp `docs/meetings/03.md` gồm kết quả Sprint Review S1, danh sách góp ý từ giảng viên cần khắc phục và bảng giao việc chi tiết cho Sprint S2 trên Trello.
+- Đánh giá: Đúng và bám sát biểu mẫu quản lý dự án của môn học – giúp trưởng nhóm nhanh chóng hệ thống hóa các góp ý sau buổi bảo vệ Mốc 1 và phân bổ kịp thời các thẻ chức năng trọng tâm cho Sprint 2.
+- Đã chỉnh sửa gì: Cập nhật đúng nội dung góp ý thực tế của giảng viên trên lớp cho nhóm 5v3s, gắn tên người phụ trách cụ thể và điều chỉnh thời hạn (deadline) trên Trello đến Thứ 2 tuần 2.
+- Cách kiểm chứng: Đối chiếu nội dung biên bản `docs/meetings/03.md` và trạng thái các thẻ trên bảng Trello của nhóm với danh mục kiểm tra cuối ngày của hướng dẫn Ngày 5.
+- Tỷ lệ nội dung AI còn giữ lại (ước lượng): 80%
