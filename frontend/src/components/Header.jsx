@@ -1,8 +1,10 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { useCart } from "../contexts/CartContext";
 
 function Header() {
     const { user, logout } = useAuth();
+    const { totalQuantity = 0 } = useCart() || {};
     const navigate = useNavigate();
 
     const handleLogout = () => {
@@ -21,7 +23,23 @@ function Header() {
                 </div>
 
                 <div className="header-actions">
-                    <Link to="/cart" className="header-link">🛒 Giỏ hàng</Link>
+                    <Link to="/cart" className="header-link">
+                        🛒 Giỏ hàng
+                        <span
+                            style={{
+                                backgroundColor: "#e53935",
+                                color: "#fff",
+                                borderRadius: "999px",
+                                padding: "2px 7px",
+                                fontSize: "12px",
+                                marginLeft: "5px",
+                                fontWeight: "bold",
+                            }}
+                        >
+                            {totalQuantity}
+                        </span>
+                    </Link>
+
                     {user ? (
                         <>
                             {user.role === "admin" && (

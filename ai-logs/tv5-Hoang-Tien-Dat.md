@@ -16,6 +16,7 @@
 | AI-03 | 11/11 | Kiểm thử | Thêm Test Cases TM-04 và Checklist Review PR Bảo mật/Migration | PR #55 |
 | AI-04 | 12/11 | Tài liệu | Đồng bộ CSDL Prisma/Seed và rà soát README Mốc 1 | [PR #68 ](https://github.com/HTDat06/nhom-5v3s-thuong-mai-dien-tu-/pull/68) |
 | AI-05 | 13/11 | Phát hành | Hoàn thiện ERD Mốc 1, phát hành Release v0.1 và tạo nhánh TM-05 | [PR #76 ](https://github.com/HTDat06/nhom-5v3s-thuong-mai-dien-tu-/pull/76) |
+| AI-06 | 16/11 | Phát triển & Kiểm thử | Triển khai chức năng Thêm vào giỏ hàng (TM-05) Fullstack và Test Cases | [PR #112 ](https://github.com/HTDat06/nhom-5v3s-thuong-mai-dien-tu-/pull/112) |
 
 ---
 
@@ -96,3 +97,19 @@
 - Cách kiểm chứng: Kiểm tra thư mục `docs/database/` trên nhánh `develop` chỉ còn đúng 2 tệp chuẩn (`erd-final.png`, `mo_ta_bang.md`), xác nhận trang Release `v0.1` hiển thị công khai trên GitHub và nhánh `feature/TM-05-gio-hang` đã được đẩy lên remote.
 - Tỷ lệ nội dung AI còn giữ lại (ước lượng): 80%
 - Điều học được: Khi clone repository với tham số `--depth 1`, dữ liệu nhánh vừa fetch sẽ nằm ở `FETCH_HEAD` thay vì `origin/<tên-nhánh>`; đồng thời trên máy dùng chung nên cấu hình Git identity cục bộ (không dùng `--global`).
+
+---
+
+### [AI-06] Triển khai chức năng Thêm vào giỏ hàng (TM-05) Fullstack và kiểm thử trường hợp biên
+- Ngày / Người dùng: 2026-11-16 / Hoàng Tiến Đạt
+- Công cụ: Gemini
+- Giai đoạn: Phát triển & Kiểm thử
+- Task / Commit / PR: [TM-05] Giỏ hàng / `feat(TM-05): them san pham vao gio` / PR #112
+- Mục đích: Xây dựng trọn vẹn chức năng thêm sản phẩm vào giỏ hàng (`TM-05`) từ Backend (Repository, Service, Controller, Route có xác thực JWT và kiểm tra tồn kho) đến Frontend (nút "Thêm vào giỏ" bắt buộc đăng nhập, badge số lượng trên Header) và bổ sung test cases trường hợp biên.
+- Prompt chính: "Hướng dẫn triển khai chức năng thêm sản phẩm vào giỏ hàng (TM-05) khớp với cấu trúc backend/frontend hiện tại của nhóm, xử lý kiểm tra đăng nhập, cộng dồn số lượng, chặn vượt tồn kho và đẩy code lên nhánh feature/TM-05-gio-hang."
+- Kết quả AI trả về (tóm tắt): Cung cấp mã nguồn 4 tầng Backend (`CartRepository.js`, `CartService.js`, `CartController.js`, `cartRoutes.js`), tích hợp Frontend (`cartService.js`, `CartContext.jsx`, cập nhật `App.jsx`, `Header.jsx`, `ProductCard.jsx`), quy trình Git làm việc trên nhánh riêng và bộ test cases kiểm thử giỏ hàng.
+- Đánh giá: Đúng – Mã nguồn bám sát kiến trúc phân tầng của dự án và xử lý đầy đủ các ràng buộc nghiệp vụ.
+- Đã chỉnh sửa gì: Chỉ chạy `npx prisma generate` để khởi tạo Prisma Client trên thư mục mới tải về (bỏ qua `db push` và `seed.js` do CSDL đã có sẵn), sửa lỗi khai báo biến `req` nằm ngoài phạm vi class trong `CartController.js`, bổ sung đọc linh hoạt trường `userId` từ JWT payload và cập nhật `docs/test-cases.md`.
+- Cách kiểm chứng: Chạy thử trực tiếp trên `localhost:5173` với các kịch bản: chưa đăng nhập bấm thêm bị điều hướng sang `/login`, đăng nhập bấm thêm cộng dồn số lượng trên badge Header và giữ nguyên sau khi tải lại trang (`F5`), chặn thêm vượt tồn kho; đẩy code lên nhánh `feature/TM-05-gio-hang` và tạo PR sang `develop`.
+- Tỷ lệ nội dung AI còn giữ lại (ước lượng): 80%
+- Điều học được: Khi tải dự án có sẵn CSDL về môi trường mới chỉ cần chạy `npx prisma generate` để tạo client mà không cần chạy lại migration/seed gây trùng dữ liệu; luôn đẩy code lên nhánh tính năng (`feature/TM-05-gio-hang`) và mở Pull Request để review chéo trước khi gộp vào `develop`.
