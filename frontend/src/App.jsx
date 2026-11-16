@@ -7,6 +7,7 @@ import Home from "./pages/Home";
 import Login from "./pages/login";
 import Register from "./pages/Register";
 import Admin from "./pages/Admin";
+import ProductList from "./pages/ProductList";
 import { RequireAdmin } from "./components/ProtectedRoute";
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
                 <BrowserRouter>
                     <Routes>
                         <Route path="/" element={<MainLayout><Home /></MainLayout>} />
+                        <Route path="/products" element={<MainLayout><ProductList /></MainLayout>} />
                         <Route path="/login" element={<MainLayout><Login /></MainLayout>} />
                         <Route path="/register" element={<MainLayout><Register /></MainLayout>} />
                         <Route element={<RequireAdmin />}>

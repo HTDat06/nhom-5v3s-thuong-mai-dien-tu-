@@ -1,13 +1,19 @@
 import ProductCard from "../components/ProductCard";
-import {products} from "../data/product";
+import { products } from "../data/product";
+import { useNavigate } from "react-router-dom";
+
 function Home() {
+    const navigate = useNavigate();
+
     return (
         <div className="home-container">
-
             <section className="banner">
-                <h1>Chào mừng đến với MyShop</h1>
-                <p>Khám phá các sản phẩm công nghệ mới nhất</p>
-                <button>Xem sản phẩm</button>
+                <h1>Chào mừng đến với PC Store</h1>
+                <p>Khám phá các linh kiện máy tính chất lượng</p>
+
+                <button onClick={() => navigate("/products")}>
+                    Xem sản phẩm
+                </button>
             </section>
 
             <section className="products-section">
@@ -15,11 +21,13 @@ function Home() {
 
                 <div className="product-list">
                     {products.map((product) => (
-                        <ProductCard key={product.id} product={product} />
+                        <ProductCard
+                            key={product.id}
+                            product={product}
+                        />
                     ))}
                 </div>
             </section>
-
         </div>
     );
 }

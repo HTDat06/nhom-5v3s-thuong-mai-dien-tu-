@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useCart } from "../contexts/CartContext";
+import "../styles/ProductCard.css";
 
 function ProductCard({ product }) {
     const { user } = useAuth();
