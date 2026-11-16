@@ -14,3 +14,13 @@
 | **TC_TM04_03** | Đăng ký thất bại do mật khẩu yếu | Trình duyệt mở trang `/register` | 1. Nhập email hợp lệ.<br>2. Nhập mật khẩu ngắn (< 6 ký tự).<br>3. Bấm "Đăng ký". | - Báo lỗi validate ngay tại form front-end/back-end.<br>- Nút bấm bị vô hiệu hóa hoặc báo lỗi rõ ràng. | PASS |
 | **TC_TM04_04** | Đăng nhập thành công | Đã có tài khoản trong CSDL | 1. Nhập đúng Email và Mật khẩu.<br>2. Bấm "Đăng nhập". | - Chuyển hướng sang trang chủ/dashboard.<br>- Luồng đăng nhập không log plain-text password ra console. | PASS |
 | **TC_TM04_05** | Đăng nhập thất bại do sai Mật khẩu | Đã có tài khoản trong CSDL | 1. Nhập đúng Email nhưng sai Mật khẩu.<br>2. Bấm "Đăng nhập". | - Báo lỗi chung: "Email hoặc mật khẩu không chính xác" (tránh lộ thông tin dò quét). | PASS |
+
+## TM-05: Thêm sản phẩm vào giỏ hàng
+| Mã TC | Kịch bản kiểm thử | Dữ liệu đầu vào | Kết quả mong đợi |
+| :--- | :--- | :--- | :--- |
+| TC-CART-01 | Thêm sản phẩm hợp lệ khi đã đăng nhập | `productId` tồn tại, `qty = 1` | Thêm thành công, badge giỏ hàng trên Header tăng lên 1 |
+| TC-CART-02 | Thêm trùng sản phẩm đã có trong giỏ | Bấm thêm lần 2 cùng `productId` | Cộng dồn `quantity` trong bảng `cart_items`, không tạo dòng mới |
+| TC-CART-03 | Thêm vào giỏ khi chưa đăng nhập | Chưa có token JWT | Chặn thao tác, hiển thị thông báo và chuyển hướng sang `/login` |
+| TC-CART-04 | Thêm số lượng âm hoặc bằng 0 | `qty = 0` hoặc `qty = -1` | API trả về lỗi `400 Bad Request`, không lưu vào DB |
+| TC-CART-05 | Thêm vượt quá số lượng tồn kho | Tổng `qty > product.stock` | API trả về lỗi `400`, báo vượt quá số lượng tồn kho hiện có |
+| TC-CART-06 | Thêm sản phẩm đã hết hàng | Sản phẩm có `stock = 0` | Nút "Hết hàng" bị vô hiệu hóa trên UI; API trả lỗi `400` nếu gọi trực tiếp |
