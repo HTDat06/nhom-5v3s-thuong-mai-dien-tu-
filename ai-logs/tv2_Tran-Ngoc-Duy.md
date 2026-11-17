@@ -22,6 +22,7 @@
 | AI-09 | 16/11 | Phát triển Backend | Tìm hiểu quy trình OrderService.placeOrder() | | | |
 | AI-10 | 16/11 | Phát triển Backend | Viết OrderController và orderRoutes | | | |
 | AI-11 | 16/11 | Phát triển Backend | Viết mã giả | "AI-assisted - commit feat(TM-06): khung OrderService." | PR |
+| AI-12 | 18/11 | Phát triển Backend | Triển khai và kiểm thử chức năng đặt hàng | commit feat(TM-06): dat hang trong transaction, test(TM-06): | |
 
 
 ### AI LOG 01 – [AI-01] Cấu hình Prisma kết nối SQL Server
@@ -202,3 +203,18 @@ Ngày / Người dùng: 2026-11-16 / Trần Ngọc Duy
 - Cách kiểm chứng: Đối chiếu với yêu cầu TM-06 và kiểm tra từng chức năng sau khi triển khai.
 - Tỷ lệ nội dung AI còn giữ lại: 90%
 - Điều học được: Biết cách chia một chức năng lớn thành các đầu việc nhỏ và có tiêu chí kiểm thử cụ thể.
+
+### AI LOG – [AI-12] Triển khai và kiểm thử chức năng đặt hàng (TM-06)
+
+Ngày / Người dùng: 2026-11-18 / Trần Ngọc Duy
+- Công cụ: ChatGPT
+- Giai đoạn: Phát triển Backend
+- Task / Commit / PR: TM-06 – Đặt hàng trong transaction, kiểm thử OrderService / `commit feat(TM-06): dat hang trong transaction, test(TM-06):`
+- Mục đích: Hỗ trợ triển khai chức năng đặt hàng, xử lý tồn kho an toàn trong transaction và xây dựng unit test cho OrderService.
+- Prompt chính: “Hướng dẫn triển khai chức năng đặt hàng trong transaction, xử lý lỗi tồn kho và viết unit test cho OrderService.”
+- Kết quả AI trả về: Hướng dẫn xây dựng OrderService, sử dụng Prisma transaction để tạo đơn hàng, cập nhật tồn kho, xóa giỏ hàng; bổ sung các trường hợp kiểm thử bằng Jest.
+- Đánh giá: Đúng – đáp ứng các luồng xử lý chính của TM-06, bao gồm đặt hàng thành công và xử lý lỗi khi không đủ tồn kho.
+- Đã chỉnh sửa gì: Giữ trạng thái đơn hàng là `pending` theo yêu cầu; bổ sung Jest và các test cho những trường hợp thành công, không đủ tồn kho và tồn kho thay đổi trong quá trình cập nhật.
+- Cách kiểm chứng: Chạy unit test bằng Jest, kết quả ghi nhận 3/3 test passed; kiểm tra Git và xử lý xung đột khi cherry-pick commit sang nhánh `feature/TM-06-dat-hang`.
+- Tỷ lệ nội dung AI còn giữ lại: 85%
+- Điều học được: Hiểu cách sử dụng Prisma transaction để đảm bảo tính nhất quán dữ liệu khi đặt hàng, cách kiểm thử các tình huống lỗi bằng Jest và cách xử lý xung đột Git khi tích hợp code vào nhánh tính năng.
