@@ -14,11 +14,12 @@
 | AI-02 | 10/11/2026 | Thiết kế, Lập trình | Hỗ trợ xây dựng layout chung cho website bằng ReactJS | feat: layout chung header footer |
 | AI-03 | 11/11/2026 | Lập trình | phát triển trang chủ và component thẻ sản phẩm ProductCard || feat(TM-01): trang chu du lieu gia  |
 | AI-04 | 12/11/2026 | Lập trình | phát triển giao diện đăng ký và đăng nhập | feat(TM-04): giao dien dang ky dang nhap |
-
+| AI-05 | 16/11/2026 | Lập trình, Kiểm thử | Kết nối dữ liệu danh mục thật từ Backend lên Navbar, xử lý lỗi CORS |feat(TM-01): trang chu du lieu that  |
 
 https://github.com/HTDat06/nhom-5v3s-thuong-mai-dien-tu-/pull/7
 https://github.com/HTDat06/nhom-5v3s-thuong-mai-dien-tu-/pull/47
 https://github.com/HTDat06/nhom-5v3s-thuong-mai-dien-tu-/pull/73
+https://github.com/HTDat06/nhom-5v3s-thuong-mai-dien-tu-/pull/124
 
 
 
@@ -94,3 +95,18 @@ Cách kiểm chứng: Chạy ứng dụng, kiểm tra giao diện đăng ký và
 Tỷ lệ nội dung AI còn giữ lại (ước lượng): 50%.
 
 Điều học được: Cần thiết kế form có thông báo lỗi rõ ràng và các thuộc tính accessibility cơ bản. Header nên thay đổi nội dung theo trạng thái đăng nhập để người dùng dễ nhận biết tài khoản hiện tại.
+
+### [AI-05] Hỗ trợ kết nối dữ liệu danh mục từ Backend lên Frontend
+
+- **Ngày / Người dùng:** 2026-11-16 / Phạm Thiên Phúc
+- **Công cụ:** ChatGPT (GPT-6)
+- **Giai đoạn:** Lập trình, Kiểm thử
+- **Task / Commit / PR:** [TM-01] Kết nối dữ liệu thật cho trang chủ / Branch: `feature/TM-01-trang-chu` /feat(TM-01): trang chu du lieu that,https://github.com/HTDat06/nhom-5v3s-thuong-mai-dien-tu-/pull/124
+- **Mục đích:** Sử dụng AI để hỗ trợ kết nối dữ liệu danh mục linh kiện máy tính từ Backend vào giao diện Frontend, thay thế danh mục được khai báo cố định trong Navbar bằng dữ liệu lấy từ cơ sở dữ liệu.
+- **Prompt chính (nguyên văn hoặc link chia sẻ hội thoại):** "Hướng dẫn kết nối danh mục sản phẩm từ API Backend vào Navbar bằng ReactJS, thay thế dữ liệu danh mục giả bằng dữ liệu thật từ cơ sở dữ liệu. Hướng dẫn xử lý lỗi CORS khi Frontend và Backend chạy ở hai cổng khác nhau."
+- **Kết quả AI trả về (tóm tắt):** AI hướng dẫn điều chỉnh `categoryRoutes.js` để cho phép truy cập API lấy danh mục công khai, đăng ký API `/api/categories` trong `app.js`, sử dụng `fetch()` và `useEffect()` trong ReactJS để lấy dữ liệu danh mục và hiển thị bằng phương thức `map()`. AI cũng hướng dẫn cấu hình middleware CORS để cho phép Frontend truy cập Backend.
+- **Đánh giá:** Đúng – các hướng dẫn phù hợp với cấu trúc dự án và giúp Frontend lấy được dữ liệu danh mục thực tế từ Backend.
+- **Đã chỉnh sửa gì:** Điều chỉnh đường dẫn API danh mục trong Backend; bổ sung API công khai `/api/categories`; cấu hình CORS cho địa chỉ Frontend `http://localhost:5173`; cập nhật Navbar để lấy và hiển thị danh mục từ API thay vì sử dụng mảng dữ liệu cố định. Phần lấy 8 sản phẩm mới nhất và sản phẩm theo danh mục chưa thực hiện do Backend chưa hoàn thành `ProductController` và API sản phẩm.
+- **Cách kiểm chứng:** Truy cập API `http://localhost:5000/api/categories` để kiểm tra dữ liệu JSON trả về; chạy Backend và Frontend, kiểm tra kết nối API và dữ liệu danh mục được hiển thị trên Navbar.
+- **Tỷ lệ nội dung AI còn giữ lại (ước lượng):** 50%.
+- **Điều học được:** Biết cách kết nối API giữa ReactJS và Backend, sử dụng `useEffect()` để lấy dữ liệu khi component được hiển thị, sử dụng `map()` để render danh sách danh mục và cấu hình CORS để xử lý vấn đề truy cập API giữa hai cổng khác nhau.
