@@ -89,6 +89,7 @@ npx prisma generate
 node prisma/seed.js
 
 npm install cors
+npm install bcrypt
 # Khởi động Backend Server
 npm run dev
 ```
