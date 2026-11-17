@@ -11,7 +11,8 @@ class UserService {
                 user_id: true,
                 name: true,
                 email: true,
-                phone: true
+                phone: true,
+                address: true // Bổ sung lấy thêm trường address
             }
         });
 
@@ -22,7 +23,7 @@ class UserService {
     }
 
     async updateProfile(userId, data) {
-        const { name, phone } = data;
+        const { name, phone, address } = data; // Lấy thêm address từ request
 
         if (!name || name.trim() === "") {
             throw new Error("Họ tên không được để trống");
@@ -32,20 +33,22 @@ class UserService {
             where: { user_id: Number(userId) },
             data: {
                 name: name.trim(),
-                phone: phone ? phone.trim() : null
+                phone: phone ? phone.trim() : null,
+                address: address ? address.trim() : null // Cập nhật address vào DB
             },
             select: {
                 user_id: true,
                 name: true,
                 email: true,
-                phone: true
+                phone: true,
+                address: true // Trả về address mới cập nhật
             }
         });
 
         return updatedUser;
     }
 
-    // --- BỔ SUNG CHỨC NĂNG ĐỔI MẬT KHẨU ---
+    // --- CHỨC NĂNG ĐỔI MẬT KHẨU ---
     async changePassword(userId, oldPassword, newPassword) {
         if (!oldPassword || !newPassword) {
             throw new Error("Vui lòng nhập đầy đủ mật khẩu cũ và mật khẩu mới");
@@ -55,7 +58,6 @@ class UserService {
             throw new Error("Mật khẩu mới phải có ít nhất 6 ký tự");
         }
 
-        // 1. Lấy thông tin user (cần lấy cả trường password đã mã hóa trong DB)
         const user = await prisma.user.findUnique({
             where: { user_id: Number(userId) }
         });
@@ -64,17 +66,14 @@ class UserService {
             throw new Error("Không tìm thấy người dùng");
         }
 
-        // 2. Kiểm tra mật khẩu cũ có khớp không
         const isMatch = await bcrypt.compare(oldPassword, user.password);
         if (!isMatch) {
             throw new Error("Mật khẩu cũ không chính xác");
         }
 
-        // 3. Mã hóa mật khẩu mới
         const salt = await bcrypt.genSalt(10);
         const hashedNewPassword = await bcrypt.hash(newPassword, salt);
 
-        // 4. Cập nhật vào database
         await prisma.user.update({
             where: { user_id: Number(userId) },
             data: {

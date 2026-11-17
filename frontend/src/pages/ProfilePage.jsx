@@ -55,9 +55,11 @@ export default function ProfilePage() {
         setStatusMsg({ type: '', text: '' });
         try {
             const token = localStorage.getItem('token');
+            // Đã bổ sung address vào object gửi lên API
             await axios.put('http://localhost:5000/api/users/profile', {
                 name: formData.name,
-                phone: formData.phone
+                phone: formData.phone,
+                address: formData.address 
             }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
