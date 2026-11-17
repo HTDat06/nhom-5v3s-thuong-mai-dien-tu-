@@ -75,3 +75,17 @@ Task / Commit / PR: [DOC] Sequence diagram, [DOC] Biên bản họp 02 / [Commit
 - Đã chỉnh sửa gì: Cập nhật đúng nội dung góp ý thực tế của giảng viên trên lớp cho nhóm 5v3s, gắn tên người phụ trách cụ thể và điều chỉnh thời hạn (deadline) trên Trello đến Thứ 2 tuần 2.
 - Cách kiểm chứng: Đối chiếu nội dung biên bản `docs/meetings/03.md` và trạng thái các thẻ trên bảng Trello của nhóm với danh mục kiểm tra cuối ngày của hướng dẫn Ngày 5.
 - Tỷ lệ nội dung AI còn giữ lại (ước lượng): 80%
+### [AI-06] Hoàn thiện tính năng Quản lý Hồ sơ cá nhân & Đổi mật khẩu (TM-08), gỡ lỗi tích hợp và đồng bộ UI Navbar
+- Ngày / Người dùng: 2026-11-18 / Nguyễn Chí Hải
+-Công cụ: Gemini
+- Giai đoạn: Lập trình & Kiểm thử tích hợp (Sprint S2)
+- Task / Commit / PR: [FEAT] TM-08 Hồ sơ cá nhân / feat(TM-08): hoan thien trang ho so ca nhan, doi mat khau va dong bo navbar / Nhánh feature/TM-08-ho-so
+- Mục đích: Hỗ trợ hoàn thiện chức năng cập nhật thông tin cá nhân và đổi mật khẩu (TM-08) ở cả Backend và Frontend, khắc phục các lỗi phát sinh khi chạy thực tế (thiếu thư viện mã hóa, sai biến middleware, lỗi giao diện mất Navbar và không đồng bộ tên hiển thị sau khi cập nhật).
+- Prompt chính (nguyên văn hoặc link chia sẻ hội thoại):"khi bam ho so thi mat navbar", "phan ho ten thay doi roi nhu tren thanh van giu ten cu"
+- Kèm các log lỗi thực tế từ Terminal (Cannot find module 'bcrypt', ReferenceError: authMiddleware is not defined) và ảnh chụp màn hình Console (ERR_CONNECTION_REFUSED).
+- Kết quả AI trả về (tóm tắt): AI chẩn đoán và hướng dẫn cài đặt gói bcrypt, đồng nhất tên biến middleware authenticate và UserController trong userRoutes.js, bọc <ProfilePage/> vào <MainLayout> trong App.jsx để giữ thanh Navbar, đồng thời bổ sung logic cập nhật lại localStorage kèm làm mới trang trong ProfilePage.jsx để đồng bộ tên mới lên Navbar.
+- Đánh giá: Đúng và giải quyết triệt để từng lỗi cụ thể – AI phân tích chính xác nguyên nhân từ stack trace của Node.js và trạng thái DOM/React trên trình duyệt để đưa ra cách sửa ngắn gọn, áp dụng được ngay.
+- Đã chỉnh sửa gì: Rà soát và đối chiếu tên hàm middleware authenticate theo đúng file Middlewares/authMiddleware.js của nhóm; tích hợp trực tiếp đoạn mã cập nhật localStorage vào ProfilePage.jsx và đẩy mã nguồn lên nhánh feature/TM-08-ho-so trên repository HTDat06/nhom-5v3s-thuong-mai-dien-tu-.
+- Cách kiểm chứng: Khởi động lại server Backend trên cổng 5000, chạy kiểm thử luồng thực tế trên trình duyệt (localhost:5173/profile): tải thông tin hồ sơ, cập nhật họ tên (xác nhận Navbar tự động đổi sang tên mới sau 1 giây) và đổi mật khẩu thành công.
+- Tỷ lệ nội dung AI còn giữ lại (ước lượng): 85%
+- Điều học được: Khi tích hợp Frontend – Backend, cần kiểm tra đồng bộ cả trạng thái lưu trữ cục bộ (localStorage / Context) để các thành phần dùng chung như Navbar phản ánh đúng dữ liệu mới nhất, đồng thời luôn đối chiếu chính xác tên biến/hàm khi gọi middleware giữa các file.
