@@ -8,7 +8,14 @@ export default function ProfilePage() {
         phone: '',
         address: ''
     });
+
+    const [passwordData, setPasswordData] = useState({
+        oldPassword: '',
+        newPassword: ''
+    });
+
     const [statusMsg, setStatusMsg] = useState({ type: '', text: '' });
+    const [passMsg, setPassMsg] = useState({ type: '', text: '' });
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -39,6 +46,10 @@ export default function ProfilePage() {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
+    const handlePasswordChange = (e) => {
+        setPasswordData({ ...passwordData, [e.target.name]: e.target.value });
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setStatusMsg({ type: '', text: '' });
@@ -50,9 +61,40 @@ export default function ProfilePage() {
             }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
+            
             setStatusMsg({ type: 'success', text: 'Cập nhật hồ sơ thành công!' });
+
+            // Cập nhật tên mới vào localStorage để đồng bộ với Navbar
+            const savedUser = JSON.parse(localStorage.getItem('user') || '{}');
+            savedUser.name = formData.name;
+            localStorage.setItem('user', JSON.stringify(savedUser));
+
+            // Làm mới trang sau 1 giây để Navbar hiển thị tên mới
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+
         } catch (err) {
             setStatusMsg({ type: 'error', text: err.response?.data?.message || 'Cập nhật thất bại.' });
+        }
+    };
+
+    const handlePasswordSubmit = async (e) => {
+        e.preventDefault();
+        setPassMsg({ type: '', text: '' });
+        try {
+            const token = localStorage.getItem('token');
+            const res = await axios.put('http://localhost:5000/api/users/change-password', {
+                oldPassword: passwordData.oldPassword,
+                newPassword: passwordData.newPassword
+            }, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            setPassMsg({ type: 'success', text: res.data.message || 'Đổi mật khẩu thành công!' });
+            setPasswordData({ oldPassword: '', newPassword: '' });
+        } catch (err) {
+            setPassMsg({ type: 'error', text: err.response?.data?.message || 'Đổi mật khẩu thất bại.' });
         }
     };
 
@@ -72,14 +114,13 @@ export default function ProfilePage() {
     };
 
     return (
-        /* Thẻ bao bọc này đảm bảo căn giữa toàn màn hình */
         <div style={{ 
             backgroundColor: '#f8fafc', 
             minHeight: 'calc(100vh - 48px)', 
             display: 'flex', 
             justifyContent: 'center', 
             alignItems: 'center', 
-            padding: '20px' 
+            padding: '30px 20px' 
         }}>
             <div style={{
                 width: '100%',
@@ -162,7 +203,7 @@ export default function ProfilePage() {
                     <button
                         type="submit"
                         style={{
-                            marginTop: '8px',
+                            marginTop: '4px',
                             backgroundColor: '#2563eb',
                             color: '#ffffff',
                             border: 'none',
@@ -173,12 +214,76 @@ export default function ProfilePage() {
                             cursor: 'pointer',
                             transition: 'background-color 0.2s'
                         }}
-                        onMouseOver={(e) => e.target.style.backgroundColor = '#1d4ed8'}
-                        onMouseOut={(e) => e.target.style.backgroundColor = '#2563eb'}
                     >
-                        Lưu thay đổi
+                        Lưu thay đổi hồ sơ
                     </button>
                 </form>
+
+                {/* --- PHẦN ĐỔI MẬT KHẨU --- */}
+                <div style={{ marginTop: '36px', borderTop: '1px solid #e2e8f0', paddingTop: '24px' }}>
+                    <h3 style={{ fontSize: '18px', fontWeight: 'bold', color: '#0f172a', marginBottom: '6px' }}>Đổi mật khẩu</h3>
+                    <p style={{ fontSize: '13px', color: '#64748b', marginBottom: '16px' }}>Đảm bảo tài khoản của bạn đang sử dụng mật khẩu an toàn</p>
+
+                    {passMsg.text && (
+                        <div style={{
+                            padding: '12px 16px',
+                            borderRadius: '8px',
+                            marginBottom: '16px',
+                            fontSize: '14px',
+                            backgroundColor: passMsg.type === 'success' ? '#dcfce7' : '#fee2e2',
+                            color: passMsg.type === 'success' ? '#166534' : '#991b1b',
+                            border: `1px solid ${passMsg.type === 'success' ? '#bbf7d0' : '#fecaca'}`
+                        }}>
+                            {passMsg.text}
+                        </div>
+                    )}
+
+                    <form onSubmit={handlePasswordSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                        <div>
+                            <label style={{ fontSize: '14px', fontWeight: '600', color: '#334155', display: 'block' }}>Mật khẩu cũ</label>
+                            <input
+                                type="password"
+                                name="oldPassword"
+                                value={passwordData.oldPassword}
+                                onChange={handlePasswordChange}
+                                placeholder="Nhập mật khẩu hiện tại"
+                                required
+                                style={inputStyle}
+                            />
+                        </div>
+
+                        <div>
+                            <label style={{ fontSize: '14px', fontWeight: '600', color: '#334155', display: 'block' }}>Mật khẩu mới</label>
+                            <input
+                                type="password"
+                                name="newPassword"
+                                value={passwordData.newPassword}
+                                onChange={handlePasswordChange}
+                                placeholder="Nhập mật khẩu mới (tối thiểu 6 ký tự)"
+                                required
+                                style={inputStyle}
+                            />
+                        </div>
+
+                        <button
+                            type="submit"
+                            style={{
+                                marginTop: '4px',
+                                backgroundColor: '#0f172a',
+                                color: '#ffffff',
+                                border: 'none',
+                                borderRadius: '8px',
+                                padding: '12px',
+                                fontSize: '15px',
+                                fontWeight: '600',
+                                cursor: 'pointer',
+                                transition: 'background-color 0.2s'
+                            }}
+                        >
+                            Cập nhật mật khẩu
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     );
