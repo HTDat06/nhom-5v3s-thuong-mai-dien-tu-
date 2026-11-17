@@ -13,7 +13,9 @@ model User {
   email      String       @unique @db.NVarChar(225)
   password   String       @db.NVarChar(225)
   phone      String?      @db.NVarChar(225)
+  address    String?      @db.NVarChar(500)
   role       String       @default("customer") @db.NVarChar(50)
+  status     String       @default("ACTIVE") @db.NVarChar(50)
   cart_items cart_items[]
   orders     orders[]
 
@@ -69,7 +71,6 @@ model products {
   stock        Int           @default(0, map: "DF__products__stock__5070F446")
   image        String?       @db.NVarChar(225)
   cart_items   cart_items[]
-  is_active    Boolean       @default(true)
   order_items  order_items[]
   categories   categories    @relation(fields: [category_id], references: [category_id], map: "FK_products_categories")
 
