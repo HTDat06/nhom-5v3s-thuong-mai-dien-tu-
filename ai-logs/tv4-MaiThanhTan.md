@@ -69,3 +69,23 @@
 - **Kết quả:** Đã có code đề xuất cho chức năng CRUD danh mục phía Backend theo yêu cầu TM-11. Chưa xác nhận kiểm thử thực tế trên môi trường dự án.
 - **Phần có AI hỗ trợ:** Phân tích cấu trúc dự án, đề xuất kiến trúc và viết code Backend.
 - **Phần tự thực hiện:** Tích hợp code vào dự án, chạy thử API, kiểm tra kết quả và hoàn thiện Pull Request.
+
+  **[AI-06] Xây dựng chức năng quản lý sản phẩm và tải ảnh (TM-12)**
+
+- Ngày / Người dùng: 2026-11-17 / Mai Thanh Tân
+- Công cụ: ChatGPT
+- Giai đoạn: Phát triển | Backend
+
+**Nội dung sử dụng AI:**
+- Hỗ trợ xây dựng chức năng CRUD sản phẩm gồm thêm, xem danh sách, xem chi tiết, cập nhật và xóa sản phẩm.
+- Hướng dẫn tổ chức code theo các lớp ProductRepository, ProductService và ProductController.
+- Xây dựng API quản lý trạng thái ẩn/hiện sản phẩm thông qua trường `is_active`.
+- Hướng dẫn xử lý upload ảnh đại diện sản phẩm bằng Multer.
+- Kiểm tra định dạng ảnh JPG/PNG bằng nội dung file, giới hạn dung lượng tối đa 2 MB và tạo tên file ngẫu nhiên khi lưu ảnh.
+- Hỗ trợ xử lý lỗi `fileType.fromBuffer is not a function` bằng cách sử dụng `fileTypeFromBuffer`.
+- Hướng dẫn cấu hình đường dẫn lưu trữ và hiển thị ảnh thông qua Express Static.
+
+**Kết quả:**
+- Hoàn thành các file xử lý CRUD sản phẩm và upload ảnh.
+- Chức năng tải ảnh hoạt động sau khi sửa lỗi thư viện `file-type`.
+- Kiểm thử API bằng Postman.
