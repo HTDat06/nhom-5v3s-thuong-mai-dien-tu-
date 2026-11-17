@@ -2,6 +2,12 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 class CartRepository {
+  static async findById(cartItemId) {
+    return await prisma.cart_items.findUnique({
+      where: { cart_item_id: Number(cartItemId) },
+    });
+  }
+
   static async findByUserAndProduct(userId, productId) {
     return await prisma.cart_items.findFirst({
       where: {
@@ -42,6 +48,12 @@ class CartRepository {
     return await prisma.cart_items.update({
       where: { cart_item_id: Number(cartItemId) },
       data: { quantity: Number(quantity) },
+    });
+  }
+
+  static async delete(cartItemId) {
+    return await prisma.cart_items.delete({
+      where: { cart_item_id: Number(cartItemId) },
     });
   }
 }

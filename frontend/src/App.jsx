@@ -7,10 +7,10 @@ import Home from "./pages/Home";
 import Login from "./pages/login";
 import Register from "./pages/Register";
 import Admin from "./pages/Admin";
-import ProfilePage from './pages/ProfilePage'; // Đã xóa chữ x thừa ở cuối
+import ProfilePage from "./pages/ProfilePage";
 import ProductList from "./pages/ProductList";
+import CartPage from "./pages/CartPage";
 import { RequireAdmin } from "./components/ProtectedRoute";
-
 
 function App() {
     return (
@@ -20,9 +20,9 @@ function App() {
                     <Routes>
                         <Route path="/" element={<MainLayout><Home /></MainLayout>} />
                         <Route path="/products" element={<MainLayout><ProductList /></MainLayout>} />
+                        <Route path="/cart" element={<MainLayout><CartPage /></MainLayout>} />
                         <Route path="/login" element={<MainLayout><Login /></MainLayout>} />
                         <Route path="/register" element={<MainLayout><Register /></MainLayout>} />
-                        {/* Bọc MainLayout vào đây để hiện Navbar */}
                         <Route path="/profile" element={<MainLayout><ProfilePage /></MainLayout>} />
                         <Route element={<RequireAdmin />}>
                             <Route path="/admin" element={<MainLayout><Admin /></MainLayout>} />
