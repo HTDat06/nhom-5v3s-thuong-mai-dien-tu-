@@ -15,12 +15,12 @@
 | AI-03 | 11/11/2026 | Lập trình | phát triển trang chủ và component thẻ sản phẩm ProductCard || feat(TM-01): trang chu du lieu gia  |
 | AI-04 | 12/11/2026 | Lập trình | phát triển giao diện đăng ký và đăng nhập | feat(TM-04): giao dien dang ky dang nhap |
 | AI-05 | 16/11/2026 | Lập trình, Kiểm thử | Kết nối dữ liệu danh mục thật từ Backend lên Navbar, xử lý lỗi CORS |feat(TM-01): trang chu du lieu that  |
-
+| AI-06 | 17/11/2026 | Lập trình, Kiểm thử | Xây dựng chức năng tìm kiếm, lọc sản phẩm theo danh mục, khoảng giá, sắp xếp và phân trang 12 sản phẩm/trang | feat(TM-02): tim kiem loc phan trang |
 https://github.com/HTDat06/nhom-5v3s-thuong-mai-dien-tu-/pull/7
 https://github.com/HTDat06/nhom-5v3s-thuong-mai-dien-tu-/pull/47
 https://github.com/HTDat06/nhom-5v3s-thuong-mai-dien-tu-/pull/73
 https://github.com/HTDat06/nhom-5v3s-thuong-mai-dien-tu-/pull/124
-
+https://github.com/HTDat06/nhom-5v3s-thuong-mai-dien-tu-/pull/128
 
 
 ---
@@ -110,3 +110,18 @@ Tỷ lệ nội dung AI còn giữ lại (ước lượng): 50%.
 - **Cách kiểm chứng:** Truy cập API `http://localhost:5000/api/categories` để kiểm tra dữ liệu JSON trả về; chạy Backend và Frontend, kiểm tra kết nối API và dữ liệu danh mục được hiển thị trên Navbar.
 - **Tỷ lệ nội dung AI còn giữ lại (ước lượng):** 50%.
 - **Điều học được:** Biết cách kết nối API giữa ReactJS và Backend, sử dụng `useEffect()` để lấy dữ liệu khi component được hiển thị, sử dụng `map()` để render danh sách danh mục và cấu hình CORS để xử lý vấn đề truy cập API giữa hai cổng khác nhau.
+
+### [AI-06] Hỗ trợ xây dựng chức năng tìm kiếm, lọc và phân trang sản phẩm
+
+- **Ngày / Người dùng:** 2026-11-17 / Phạm Thiên Phúc
+- **Công cụ:** ChatGPT (GPT-6)
+- **Giai đoạn:** Lập trình, Kiểm thử
+- **Task / Commit / PR:** [TM-02] Tìm kiếm, lọc và phân trang sản phẩm / Branch: `feature/TM-02-tim-kiem` / `feat(TM-02): tim kiem loc phan trang` / https://github.com/HTDat06/nhom-5v3s-thuong-mai-dien-tu-/pull/128.
+- **Mục đích:** Sử dụng AI để hỗ trợ xây dựng chức năng tìm kiếm sản phẩm, lọc theo danh mục, khoảng giá, sắp xếp và phân trang phía Server với 12 sản phẩm mỗi trang.
+- **Prompt chính (nguyên văn hoặc link chia sẻ hội thoại):** "Hướng dẫn xây dựng chức năng tìm kiếm và lọc sản phẩm bằng ReactJS và Node.js. Yêu cầu có thể tìm kiếm theo từ khóa, lọc theo danh mục, khoảng giá, sắp xếp sản phẩm và phân trang phía Server với 12 sản phẩm mỗi trang. Khi chuyển trang phải giữ nguyên các tham số lọc trên URL."
+- **Kết quả AI trả về (tóm tắt):** AI hướng dẫn xây dựng hàm `ProductService.search(keyword, categoryId, minPrice, maxPrice, sort, page)` để xử lý tìm kiếm, lọc và phân trang ở Backend; cập nhật `ProductRepository` để truy vấn dữ liệu theo điều kiện; xây dựng giao diện bộ lọc trong `ProductList.jsx`; sử dụng `useSearchParams` của React Router để lưu và duy trì tham số lọc trên URL khi chuyển trang. AI cũng hỗ trợ kiểm tra API và xử lý lỗi kết nối giữa Frontend và Backend.
+- **Đánh giá:** Đúng – các hướng dẫn phù hợp với cấu trúc dự án và giúp triển khai chức năng tìm kiếm, lọc và phân trang sản phẩm.
+- **Đã chỉnh sửa gì:** Cập nhật `ProductService.js` để xử lý tìm kiếm, lọc và phân trang với giới hạn 12 sản phẩm mỗi trang; chỉnh sửa `ProductRepository.js` để truy vấn theo từ khóa, danh mục, khoảng giá và thứ tự sắp xếp; cập nhật `ProductList.jsx` để lấy dữ liệu thật từ API, hiển thị bộ lọc và phân trang; chỉnh sửa `ProductList.css` để bố trí danh sách 4 sản phẩm mỗi hàng trên màn hình máy tính. Điều chỉnh `categoryRoutes.js` để cho phép người dùng xem danh mục mà không cần đăng nhập.
+- **Cách kiểm chứng:** Gọi API `http://localhost:5000/api/products?page=1` để kiểm tra dữ liệu sản phẩm và thông tin phân trang; thử sắp xếp giá tăng dần, giảm dần, lọc theo danh mục và khoảng giá; kiểm tra giao diện danh sách sản phẩm và URL khi chuyển trang để đảm bảo các điều kiện lọc được giữ lại.
+- **Tỷ lệ nội dung AI còn giữ lại (ước lượng):** 50%.
+- **Điều học được:** Hiểu cách triển khai phân trang phía Server, xây dựng truy vấn tìm kiếm và lọc dữ liệu từ cơ sở dữ liệu, sử dụng `useSearchParams` để quản lý tham số URL và kết nối dữ liệu API từ Backend lên Frontend.
