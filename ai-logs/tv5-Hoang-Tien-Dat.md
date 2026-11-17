@@ -17,6 +17,7 @@
 | AI-04 | 12/11 | Tài liệu | Đồng bộ CSDL Prisma/Seed và rà soát README Mốc 1 | [PR #68 ](https://github.com/HTDat06/nhom-5v3s-thuong-mai-dien-tu-/pull/68) |
 | AI-05 | 13/11 | Phát hành | Hoàn thiện ERD Mốc 1, phát hành Release v0.1 và tạo nhánh TM-05 | [PR #76 ](https://github.com/HTDat06/nhom-5v3s-thuong-mai-dien-tu-/pull/76) |
 | AI-06 | 16/11 | Phát triển & Kiểm thử | Triển khai chức năng Thêm vào giỏ hàng (TM-05) Fullstack và Test Cases | [PR #112 ](https://github.com/HTDat06/nhom-5v3s-thuong-mai-dien-tu-/pull/112) |
+| AI-07 | 18/11 | Phát triển & Kiểm thử | Hoàn thiện Trang giỏ hàng TM-05 (sửa số lượng, xóa, tổng tiền) và đồng bộ nhánh develop | [PR #138 ](https://github.com/HTDat06/nhom-5v3s-thuong-mai-dien-tu-/pull/138) |
 
 ---
 
@@ -113,3 +114,19 @@
 - Cách kiểm chứng: Chạy thử trực tiếp trên `localhost:5173` với các kịch bản: chưa đăng nhập bấm thêm bị điều hướng sang `/login`, đăng nhập bấm thêm cộng dồn số lượng trên badge Header và giữ nguyên sau khi tải lại trang (`F5`), chặn thêm vượt tồn kho; đẩy code lên nhánh `feature/TM-05-gio-hang` và tạo PR sang `develop`.
 - Tỷ lệ nội dung AI còn giữ lại (ước lượng): 80%
 - Điều học được: Khi tải dự án có sẵn CSDL về môi trường mới chỉ cần chạy `npx prisma generate` để tạo client mà không cần chạy lại migration/seed gây trùng dữ liệu; luôn đẩy code lên nhánh tính năng (`feature/TM-05-gio-hang`) và mở Pull Request để review chéo trước khi gộp vào `develop`.
+
+---
+
+### [AI-07] Hoàn thiện Trang giỏ hàng (TM-05) Fullstack và đồng bộ nhánh develop
+- Ngày / Người dùng: 2026-11-18 / Hoàng Tiến Đạt
+- Công cụ: Gemini
+- Giai đoạn: Phát triển & Kiểm thử
+- Task / Commit / PR: [TM-05] Trang giỏ hàng / `feat(TM-05): sua so luong xoa tong tien` / PR #138
+- Mục đích: Đồng bộ nhánh `feature/TM-08-ho-so` vào `develop` mà không làm mất `README.md`, xây dựng trọn vẹn trang giỏ hàng (`/cart`) hỗ trợ hiển thị danh sách, sửa số lượng không vượt tồn kho (`stock`), xóa sản phẩm, tính tổng tiền tự động và mở PR #138 chờ review.
+- Prompt chính: "Hỗ trợ gộp nhánh TM-08 vào develop và triển khai hoàn chỉnh tính năng Trang giỏ hàng TM-05 (danh sách sản phẩm, sửa số lượng chặn vượt tồn kho, xóa sản phẩm, tổng tiền) khớp với CartContext, CartService và CartRepository hiện tại."
+- Kết quả AI trả về (tóm tắt): Cung cấp quy trình gộp nhánh `TM-08` vào `develop` giữ nguyên `README.md`, bổ sung API cập nhật số lượng (`PUT /api/cart/:cartItemId`) và xóa sản phẩm (`DELETE /api/cart/:cartItemId`) ở Backend, cùng mã nguồn Frontend (`cartService.js`, `CartContext.jsx`, `CartPage.jsx`, `App.jsx`) có kiểm tra tồn kho và tự động tính tổng tiền.
+- Đánh giá: Đúng – Mã nguồn bám sát kiến trúc phân tầng của dự án, xử lý chặt chẽ ràng buộc tồn kho cả phía giao diện lẫn API Backend.
+- Đã chỉnh sửa gì: Cài đặt bổ sung thư viện `bcrypt` bị thiếu trong `backend` sau khi đồng bộ code từ `develop`, kiểm thử với dữ liệu sản phẩm thật từ trang `/products` thay vì dữ liệu mẫu cứng ở trang chủ, và mở PR #138 từ nhánh `feature/TM-05-trang-gio-hang` vào `develop`.
+- Cách kiểm chứng: Chạy thử trực tiếp trên `localhost:5173/cart` với các kịch bản: tăng/giảm/nhập số lượng vượt quá tồn kho (hệ thống chặn và báo lỗi), xóa sản phẩm khỏi giỏ (badge Header và tổng tiền cập nhật tức thì); tạo PR #138 trên GitHub, chuyển thẻ `[TM-05]` sang cột Chờ review trên Trello và kiểm tra chéo PR của thành viên khác (`TM-12`, `TM-14`).
+- Tỷ lệ nội dung AI còn giữ lại (ước lượng): 80%
+- Điều học được: Khi gộp các nhánh tính năng mới vào `develop`, cần kiểm tra và cài đặt bổ sung các gói thư viện mới phát sinh (`npm install bcrypt`), đồng thời lưu ý quy tắc của GitHub không cho phép tác giả tự Approve trên chính Pull Request của mình mà cần review chéo với các thành viên trong nhóm.
