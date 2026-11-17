@@ -44,7 +44,7 @@ function ProductCard({ product }) {
 
             <div className="product-info">
                 <h3>{product.name || product.product_name}</h3>
-                <p className="product-price">{product.price}</p>
+                <p className="product-price">{formatPrice(product.price)}</p>
 
                 <button
                     type="button"
@@ -80,3 +80,10 @@ function ProductCard({ product }) {
 }
 
 export default ProductCard;
+const formatPrice = (price) => {
+    const value = Number(String(price).replace(/[^\d]/g, ""));
+
+    if (!Number.isFinite(value)) return price;
+
+    return value.toLocaleString("vi-VN") + "đ";
+};

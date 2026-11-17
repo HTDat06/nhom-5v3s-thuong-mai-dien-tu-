@@ -13,39 +13,35 @@ const {
   uploadProductImage
 } = require("../Middlewares/uploadMiddleware");
 
-// Các API quản lý sản phẩm đều yêu cầu quyền Admin
-router.use(authenticate, requireAdmin);
-
-// GET: Danh sách, tìm kiếm và phân trang
+// GET danh sách sản phẩm: công khai
 router.get("/", (req, res) =>
   productController.getAll(req, res)
 );
 
-// GET: Chi tiết sản phẩm
+// GET chi tiết sản phẩm: công khai
 router.get("/:id", (req, res) =>
   productController.getById(req, res)
 );
 
-// POST: Thêm sản phẩm và tải ảnh
-router.post(
-  "/",
-  uploadProductImage,
-  (req, res) => productController.create(req, res)
+// Các API bên dưới yêu cầu đăng nhập và quyền Admin
+router.use(authenticate, requireAdmin);
+
+// Thêm sản phẩm
+router.post("/", uploadProductImage, (req, res) =>
+  productController.create(req, res)
 );
 
-// PUT: Cập nhật thông tin và có thể thay ảnh
-router.put(
-  "/:id",
-  uploadProductImage,
-  (req, res) => productController.update(req, res)
+// Cập nhật sản phẩm
+router.put("/:id", uploadProductImage, (req, res) =>
+  productController.update(req, res)
 );
 
-// PATCH: Ẩn hoặc hiện sản phẩm
+// Ẩn hoặc hiện sản phẩm
 router.patch("/:id/status", (req, res) =>
   productController.changeStatus(req, res)
 );
 
-// DELETE: Xóa sản phẩm
+// Xóa sản phẩm
 router.delete("/:id", (req, res) =>
   productController.delete(req, res)
 );
