@@ -14,6 +14,10 @@ function Navbar() {
         { name: "Tản nhiệt", path: "/products?category=cooler" }
     ];
 
+    // Lấy thông tin user hiện tại từ localStorage để kiểm tra phân quyền
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const isAdmin = user.role === 'admin';
+
     return (
         <nav style={{
             backgroundColor: '#2563eb',
@@ -58,24 +62,26 @@ function Navbar() {
                     ))}
                 </ul>
 
-                {/* Nút Hồ sơ cá nhân nổi bật bên phải */}
-                <Link
-                    to="/profile"
-                    style={{
-                        backgroundColor: '#2563eb',
-                        color: '#ffffff',
-                        textDecoration: 'none',
-                        padding: '6px 14px',
-                        borderRadius: '6px',
-                        fontSize: '14px',
-                        fontWeight: '600',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '6px'
-                    }}
-                >
-                    <span>👤</span> Hồ sơ cá nhân
-                </Link>
+                {/* Chỉ hiển thị nút Hồ sơ cá nhân nếu KHÔNG PHẢI là admin */}
+                {!isAdmin && (
+                    <Link
+                        to="/profile"
+                        style={{
+                            backgroundColor: '#2563eb',
+                            color: '#ffffff',
+                            textDecoration: 'none',
+                            padding: '6px 14px',
+                            borderRadius: '6px',
+                            fontSize: '14px',
+                            fontWeight: '600',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px'
+                        }}
+                    >
+                        <span>👤</span> Hồ sơ cá nhân
+                    </Link>
+                )}
             </div>
         </nav>
     );

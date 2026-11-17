@@ -41,6 +41,27 @@ class UserController {
             return res.status(400).json({ success: false, message: error.message });
         }
     }
+
+    // --- BỔ SUNG HÀM ĐỔI MẬT KHẨU ---
+    async changePassword(req, res) {
+        try {
+            const userId = req.user?.user_id || req.user?.id || req.user?.userId;
+            
+            if (!userId) {
+                return res.status(400).json({ success: false, message: "Không tìm thấy thông tin xác thực người dùng trong token" });
+            }
+
+            const { oldPassword, newPassword } = req.body;
+            const result = await UserService.changePassword(userId, oldPassword, newPassword);
+
+            return res.status(200).json({
+                success: true,
+                message: result.message
+            });
+        } catch (error) {
+            return res.status(400).json({ success: false, message: error.message });
+        }
+    }
 }
 
 module.exports = new UserController();
