@@ -151,3 +151,6 @@ vite.config.ts.timestamp-*
 .turbo
 
 /src/generated/prisma
+
+uploads/products/*
+!uploads/products/.gitkeep

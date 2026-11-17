@@ -12,8 +12,10 @@
     "bcryptjs": "^3.0.3",
     "dotenv": "^18.0.10",
     "express": "^5.1.0",
+    "file-type": "^22.3.0",
     "jsonwebtoken": "^9.0.2",
     "msnodesqlv8": "^6.2.2",
+    "multer": "^2.5.0",
     "sequelize": "^6.37.8",
     "sequelize-msnodesqlv8": "^0.2.6-beta.8"
   },
