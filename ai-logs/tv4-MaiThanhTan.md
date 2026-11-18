@@ -1,10 +1,10 @@
-
 | Mục | Thông tin |
 | --- | --- |
 | Họ tên, MSSV | Mai Thanh Tân – 0306241241 |
 | Nhóm, đề tài | Nhóm 8 – Thương mại điện tử |
 | Vai trò | TV4 – BE (csdl) |
 | Công cụ AI dùng | ChatGPT, Claude |
+
 ###[AI-01]
 1.Yêu cầu xác định mối quan hệ giữa các bảng
 2.Tạo code để vẽ sơ đồ trên dbdiagram.io
@@ -69,3 +69,19 @@
 - **Kết quả:** Đã có code đề xuất cho chức năng CRUD danh mục phía Backend theo yêu cầu TM-11. Chưa xác nhận kiểm thử thực tế trên môi trường dự án.
 - **Phần có AI hỗ trợ:** Phân tích cấu trúc dự án, đề xuất kiến trúc và viết code Backend.
 - **Phần tự thực hiện:** Tích hợp code vào dự án, chạy thử API, kiểm tra kết quả và hoàn thiện Pull Request.
+
+  **[AI-06] Hoàn thiện chức năng tìm kiếm, lọc và phân trang sản phẩm (TM-12)**
+
+- **Ngày / Người dùng:** 2026-11-18 / Mai Thanh Tân
+- **Công cụ:** ChatGPT (GPT-6)
+- **Giai đoạn:** Phát triển | Backend – Database
+**Nội dung sử dụng AI:**
+- Nhờ ChatGPT kiểm tra và hoàn thiện chức năng tìm kiếm sản phẩm theo tên trong `ProductRepository.js`.
+- Hỗ trợ kiểm tra logic lọc sản phẩm theo danh mục (`category_id`) và phân trang phía server.
+- Kiểm tra và bổ sung validation dữ liệu sản phẩm trong `ProductService.js`, đảm bảo giá sản phẩm phải lớn hơn 0 và tồn kho phải lớn hơn hoặc bằng 0.
+- Hướng dẫn kiểm tra các thay đổi trước khi hoàn thiện chức năng TM-12.
+**Kết quả:**
+- Hoàn thiện tìm kiếm sản phẩm theo tên.
+- Đảm bảo chức năng lọc danh mục và phân trang phía server.
+- Bổ sung kiểm tra giá và số lượng tồn kho ở phía server.
+- Kiểm tra, rà soát code trước khi gửi review.
