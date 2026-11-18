@@ -72,17 +72,26 @@ class ProductService {
     if (!isUpdate || data.price !== undefined) {
       const priceText = String(data.price ?? "").trim();
 
-      // DECIMAL(12,2): tối đa 10 chữ số nguyên và 2 chữ số thập phân
+      // Kiểm tra định dạng DECIMAL(12,2)
       if (!/^\d{1,10}(\.\d{1,2})?$/.test(priceText)) {
         throw this.createError(
-          "Giá sản phẩm phải là số không âm và tối đa 2 chữ số thập phân.",
+          "Giá sản phẩm phải là số lớn hơn 0 và tối đa 2 chữ số thập phân.",
           400
         );
       }
 
       const price = Number(priceText);
 
-      if (!Number.isFinite(price) || price > 9999999999.99) {
+      // Giá bắt buộc phải lớn hơn 0
+      if (!Number.isFinite(price) || price <= 0) {
+        throw this.createError(
+          "Giá sản phẩm phải lớn hơn 0.",
+          400
+        );
+      }
+
+      // Kiểm tra giới hạn DECIMAL(12,2)
+      if (price > 9999999999.99) {
         throw this.createError(
           "Giá sản phẩm vượt quá giới hạn cho phép.",
           400
