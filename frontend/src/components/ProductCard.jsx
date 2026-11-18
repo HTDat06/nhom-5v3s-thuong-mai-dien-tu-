@@ -1,17 +1,30 @@
+
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useCart } from "../contexts/CartContext";
 import "../styles/ProductCard.css";
+
+function formatPrice(price) {
+    const value = Number(String(price).replace(/[^\d]/g, ""));
+
+    if (!Number.isFinite(value)) return price;
+
+    return value.toLocaleString("vi-VN") + " ₫";
+}
 
 function ProductCard({ product }) {
     const { user } = useAuth();
     const { addToCart } = useCart() || {};
     const navigate = useNavigate();
+
     const [adding, setAdding] = useState(false);
     const [addedSuccess, setAddedSuccess] = useState(false);
 
-    const isOutOfStock = product.stock !== undefined && product.stock <= 0;
+    const isOutOfStock =
+        product.stock !== undefined && product.stock <= 0;
+
+    const productId = product.product_id ?? product.id;
 
     const handleAddToCart = async () => {
         if (!user) {
@@ -20,11 +33,10 @@ function ProductCard({ product }) {
             return;
         }
 
-        const productId = product.product_id ?? product.id;
-
         try {
             setAdding(true);
             await addToCart(productId, 1);
+
             setAddedSuccess(true);
             setTimeout(() => setAddedSuccess(false), 1200);
         } catch (error) {
@@ -43,8 +55,21 @@ function ProductCard({ product }) {
             />
 
             <div className="product-info">
-                <h3>{product.name || product.product_name}</h3>
-                <p className="product-price">{product.price}</p>
+                <h3>
+                    <Link
+                        to={`/products/${productId}`}
+                        style={{
+                            color: "inherit",
+                            textDecoration: "none"
+                        }}
+                    >
+                        {product.name || product.product_name}
+                    </Link>
+                </h3>
+
+                <p className="product-price">
+                    {formatPrice(product.price)}
+                </p>
 
                 <button
                     type="button"
@@ -57,22 +82,24 @@ function ProductCard({ product }) {
                         backgroundColor: isOutOfStock
                             ? "#9e9e9e"
                             : addedSuccess
-                            ? "#2e7d32"
-                            : "#1976d2",
+                                ? "#2e7d32"
+                                : "#1976d2",
                         color: "#fff",
                         border: "none",
                         borderRadius: "6px",
-                        cursor: adding || isOutOfStock ? "not-allowed" : "pointer",
+                        cursor: adding || isOutOfStock
+                            ? "not-allowed"
+                            : "pointer",
                         fontWeight: "600",
                     }}
                 >
                     {isOutOfStock
                         ? "Hết hàng"
                         : adding
-                        ? "Đang thêm..."
-                        : addedSuccess
-                        ? "✓ Đã thêm vào giỏ"
-                        : "Thêm vào giỏ"}
+                            ? "Đang thêm..."
+                            : addedSuccess
+                                ? "✓ Đã thêm vào giỏ"
+                                : "Thêm vào giỏ"}
                 </button>
             </div>
         </div>
