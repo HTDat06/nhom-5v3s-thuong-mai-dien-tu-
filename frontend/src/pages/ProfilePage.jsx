@@ -11,7 +11,8 @@ export default function ProfilePage() {
 
     const [passwordData, setPasswordData] = useState({
         oldPassword: '',
-        newPassword: ''
+        newPassword: '',
+        confirmNewPassword: '' // Thêm trường nhập lại mật khẩu mới
     });
 
     const [statusMsg, setStatusMsg] = useState({ type: '', text: '' });
@@ -55,7 +56,6 @@ export default function ProfilePage() {
         setStatusMsg({ type: '', text: '' });
         try {
             const token = localStorage.getItem('token');
-            // Đã bổ sung address vào object gửi lên API
             await axios.put('http://localhost:5000/api/users/profile', {
                 name: formData.name,
                 phone: formData.phone,
@@ -84,17 +84,30 @@ export default function ProfilePage() {
     const handlePasswordSubmit = async (e) => {
         e.preventDefault();
         setPassMsg({ type: '', text: '' });
+
+        // Validate phía Frontend theo yêu cầu TM-08
+        if (passwordData.newPassword.length < 8) {
+            setPassMsg({ type: 'error', text: 'Mật khẩu mới phải có ít nhất 8 ký tự.' });
+            return;
+        }
+
+        if (passwordData.newPassword !== passwordData.confirmNewPassword) {
+            setPassMsg({ type: 'error', text: 'Mật khẩu nhập lại không khớp với mật khẩu mới.' });
+            return;
+        }
+
         try {
             const token = localStorage.getItem('token');
             const res = await axios.put('http://localhost:5000/api/users/change-password', {
                 oldPassword: passwordData.oldPassword,
-                newPassword: passwordData.newPassword
+                newPassword: passwordData.newPassword,
+                confirmNewPassword: passwordData.confirmNewPassword
             }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
             setPassMsg({ type: 'success', text: res.data.message || 'Đổi mật khẩu thành công!' });
-            setPasswordData({ oldPassword: '', newPassword: '' });
+            setPasswordData({ oldPassword: '', newPassword: '', confirmNewPassword: '' });
         } catch (err) {
             setPassMsg({ type: 'error', text: err.response?.data?.message || 'Đổi mật khẩu thất bại.' });
         }
@@ -261,7 +274,20 @@ export default function ProfilePage() {
                                 name="newPassword"
                                 value={passwordData.newPassword}
                                 onChange={handlePasswordChange}
-                                placeholder="Nhập mật khẩu mới (tối thiểu 6 ký tự)"
+                                placeholder="Nhập mật khẩu mới (tối thiểu 8 ký tự)"
+                                required
+                                style={inputStyle}
+                            />
+                        </div>
+
+                        <div>
+                            <label style={{ fontSize: '14px', fontWeight: '600', color: '#334155', display: 'block' }}>Nhập lại mật khẩu mới</label>
+                            <input
+                                type="password"
+                                name="confirmNewPassword"
+                                value={passwordData.confirmNewPassword}
+                                onChange={handlePasswordChange}
+                                placeholder="Xác nhận lại mật khẩu mới"
                                 required
                                 style={inputStyle}
                             />
