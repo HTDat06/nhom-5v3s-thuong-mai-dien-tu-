@@ -6,20 +6,12 @@ class ProductRepository {
   async findAll({ skip, take, search, categoryId, isActive }) {
     const where = {};
 
-    // Tìm kiếm theo tên sản phẩm hoặc mô tả
+   
+    // Tìm kiếm theo tên sản phẩm
     if (search) {
-      where.OR = [
-        {
-          product_name: {
-            contains: search
-          }
-        },
-        {
-          description: {
-            contains: search
-          }
-        }
-      ];
+      where.product_name = {
+        contains: search
+      };
     }
 
     // Lọc theo danh mục
