@@ -13,8 +13,9 @@ const {
   uploadProductImage
 } = require("../Middlewares/uploadMiddleware");
 
-// Các API quản lý sản phẩm đều yêu cầu quyền Admin
-router.use(authenticate, requireAdmin);
+// =====================================
+// API CÔNG KHAI - KHÔNG CẦN ĐĂNG NHẬP
+// =====================================
 
 // GET: Danh sách, tìm kiếm và phân trang
 router.get("/", (req, res) =>
@@ -26,9 +27,15 @@ router.get("/:id", (req, res) =>
   productController.getById(req, res)
 );
 
+// =====================================
+// API QUẢN LÝ - CHỈ ADMIN ĐƯỢC PHÉP
+// =====================================
+
 // POST: Thêm sản phẩm và tải ảnh
 router.post(
   "/",
+  authenticate,
+  requireAdmin,
   uploadProductImage,
   (req, res) => productController.create(req, res)
 );
@@ -36,18 +43,26 @@ router.post(
 // PUT: Cập nhật thông tin và có thể thay ảnh
 router.put(
   "/:id",
+  authenticate,
+  requireAdmin,
   uploadProductImage,
   (req, res) => productController.update(req, res)
 );
 
 // PATCH: Ẩn hoặc hiện sản phẩm
-router.patch("/:id/status", (req, res) =>
-  productController.changeStatus(req, res)
+router.patch(
+  "/:id/status",
+  authenticate,
+  requireAdmin,
+  (req, res) => productController.changeStatus(req, res)
 );
 
 // DELETE: Xóa sản phẩm
-router.delete("/:id", (req, res) =>
-  productController.delete(req, res)
+router.delete(
+  "/:id",
+  authenticate,
+  requireAdmin,
+  (req, res) => productController.delete(req, res)
 );
 
 module.exports = router;
