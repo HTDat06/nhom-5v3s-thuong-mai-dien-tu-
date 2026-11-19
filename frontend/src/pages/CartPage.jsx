@@ -13,7 +13,14 @@ const resolveImageUrl = (image) => {
 
 function CartPage() {
     const { token } = useAuth();
-    const { cartItems, totalQuantity, totalAmount, updateQuantity, removeFromCart } = useCart();
+    const {
+        cartItems,
+        totalQuantity,
+        totalAmount,
+        updateQuantity,
+        removeFromCart,
+        clearCart,
+    } = useCart();
 
     const [draftQuantities, setDraftQuantities] = useState({});
     const [loadingItemId, setLoadingItemId] = useState(null);
@@ -80,6 +87,27 @@ function CartPage() {
         }
     };
 
+    const handleClearCart = async () => {
+        const confirmed = window.confirm(
+            "Bạn có chắc chắn muốn xóa toàn bộ sản phẩm khỏi giỏ hàng không?"
+        );
+
+        if (!confirmed) return;
+
+        setErrorMessage("");
+        setSuccessMessage("");
+
+        try {
+            setLoadingItemId("all");
+            await clearCart();
+            setSuccessMessage("Đã xóa toàn bộ giỏ hàng thành công.");
+        } catch (err) {
+            setErrorMessage(err.message || "Không thể xóa giỏ hàng.");
+        } finally {
+            setLoadingItemId(null);
+        }
+    };
+
     if (!token) {
         return (
             <div style={styles.container}>
@@ -96,7 +124,22 @@ function CartPage() {
 
     return (
         <div style={styles.container}>
-            <h2 style={styles.heading}>🛒 Giỏ hàng của bạn ({totalQuantity} sản phẩm)</h2>
+            <div style={styles.headingRow}>
+                <h2 style={styles.heading}>
+                    🛒 Giỏ hàng của bạn ({totalQuantity} sản phẩm)
+                </h2>
+
+                {cartItems.length > 0 && (
+                    <button
+                        type="button"
+                        style={styles.deleteAllBtn}
+                        disabled={loadingItemId !== null}
+                        onClick={handleClearCart}
+                    >
+                        Xóa toàn bộ giỏ hàng
+                    </button>
+                )}
+            </div>
 
             {errorMessage && <div style={styles.errorBanner}>{errorMessage}</div>}
             {successMessage && <div style={styles.successBanner}>{successMessage}</div>}
@@ -249,15 +292,9 @@ function CartPage() {
                             <Link to="/products" style={styles.secondaryBtn}>
                                 ← Tiếp tục mua sắm
                             </Link>
-                            <button
-                                type="button"
-                                style={styles.primaryBtn}
-                                onClick={() =>
-                                    alert("Chức năng đặt hàng sẽ được tích hợp ở bước tiếp theo!")
-                                }
-                            >
+                            <Link to="/order" style={styles.primaryBtn}>
                                 Tiến hành đặt hàng
-                            </button>
+                            </Link>
                         </div>
                     </div>
                 </div>
@@ -436,6 +473,23 @@ const styles = {
         textDecoration: "none",
         border: "1px solid #ccc",
         fontWeight: "500",
+    },
+    headingRow: {
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        gap: "12px",
+        flexWrap: "wrap",
+    },
+
+    deleteAllBtn: {
+        backgroundColor: "#fff",
+        color: "#e53935",
+        border: "1px solid #e53935",
+        borderRadius: "6px",
+        padding: "9px 14px",
+        cursor: "pointer",
+        fontWeight: "600",
     },
 };
 

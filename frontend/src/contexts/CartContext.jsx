@@ -4,6 +4,7 @@ import {
     getCartRequest,
     removeCartItemRequest,
     updateCartItemRequest,
+    clearCartRequest,
 } from "../services/cartService";
 import { useAuth } from "./AuthContext";
 
@@ -72,7 +73,15 @@ export function CartProvider({ children }) {
         await refreshCart();
         return result;
     };
+    const clearCart = async () => {
+        if (!token) {
+            throw new Error("UNAUTHORIZED");
+        }
 
+        const result = await clearCartRequest(token);
+        await refreshCart();
+        return result;
+    };
     return (
         <CartContext.Provider
             value={{
@@ -82,6 +91,7 @@ export function CartProvider({ children }) {
                 addToCart,
                 updateQuantity,
                 removeFromCart,
+                clearCart,
                 refreshCart,
             }}
         >

@@ -1,0 +1,139 @@
+
+.order-page {
+    width: 92%;
+    max-width: 1100px;
+    margin: 30px auto;
+    color: #333;
+}
+
+.order-title {
+    margin-bottom: 24px;
+    font-size: 26px;
+    color: #222;
+}
+
+.order-layout {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 24px;
+    align-items: start;
+}
+
+.order-form,
+.order-summary {
+    background: white;
+    padding: 24px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+}
+
+.order-form h3,
+.order-summary h3 {
+    margin-bottom: 20px;
+}
+
+.order-field {
+    margin-bottom: 18px;
+}
+
+.order-field label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.order-field input,
+.order-field textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-family: Arial, sans-serif;
+    font-size: 15px;
+    outline: none;
+}
+
+.order-field input:focus,
+.order-field textarea:focus {
+    border-color: #2563eb;
+}
+
+.order-field textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.order-product {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.order-total {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid #ddd;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.order-total strong {
+    color: #dc2626;
+}
+
+.order-payment {
+    margin-top: 20px;
+    padding: 14px;
+    background: #f5f5f5;
+    border-radius: 5px;
+}
+
+.order-submit {
+    width: 100%;
+    margin-top: 20px;
+    padding: 13px;
+    background: #2563eb;
+    color: white;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.order-submit:hover {
+    background: #1d4ed8;
+}
+
+.order-submit:disabled {
+    background: #999;
+    cursor: not-allowed;
+}
+
+.order-error {
+    margin-bottom: 16px;
+    padding: 12px;
+    color: #c62828;
+    background: #ffebee;
+    border-radius: 5px;
+}
+
+.order-success {
+    margin-bottom: 16px;
+    padding: 12px;
+    color: #2e7d32;
+    background: #e8f5e9;
+    border-radius: 5px;
+}
+
+@media (max-width: 768px) {
+    .order-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .order-page {
+        width: 92%;
+    }
+}

@@ -11,8 +11,9 @@ import Register from "./pages/Register";
 import Admin from "./pages/Admin";
 import ProductList from "./pages/ProductList";
 import ProductDetail from "./pages/ProductDetail";
-
+import Order from "./pages/Order";
 import { RequireAdmin } from "./components/ProtectedRoute";
+import CartPage from "./pages/CartPage";
 
 function App() {
     return (
@@ -46,6 +47,14 @@ function App() {
                                 </MainLayout>
                             }
                         />
+                        <Route
+                            path="/cart"
+                            element={
+                                <MainLayout>
+                                    <CartPage />
+                                </MainLayout>
+                            }
+                        />
 
                         <Route
                             path="/login"
@@ -61,6 +70,14 @@ function App() {
                             element={
                                 <MainLayout>
                                     <Register />
+                                </MainLayout>
+                            }
+                        />
+                        <Route
+                            path="/order"
+                            element={
+                                <MainLayout>
+                                    <Order />
                                 </MainLayout>
                             }
                         />

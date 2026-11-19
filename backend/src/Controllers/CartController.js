@@ -77,6 +77,27 @@ class CartController {
       });
     }
   }
+  static async clearCart(req, res) {
+    try {
+      const userId = req.user?.user_id ?? req.user?.userId ?? req.user?.id;
+
+      if (!userId) {
+        return res.status(401).json({
+          message: 'Vui lòng đăng nhập để xóa giỏ hàng.',
+        });
+      }
+
+      await CartService.clearCart(userId);
+
+      return res.status(200).json({
+        message: 'Đã xóa toàn bộ sản phẩm khỏi giỏ hàng.',
+      });
+    } catch (error) {
+      return res.status(error.statusCode || 500).json({
+        message: error.message || 'Lỗi máy chủ khi xóa giỏ hàng.',
+      });
+    }
+  }
 }
 
 module.exports = CartController;

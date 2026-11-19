@@ -56,6 +56,11 @@ class CartRepository {
       where: { cart_item_id: Number(cartItemId) },
     });
   }
+  static async deleteAllByUserId(userId) {
+    return await prisma.cart_items.deleteMany({
+      where: { user_id: Number(userId) },
+    });
+  }
 }
 
 module.exports = CartRepository;
