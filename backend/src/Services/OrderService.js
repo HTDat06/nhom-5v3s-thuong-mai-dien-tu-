@@ -1,4 +1,3 @@
-
 const { Prisma } = require("@prisma/client");
 const prisma = require("../config/prisma");
 
@@ -10,7 +9,6 @@ function createError(message, statusCode) {
 
 class OrderService {
     async placeOrder(userId, { receiver_name, shipping_address, phone } = {}) {
-        // 1. Kiểm tra dữ liệu đầu vào
         const parsedUserId = Number(userId);
 
         if (!Number.isInteger(parsedUserId) || parsedUserId <= 0) {
@@ -31,11 +29,9 @@ class OrderService {
             throw createError("Vui lòng nhập số điện thoại.", 400);
         }
 
-        // 2. Thực hiện toàn bộ quy trình trong một transaction
         try {
             return await prisma.$transaction(
                 async (tx) => {
-                    // Đọc giỏ hàng của người dùng
                     const cartItems = await tx.cart_items.findMany({
                         where: {
                             user_id: parsedUserId
@@ -58,7 +54,6 @@ class OrderService {
                         );
                     }
 
-                    // Gộp các dòng trùng product_id nếu có
                     const groupedItems = new Map();
 
                     for (const item of cartItems) {
@@ -96,7 +91,6 @@ class OrderService {
                     const orderItems = [];
                     let totalAmount = new Prisma.Decimal(0);
 
-                    // Kiểm tra tồn kho và tính tổng tiền
                     for (const { product, quantity } of groupedItems.values()) {
                         if (product.stock < quantity) {
                             throw createError(
@@ -121,7 +115,6 @@ class OrderService {
                         });
                     }
 
-                    // Tạo đơn hàng
                     const order = await tx.orders.create({
                         data: {
                             user_id: parsedUserId,
@@ -133,9 +126,6 @@ class OrderService {
                         }
                     });
 
-                    // Trừ kho bằng cập nhật có điều kiện.
-                    // Nếu kho đã thay đổi và không còn đủ hàng,
-                    // updateMany sẽ không cập nhật bản ghi nào.
                     for (const item of orderItems) {
                         const stockResult = await tx.products.updateMany({
                             where: {
@@ -159,7 +149,6 @@ class OrderService {
                         }
                     }
 
-                    // Tạo chi tiết đơn hàng
                     await tx.order_items.createMany({
                         data: orderItems.map((item) => ({
                             order_id: order.order_id,
@@ -170,14 +159,12 @@ class OrderService {
                         }))
                     });
 
-                    // Xóa giỏ hàng sau khi đặt thành công
                     await tx.cart_items.deleteMany({
                         where: {
                             user_id: parsedUserId
                         }
                     });
 
-                    // Trả về đơn hàng cùng chi tiết
                     return tx.orders.findUnique({
                         where: {
                             order_id: order.order_id
@@ -198,7 +185,6 @@ class OrderService {
                 }
             );
         } catch (error) {
-            // Lỗi xung đột transaction: yêu cầu thử lại
             if (error.code === "P2034") {
                 throw createError(
                     "Đơn hàng đang được xử lý đồng thời. Vui lòng thử lại.",
@@ -208,6 +194,142 @@ class OrderService {
 
             throw error;
         }
+    }
+
+    // TM-07: Lấy danh sách đơn hàng của tài khoản hiện tại
+    async getMyOrders(userId) {
+        const parsedUserId = Number(userId);
+        if (!Number.isInteger(parsedUserId) || parsedUserId <= 0) {
+            throw createError("Người dùng không hợp lệ.", 401);
+        }
+
+        return await prisma.orders.findMany({
+            where: {
+                user_id: parsedUserId
+            },
+            orderBy: {
+                order_id: "desc"
+            },
+            include: {
+                order_items: {
+                    include: {
+                        products: true
+                    }
+                }
+            }
+        });
+    }
+
+    // TM-07: Xem chi tiết đơn hàng & chặn xem đơn của người khác (IDOR)
+    async getOrderDetail(userId, orderId) {
+        const parsedUserId = Number(userId);
+        const parsedOrderId = Number(orderId);
+
+        if (!Number.isInteger(parsedUserId) || parsedUserId <= 0) {
+            throw createError("Người dùng không hợp lệ.", 401);
+        }
+
+        if (!Number.isInteger(parsedOrderId) || parsedOrderId <= 0) {
+            throw createError("Mã đơn hàng không hợp lệ.", 400);
+        }
+
+        const order = await prisma.orders.findUnique({
+            where: {
+                order_id: parsedOrderId
+            },
+            include: {
+                order_items: {
+                    include: {
+                        products: true
+                    }
+                }
+            }
+        });
+
+        if (!order) {
+            throw createError("Không tìm thấy đơn hàng.", 404);
+        }
+
+        if (order.user_id !== parsedUserId) {
+            throw createError("Bạn không có quyền xem đơn hàng này.", 403);
+        }
+
+        return order;
+    }
+
+    // TM-07: Hủy đơn khi còn trạng thái "pending" (Chờ xác nhận) & hoàn tồn kho trong transaction
+    async cancelOrder(userId, orderId) {
+        const parsedUserId = Number(userId);
+        const parsedOrderId = Number(orderId);
+
+        if (!Number.isInteger(parsedUserId) || parsedUserId <= 0) {
+            throw createError("Người dùng không hợp lệ.", 401);
+        }
+
+        if (!Number.isInteger(parsedOrderId) || parsedOrderId <= 0) {
+            throw createError("Mã đơn hàng không hợp lệ.", 400);
+        }
+
+        return await prisma.$transaction(async (tx) => {
+            const order = await tx.orders.findUnique({
+                where: {
+                    order_id: parsedOrderId
+                },
+                include: {
+                    order_items: {
+                        include: {
+                            products: true
+                        }
+                    }
+                }
+            });
+
+            if (!order) {
+                throw createError("Không tìm thấy đơn hàng.", 404);
+            }
+
+            if (order.user_id !== parsedUserId) {
+                throw createError("Bạn không có quyền hủy đơn hàng này.", 403);
+            }
+
+            if (order.status !== "pending") {
+                throw createError(
+                    "Chỉ có thể hủy đơn hàng khi đang ở trạng thái Chờ xác nhận.",
+                    400
+                );
+            }
+
+            // Hoàn trả số lượng tồn kho cho từng sản phẩm trong đơn
+            for (const item of order.order_items) {
+                await tx.products.update({
+                    where: {
+                        product_id: item.product_id
+                    },
+                    data: {
+                        stock: {
+                            increment: item.quantity
+                        }
+                    }
+                });
+            }
+
+            // Cập nhật trạng thái đơn sang "cancelled"
+            return await tx.orders.update({
+                where: {
+                    order_id: parsedOrderId
+                },
+                data: {
+                    status: "cancelled"
+                },
+                include: {
+                    order_items: {
+                        include: {
+                            products: true
+                        }
+                    }
+                }
+            });
+        });
     }
 }
 
