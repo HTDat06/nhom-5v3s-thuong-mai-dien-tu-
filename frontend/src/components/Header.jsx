@@ -45,6 +45,9 @@ function Header() {
                             {user.role === "admin" && (
                                 <Link to="/admin" className="header-link">Quản trị</Link>
                             )}
+                            <Link to="/my-orders" className="header-link">
+                                📦 Đơn hàng của tôi
+                            </Link>
                             <span className="header-link">Xin chào, {user.name}</span>
                             <button type="button" className="header-link" onClick={handleLogout}>
                                 Đăng xuất

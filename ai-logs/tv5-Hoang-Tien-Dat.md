@@ -18,6 +18,7 @@
 | AI-05 | 13/11 | Phát hành | Hoàn thiện ERD Mốc 1, phát hành Release v0.1 và tạo nhánh TM-05 | [PR #76 ](https://github.com/HTDat06/nhom-5v3s-thuong-mai-dien-tu-/pull/76) |
 | AI-06 | 16/11 | Phát triển & Kiểm thử | Triển khai chức năng Thêm vào giỏ hàng (TM-05) Fullstack và Test Cases | [PR #112 ](https://github.com/HTDat06/nhom-5v3s-thuong-mai-dien-tu-/pull/112) |
 | AI-07 | 18/11 | Phát triển & Kiểm thử | Hoàn thiện Trang giỏ hàng TM-05 (sửa số lượng, xóa, tổng tiền) và đồng bộ nhánh develop | [PR #138 ](https://github.com/HTDat06/nhom-5v3s-thuong-mai-dien-tu-/pull/138) |
+| AI-08 | 20/11 | Phát triển & Kiểm thử | Review PR TM-06, đồng bộ CSDL và triển khai & kiểm thử Đơn hàng của tôi TM-07 (chống IDOR 403/404, hủy đơn hoàn tồn kho) | [PR #152 ](https://github.com/HTDat06/nhom-5v3s-thuong-mai-dien-tu-/pull/152) |
 
 ---
 
@@ -130,3 +131,20 @@
 - Cách kiểm chứng: Chạy thử trực tiếp trên `localhost:5173/cart` với các kịch bản: tăng/giảm/nhập số lượng vượt quá tồn kho (hệ thống chặn và báo lỗi), xóa sản phẩm khỏi giỏ (badge Header và tổng tiền cập nhật tức thì); tạo PR #138 trên GitHub, chuyển thẻ `[TM-05]` sang cột Chờ review trên Trello và kiểm tra chéo PR của thành viên khác (`TM-12`, `TM-14`).
 - Tỷ lệ nội dung AI còn giữ lại (ước lượng): 80%
 - Điều học được: Khi gộp các nhánh tính năng mới vào `develop`, cần kiểm tra và cài đặt bổ sung các gói thư viện mới phát sinh (`npm install bcrypt`), đồng thời lưu ý quy tắc của GitHub không cho phép tác giả tự Approve trên chính Pull Request của mình mà cần review chéo với các thành viên trong nhóm.
+
+
+---
+
+### [AI-08] Review PR TM-06, đồng bộ CSDL và triển khai Đơn hàng của tôi (TM-07)
+- Ngày / Người dùng: 2026-11-20 / Hoàng Tiến Đạt
+- Công cụ: Gemini
+- Giai đoạn: Phát triển & Kiểm thử
+- Task / Commit / PR: [TM-07] Đơn hàng của tôi / `feat(TM-07): don hang cua toi` / nhánh `feature/TM-07-don-cua-toi`
+- Mục đích: Review và gộp PR `TM-06` (#152) vào `develop`, xử lý cập nhật cột bắt buộc `receiver_name` trên SQL Server mà không làm mất dữ liệu cũ, triển khai trọn vẹn tính năng Đơn hàng của tôi (`TM-07`) gồm xem danh sách/chi tiết đơn, chặn xem đơn người khác (IDOR lỗi 403/404) và hủy đơn `"pending"` hoàn tồn kho trong transaction.
+- Prompt chính: "Hỗ trợ review PR TM-06, xử lý lỗi Prisma db push thêm cột bắt buộc receiver_name trên bảng orders có sẵn dữ liệu, và triển khai fullstack chức năng Đơn hàng của tôi TM-07 (danh sách đơn, chi tiết đơn chặn IDOR 403/404, hủy đơn pending hoàn tồn kho)."
+- Kết quả AI trả về (tóm tắt): Hướng dẫn kiểm tra xung đột 23 tệp trong PR #152 trước khi merge; cung cấp câu lệnh SQL `ALTER TABLE` / `UPDATE` bổ sung cột `receiver_name` giữ nguyên 10 bản ghi cũ; xuất mã nguồn Backend (`OrderService.js`, `OrderController.js`, `orderRoutes.js`) và Frontend (`myOrderService.js`, `MyOrdersPage.jsx`, `OrderDetailPage.jsx`, `App.jsx`, `Header.jsx`) cho `TM-07`.
+- Đánh giá: Đúng – Bám sát cấu trúc đặt hàng của `TM-06`, đảm bảo toàn vẹn tồn kho bằng Prisma Transaction và chặn triệt để lỗ hổng IDOR.
+- Đã chỉnh sửa gì: Chạy truy vấn SQL cập nhật dữ liệu cột `receiver_name` trong SSMS thay vì dùng `--force-reset` để bảo toàn dữ liệu mẫu; tích hợp nút điều hướng `/my-orders` vào `Header.jsx` hiện tại và bổ sung bộ test cases kiểm thử `TM-07` vào `docs/test-cases.md`.
+- Cách kiểm chứng: Chạy thực tế trên `localhost:5173/my-orders` với các kịch bản: xem danh sách và chi tiết đơn của tài khoản đang đăng nhập, thử đổi ID đơn hàng trên URL sang đơn của người dùng khác (hệ thống trả lỗi `403` / `404` và chặn hiển thị), hủy đơn ở trạng thái `"pending"` và kiểm tra số lượng `stock` trong bảng `products` được hoàn lại chính xác.
+- Tỷ lệ nội dung AI còn giữ lại (ước lượng): 80%
+- Điều học được: Khi schema Prisma thêm cột `NOT NULL` không có giá trị mặc định vào bảng đã có dữ liệu, cần bổ sung dữ liệu cho các dòng cũ bằng SQL trước khi chạy `npx prisma db push` thay vì `--force-reset`; đồng thời luôn kiểm tra quyền sở hữu (`order.user_id === currentUserId`) ở tầng Service để chống truy cập trái phép qua tham số URL.
