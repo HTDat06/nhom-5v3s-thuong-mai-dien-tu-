@@ -7,6 +7,21 @@ function createError(message, statusCode) {
     return error;
 }
 
+// Máy trạng thái đơn hàng (State Machine): chỉ cho đi xuôi, chặn đi ngược & nhảy bước
+const STATUS_LABELS = {
+    pending: "Chờ xác nhận",
+    shipping: "Đang giao",
+    completed: "Hoàn thành",
+    cancelled: "Đã hủy"
+};
+
+const ALLOWED_TRANSITIONS = {
+    pending: ["shipping", "cancelled"],
+    shipping: ["completed"],
+    completed: [],
+    cancelled: []
+};
+
 class OrderService {
     async placeOrder(userId, { receiver_name, shipping_address, phone } = {}) {
         const parsedUserId = Number(userId);
@@ -15,17 +30,11 @@ class OrderService {
             throw createError("Người dùng không hợp lệ.", 401);
         }
 
-        if (
-            typeof shipping_address !== "string" ||
-            !shipping_address.trim()
-        ) {
+        if (typeof shipping_address !== "string" || !shipping_address.trim()) {
             throw createError("Vui lòng nhập địa chỉ nhận hàng.", 400);
         }
 
-        if (
-            typeof phone !== "string" ||
-            !phone.trim()
-        ) {
+        if (typeof phone !== "string" || !phone.trim()) {
             throw createError("Vui lòng nhập số điện thoại.", 400);
         }
 
@@ -33,51 +42,31 @@ class OrderService {
             return await prisma.$transaction(
                 async (tx) => {
                     const cartItems = await tx.cart_items.findMany({
-                        where: {
-                            user_id: parsedUserId
-                        },
-                        include: {
-                            products: true
-                        }
+                        where: { user_id: parsedUserId },
+                        include: { products: true }
                     });
-                    if (
-                        typeof receiver_name !== "string" ||
-                        !receiver_name.trim()
-                    ) {
+
+                    if (typeof receiver_name !== "string" || !receiver_name.trim()) {
                         throw createError("Vui lòng nhập tên người nhận.", 400);
                     }
 
                     if (cartItems.length === 0) {
-                        throw createError(
-                            "Giỏ hàng đang trống.",
-                            400
-                        );
+                        throw createError("Giỏ hàng đang trống.", 400);
                     }
 
                     const groupedItems = new Map();
 
                     for (const item of cartItems) {
-                        if (
-                            !Number.isInteger(item.quantity) ||
-                            item.quantity <= 0
-                        ) {
-                            throw createError(
-                                "Số lượng sản phẩm trong giỏ hàng không hợp lệ.",
-                                400
-                            );
+                        if (!Number.isInteger(item.quantity) || item.quantity <= 0) {
+                            throw createError("Số lượng sản phẩm trong giỏ hàng không hợp lệ.", 400);
                         }
 
                         const product = item.products;
-
                         if (!product) {
-                            throw createError(
-                                "Không tìm thấy sản phẩm trong giỏ hàng.",
-                                404
-                            );
+                            throw createError("Không tìm thấy sản phẩm trong giỏ hàng.", 404);
                         }
 
                         const current = groupedItems.get(product.product_id);
-
                         if (current) {
                             current.quantity += item.quantity;
                         } else {
@@ -99,12 +88,8 @@ class OrderService {
                             );
                         }
 
-                        const price = new Prisma.Decimal(
-                            product.price.toString()
-                        );
-
+                        const price = new Prisma.Decimal(product.price.toString());
                         const subtotal = price.mul(quantity);
-
                         totalAmount = totalAmount.add(subtotal);
 
                         orderItems.push({
@@ -130,14 +115,10 @@ class OrderService {
                         const stockResult = await tx.products.updateMany({
                             where: {
                                 product_id: item.product_id,
-                                stock: {
-                                    gte: item.quantity
-                                }
+                                stock: { gte: item.quantity }
                             },
                             data: {
-                                stock: {
-                                    decrement: item.quantity
-                                }
+                                stock: { decrement: item.quantity }
                             }
                         });
 
@@ -160,20 +141,14 @@ class OrderService {
                     });
 
                     await tx.cart_items.deleteMany({
-                        where: {
-                            user_id: parsedUserId
-                        }
+                        where: { user_id: parsedUserId }
                     });
 
                     return tx.orders.findUnique({
-                        where: {
-                            order_id: order.order_id
-                        },
+                        where: { order_id: order.order_id },
                         include: {
                             order_items: {
-                                include: {
-                                    products: true
-                                }
+                                include: { products: true }
                             }
                         }
                     });
@@ -186,17 +161,13 @@ class OrderService {
             );
         } catch (error) {
             if (error.code === "P2034") {
-                throw createError(
-                    "Đơn hàng đang được xử lý đồng thời. Vui lòng thử lại.",
-                    409
-                );
+                throw createError("Đơn hàng đang được xử lý đồng thời. Vui lòng thử lại.", 409);
             }
-
             throw error;
         }
     }
 
-    // TM-07: Lấy danh sách đơn hàng của tài khoản hiện tại
+    // TM-07: Danh sách đơn hàng của khách hàng
     async getMyOrders(userId) {
         const parsedUserId = Number(userId);
         if (!Number.isInteger(parsedUserId) || parsedUserId <= 0) {
@@ -204,23 +175,17 @@ class OrderService {
         }
 
         return await prisma.orders.findMany({
-            where: {
-                user_id: parsedUserId
-            },
-            orderBy: {
-                order_id: "desc"
-            },
+            where: { user_id: parsedUserId },
+            orderBy: { order_id: "desc" },
             include: {
                 order_items: {
-                    include: {
-                        products: true
-                    }
+                    include: { products: true }
                 }
             }
         });
     }
 
-    // TM-07: Xem chi tiết đơn hàng & chặn xem đơn của người khác (IDOR)
+    // TM-07: Chi tiết đơn hàng của khách hàng (chặn IDOR)
     async getOrderDetail(userId, orderId) {
         const parsedUserId = Number(userId);
         const parsedOrderId = Number(orderId);
@@ -234,14 +199,10 @@ class OrderService {
         }
 
         const order = await prisma.orders.findUnique({
-            where: {
-                order_id: parsedOrderId
-            },
+            where: { order_id: parsedOrderId },
             include: {
                 order_items: {
-                    include: {
-                        products: true
-                    }
+                    include: { products: true }
                 }
             }
         });
@@ -257,7 +218,7 @@ class OrderService {
         return order;
     }
 
-    // TM-07: Hủy đơn khi còn trạng thái "pending" (Chờ xác nhận) & hoàn tồn kho trong transaction
+    // TM-07: Khách hàng hủy đơn khi còn "pending"
     async cancelOrder(userId, orderId) {
         const parsedUserId = Number(userId);
         const parsedOrderId = Number(orderId);
@@ -272,14 +233,10 @@ class OrderService {
 
         return await prisma.$transaction(async (tx) => {
             const order = await tx.orders.findUnique({
-                where: {
-                    order_id: parsedOrderId
-                },
+                where: { order_id: parsedOrderId },
                 include: {
                     order_items: {
-                        include: {
-                            products: true
-                        }
+                        include: { products: true }
                     }
                 }
             });
@@ -293,39 +250,114 @@ class OrderService {
             }
 
             if (order.status !== "pending") {
-                throw createError(
-                    "Chỉ có thể hủy đơn hàng khi đang ở trạng thái Chờ xác nhận.",
-                    400
-                );
+                throw createError("Chỉ có thể hủy đơn hàng khi đang ở trạng thái Chờ xác nhận.", 400);
             }
 
-            // Hoàn trả số lượng tồn kho cho từng sản phẩm trong đơn
             for (const item of order.order_items) {
                 await tx.products.update({
-                    where: {
-                        product_id: item.product_id
-                    },
+                    where: { product_id: item.product_id },
                     data: {
-                        stock: {
-                            increment: item.quantity
-                        }
+                        stock: { increment: item.quantity }
                     }
                 });
             }
 
-            // Cập nhật trạng thái đơn sang "cancelled"
             return await tx.orders.update({
-                where: {
-                    order_id: parsedOrderId
-                },
-                data: {
-                    status: "cancelled"
-                },
+                where: { order_id: parsedOrderId },
+                data: { status: "cancelled" },
                 include: {
                     order_items: {
-                        include: {
-                            products: true
+                        include: { products: true }
+                    }
+                }
+            });
+        });
+    }
+
+    // TM-13: Admin lấy danh sách toàn bộ đơn hàng (có lọc theo trạng thái)
+    async getAllOrdersForAdmin(statusFilter) {
+        const where = {};
+
+        if (statusFilter && statusFilter !== "all") {
+            if (!Object.prototype.hasOwnProperty.call(STATUS_LABELS, statusFilter)) {
+                throw createError("Trạng thái lọc đơn hàng không hợp lệ.", 400);
+            }
+            where.status = statusFilter;
+        }
+
+        return await prisma.orders.findMany({
+            where,
+            orderBy: { order_id: "desc" },
+            include: {
+                order_items: {
+                    include: { products: true }
+                }
+            }
+        });
+    }
+
+    // TM-13: Admin chuyển trạng thái đơn theo máy trạng thái (chặn đi ngược)
+    async updateOrderStatusByAdmin(orderId, nextStatus) {
+        const parsedOrderId = Number(orderId);
+        if (!Number.isInteger(parsedOrderId) || parsedOrderId <= 0) {
+            throw createError("Mã đơn hàng không hợp lệ.", 400);
+        }
+
+        if (!nextStatus || !Object.prototype.hasOwnProperty.call(STATUS_LABELS, nextStatus)) {
+            throw createError("Trạng thái đơn hàng đích không hợp lệ.", 400);
+        }
+
+        return await prisma.$transaction(async (tx) => {
+            const order = await tx.orders.findUnique({
+                where: { order_id: parsedOrderId },
+                include: {
+                    order_items: {
+                        include: { products: true }
+                    }
+                }
+            });
+
+            if (!order) {
+                throw createError("Không tìm thấy đơn hàng.", 404);
+            }
+
+            const currentStatus = order.status;
+
+            if (currentStatus === nextStatus) {
+                throw createError(
+                    `Đơn hàng đã ở trạng thái "${STATUS_LABELS[currentStatus]}".`,
+                    400
+                );
+            }
+
+            const allowedNextStatuses = ALLOWED_TRANSITIONS[currentStatus] || [];
+            if (!allowedNextStatuses.includes(nextStatus)) {
+                const currentLabel = STATUS_LABELS[currentStatus] || currentStatus;
+                const nextLabel = STATUS_LABELS[nextStatus] || nextStatus;
+                throw createError(
+                    `Không thể chuyển trạng thái từ "${currentLabel}" sang "${nextLabel}" (không cho phép đi ngược hoặc nhảy bước).`,
+                    400
+                );
+            }
+
+            // Nếu Admin hủy đơn từ trạng thái "pending", hoàn lại tồn kho
+            if (currentStatus === "pending" && nextStatus === "cancelled") {
+                for (const item of order.order_items) {
+                    await tx.products.update({
+                        where: { product_id: item.product_id },
+                        data: {
+                            stock: { increment: item.quantity }
                         }
+                    });
+                }
+            }
+
+            return await tx.orders.update({
+                where: { order_id: parsedOrderId },
+                data: { status: nextStatus },
+                include: {
+                    order_items: {
+                        include: { products: true }
                     }
                 }
             });

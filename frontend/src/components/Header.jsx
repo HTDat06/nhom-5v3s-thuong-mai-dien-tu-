@@ -23,31 +23,34 @@ function Header() {
                 </div>
 
                 <div className="header-actions">
-                    <Link to="/cart" className="header-link">
-                        🛒 Giỏ hàng
-                        <span
-                            style={{
-                                backgroundColor: "#e53935",
-                                color: "#fff",
-                                borderRadius: "999px",
-                                padding: "2px 7px",
-                                fontSize: "12px",
-                                marginLeft: "5px",
-                                fontWeight: "bold",
-                            }}
-                        >
-                            {totalQuantity}
-                        </span>
-                    </Link>
+                    {user?.role !== "admin" && (
+                        <Link to="/cart" className="header-link">
+                            🛒 Giỏ hàng
+                            <span
+                                style={{
+                                    backgroundColor: "#e53935",
+                                    color: "#fff",
+                                    borderRadius: "999px",
+                                    padding: "2px 7px",
+                                    fontSize: "12px",
+                                    marginLeft: "5px",
+                                    fontWeight: "bold",
+                                }}
+                            >
+                                {totalQuantity}
+                            </span>
+                        </Link>
+                    )}
 
                     {user ? (
                         <>
-                            {user.role === "admin" && (
+                            {user.role === "admin" ? (
                                 <Link to="/admin" className="header-link">Quản trị</Link>
+                            ) : (
+                                <Link to="/my-orders" className="header-link">
+                                    📦 Đơn hàng của tôi
+                                </Link>
                             )}
-                            <Link to="/my-orders" className="header-link">
-                                📦 Đơn hàng của tôi
-                            </Link>
                             <span className="header-link">Xin chào, {user.name}</span>
                             <button type="button" className="header-link" onClick={handleLogout}>
                                 Đăng xuất

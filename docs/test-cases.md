@@ -46,3 +46,17 @@
 | **TC-TM07-04** | Truy cập mã đơn hàng không tồn tại | 1. Đổi `:id` trên URL `/my-orders/:id` sang mã không có trong DB | `orderId = 99999` | API trả về lỗi `404 Not Found`; giao diện báo không tìm thấy đơn hàng | PASS |
 | **TC-TM07-05** | Hủy đơn khi trạng thái "Chờ xác nhận" (`pending`) | 1. Chọn đơn có `status = "pending"`<br>2. Bấm "Hủy đơn hàng" và xác nhận | `orderId` đang `pending` | Đơn chuyển sang `"cancelled"`; số lượng `stock` của sản phẩm được hoàn lại trong `prisma.$transaction` | PASS |
 | **TC-TM07-06** | Chặn hủy đơn đã xác nhận hoặc đã hủy | 1. Mở đơn có `status` khác `"pending"` (`confirmed`, `shipping`, `cancelled`) | `orderId` đã xử lý/đã hủy | Giao diện ẩn nút "Hủy đơn hàng"; gọi trực tiếp API trả lỗi `400 Bad Request` | PASS |
+
+
+---
+
+## 5. TM-13: Quản lý đơn hàng (Admin)
+
+| Mã TC | Tên Test Case | Các bước thực hiện | Dữ liệu đầu vào | Kết quả mong đợi | Trạng thái |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **TC-TM13-01** | Xem và lọc danh sách đơn hàng theo trạng thái | 1. Đăng nhập tài khoản Admin (`admin@gmail.com`)<br>2. Vào `/admin` và bấm lần lượt các tab lọc trạng thái | `status` = `all`, `pending`, `shipping`, `completed`, `cancelled` | Hiển thị đúng danh sách đơn hàng tương ứng từng trạng thái; Header ẩn nút Giỏ hàng và Đơn hàng của tôi | PASS |
+| **TC-TM13-02** | Chuyển trạng thái xuôi `Chờ xác nhận` ➔ `Đang giao` | 1. Chọn đơn có `status = "pending"`<br>2. Bấm nút "Giao hàng" và xác nhận | `orderId` đang `pending`, `status = "shipping"` | Cập nhật thành công sang `Đang giao`, hiện nút "Hoàn thành" | PASS |
+| **TC-TM13-03** | Chuyển trạng thái xuôi `Đang giao` ➔ `Hoàn thành` | 1. Chọn đơn có `status = "shipping"`<br>2. Bấm nút "Hoàn thành" và xác nhận | `orderId` đang `shipping`, `status = "completed"` | Cập nhật thành công sang `Hoàn thành` và khóa nút thao tác trạng thái | PASS |
+| **TC-TM13-04** | Admin hủy đơn `Chờ xác nhận` và hoàn tồn kho | 1. Chọn đơn có `status = "pending"`<br>2. Bấm nút "Hủy đơn" và xác nhận | `orderId` đang `pending`, `status = "cancelled"` | Đơn chuyển sang `Đã hủy`, khóa trạng thái và cộng hoàn lại `stock` sản phẩm trong DB | PASS |
+| **TC-TM13-05** | Chặn chuyển ngược trạng thái hoặc nhảy bước | 1. Gọi API `PUT /api/orders/:id/status` cố tình đổi đơn `shipping` hoặc `completed` về `pending` | `orderId` đã `shipping`/`completed`, `status = "pending"` | API trả về lỗi `400 Bad Request` kèm thông báo không cho phép đi ngược hoặc nhảy bước | PASS |
+| **TC-TM13-06** | Chặn tài khoản khách hàng truy cập API quản trị đơn | 1. Dùng token của tài khoản `customer` gọi `GET /api/orders` hoặc `PUT /api/orders/:id/status` | Token JWT có `role = "customer"` | Middleware `requireAdmin` chặn và trả về lỗi `403 Forbidden` | PASS |
