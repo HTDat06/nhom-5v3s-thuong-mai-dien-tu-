@@ -23,6 +23,7 @@
 | AI-10 | 16/11 | Phát triển Backend | Viết OrderController và orderRoutes | | | |
 | AI-11 | 16/11 | Phát triển Backend | Viết mã giả | "AI-assisted - commit feat(TM-06): khung OrderService." | PR |
 | AI-12 | 18/11 | Phát triển Backend | Triển khai và kiểm thử chức năng đặt hàng | commit feat(TM-06): dat hang trong transaction, test(TM-06): | |
+| AI-13 | 20/11 | Frontend / Backend | Kết nối và kiểm tra API đặt hàng | commit feat(TM-06): form dat hang | |
 
 
 ### AI LOG 01 – [AI-01] Cấu hình Prisma kết nối SQL Server
@@ -218,3 +219,17 @@ Ngày / Người dùng: 2026-11-18 / Trần Ngọc Duy
 - Cách kiểm chứng: Chạy unit test bằng Jest, kết quả ghi nhận 3/3 test passed; kiểm tra Git và xử lý xung đột khi cherry-pick commit sang nhánh `feature/TM-06-dat-hang`.
 - Tỷ lệ nội dung AI còn giữ lại: 85%
 - Điều học được: Hiểu cách sử dụng Prisma transaction để đảm bảo tính nhất quán dữ liệu khi đặt hàng, cách kiểm thử các tình huống lỗi bằng Jest và cách xử lý xung đột Git khi tích hợp code vào nhánh tính năng.
+
+### AI LOG – [AI-13] Kết nối và kiểm tra API đặt hàng
+
+Ngày / Người dùng: 2026-11-20 / Trần Ngọc Duy
+- Công cụ: ChatGPT
+- Giai đoạn: Frontend / Backend
+- Task / Commit / PR / TM-06 – Form đặt hàng / commit feat(TM-06): form dat hang
+- Mục đích: Kết nối form đặt hàng Frontend với API Backend.
+- Prompt chính: “kết nối với API đặt hàng Backend”
+- Kết quả AI trả về: Hướng dẫn tạo orderService.js, sử dụng Fetch API gửi yêu cầu POST đến /api/orders, truyền JWT qua Authorization và gửi dữ liệu receiver_name, phone, shipping_address.
+- Đã chỉnh sửa gì: Tạo orderService.js, kết nối hàm handleSubmit trong Order.jsx với API, xử lý trạng thái loading, lỗi và thông báo đặt hàng thành công.
+- Cách kiểm chứng: Đối chiếu API Frontend với orderRoutes.js, OrderController.js và OrderService.js ở Backend.
+- Tỷ lệ nội dung AI còn giữ lại: 90%.
+- Điều học được: Hiểu cách gửi request POST, truyền token JWT, xử lý response và kết nối Frontend với Backend thông qua REST API.
