@@ -77,6 +77,7 @@ Cơ sở dữ liệu được thiết kế cho hệ thống bán hàng, gồm 6 
 | order_id         | INT           | PK, IDENTITY(1,1), NOT NULL | Mã đơn hàng                              |
 | user_id          | INT           | FK, NOT NULL                | Mã người dùng                            |
 | total_amount     | DECIMAL(12,2) | NOT NULL                    | Tổng tiền đơn hàng                       |
+| receiver_name    | NVARCHAR(225) | NULL                        | Tên người nhận                           |
 | shipping_address | NVARCHAR(225) | NOT NULL                    | Địa chỉ giao hàng                        |
 | phone            | NVARCHAR(225) | NOT NULL                    | Số điện thoại nhận hàng                  |
 | status           | NVARCHAR(225) | NOT NULL, DEFAULT 'pending' | Trạng thái đơn hàng, mặc định là pending |

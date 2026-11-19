@@ -106,6 +106,9 @@ class CartService {
 
     return await CartRepository.delete(cartItemId);
   }
+  static async clearCart(userId) {
+    return await CartRepository.deleteAllByUserId(userId);
+  }
 }
 
 module.exports = CartService;

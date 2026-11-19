@@ -65,3 +65,18 @@ export async function removeCartItemRequest(token, cartItemId) {
     }
     return result;
 }
+export async function clearCartRequest(token) {
+    const response = await fetch(`${API_BASE_URL}/api/cart`, {
+        method: "DELETE",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+    });
+
+    const result = await response.json();
+    if (!response.ok) {
+        throw new Error(result.message || "Không thể xóa giỏ hàng.");
+    }
+    return result;
+}

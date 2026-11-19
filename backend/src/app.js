@@ -11,7 +11,7 @@ const cartRoutes = require("./Routes/cartRoutes");
 const categoryRoutes = require("./Routes/categoryRoutes");
 const productRoutes = require("./Routes/productRoutes");
 const userRoutes = require("./Routes/userRoutes");
-
+const orderRoutes = require("./Routes/orderRoutes");
 app.use(express.json());
 
 app.use(
@@ -36,4 +36,6 @@ app.use("/api/cart", cartRoutes);
 app.use("/api/admin/categories", categoryRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/orders", orderRoutes);
+
 module.exports = app;
