@@ -1,10 +1,10 @@
+
 | Mục | Thông tin |
 | --- | --- |
 | Họ tên, MSSV | Mai Thanh Tân – 0306241241 |
 | Nhóm, đề tài | Nhóm 8 – Thương mại điện tử |
 | Vai trò | TV4 – BE (csdl) |
 | Công cụ AI dùng | ChatGPT, Claude |
-
 ###[AI-01]
 1.Yêu cầu xác định mối quan hệ giữa các bảng
 2.Tạo code để vẽ sơ đồ trên dbdiagram.io
@@ -85,3 +85,22 @@
 - Đảm bảo chức năng lọc danh mục và phân trang phía server.
 - Bổ sung kiểm tra giá và số lượng tồn kho ở phía server.
 - Kiểm tra, rà soát code trước khi gửi review.
+
+**[AI-07] Kiểm thử Validation Admin và bổ sung dữ liệu Demo (TV4)**
+
+- **Ngày / Người dùng:** 2026-11-19 / Mai Thanh Tân
+- **Công cụ:** ChatGPT (GPT-6)
+- **Giai đoạn:** Phát triển | Backend – Database
+**Nội dung sử dụng AI:**
+- Nhờ ChatGPT rà soát validation phía Server cho chức năng thêm, sửa danh mục và sản phẩm.
+- Hỗ trợ kiểm tra các điều kiện dữ liệu: tên danh mục không được để trống, không trùng, không vượt quá 225 ký tự; giá sản phẩm phải lớn hơn 0; tồn kho phải là số nguyên không âm.
+- Hướng dẫn sử dụng Postman để kiểm thử API Admin, đăng nhập lấy Bearer Token và gửi dữ liệu hợp lệ, không hợp lệ.
+- Hỗ trợ kiểm tra chức năng upload ảnh sản phẩm, định dạng JPG/PNG và giới hạn dung lượng tối đa 2 MB.
+- Hướng dẫn cập nhật ảnh cho sản phẩm hiện có thông qua API PUT, đồng thời kiểm tra đường dẫn ảnh được lưu trong SQL Server.
+- Hỗ trợ truy vấn SQL Server để kiểm tra dữ liệu danh mục, sản phẩm, ảnh sản phẩm và các trạng thái đơn hàng mẫu.
+**Kết quả:**
+- Rà soát được các điều kiện validation của danh mục và sản phẩm.
+- Kiểm thử API Admin bằng Postman và xác nhận một số trường hợp trả về lỗi 400 như ID danh mục không hợp lệ.
+- Kiểm tra dữ liệu mẫu hiện có gồm 10 danh mục, 32 sản phẩm và 10 đơn hàng với 5 trạng thái khác nhau.
+- Thực hiện upload ảnh PNG thành công và xác nhận đường dẫn ảnh được cập nhật trong database.
+- Xác định các công việc tiếp theo để hoàn thiện ảnh Demo và tích hợp hiển thị sản phẩm trên Frontend.
