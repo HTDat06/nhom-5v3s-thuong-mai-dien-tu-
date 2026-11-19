@@ -9,7 +9,6 @@ function formatPrice(price) {
     const value = Number(String(price).replace(/[^\d]/g, ""));
 
     if (!Number.isFinite(value)) return price;
-
     return value.toLocaleString("vi-VN") + " ₫";
 }
 
@@ -46,6 +45,7 @@ function ProductCard({ product }) {
         }
     };
 
+
     return (
         <div className="product-card">
             <img
@@ -58,10 +58,7 @@ function ProductCard({ product }) {
                 <h3>
                     <Link
                         to={`/products/${productId}`}
-                        style={{
-                            color: "inherit",
-                            textDecoration: "none"
-                        }}
+                        className="product-name-link"
                     >
                         {product.name || product.product_name}
                     </Link>
@@ -73,25 +70,9 @@ function ProductCard({ product }) {
 
                 <button
                     type="button"
+                    className={`add-cart-button ${addedSuccess ? "added" : ""}`}
                     onClick={handleAddToCart}
                     disabled={adding || isOutOfStock}
-                    style={{
-                        marginTop: "10px",
-                        width: "100%",
-                        padding: "8px 12px",
-                        backgroundColor: isOutOfStock
-                            ? "#9e9e9e"
-                            : addedSuccess
-                                ? "#2e7d32"
-                                : "#1976d2",
-                        color: "#fff",
-                        border: "none",
-                        borderRadius: "6px",
-                        cursor: adding || isOutOfStock
-                            ? "not-allowed"
-                            : "pointer",
-                        fontWeight: "600",
-                    }}
                 >
                     {isOutOfStock
                         ? "Hết hàng"
@@ -105,5 +86,4 @@ function ProductCard({ product }) {
         </div>
     );
 }
-
 export default ProductCard;
