@@ -19,6 +19,7 @@
 | AI-06 | 16/11 | Phát triển & Kiểm thử | Triển khai chức năng Thêm vào giỏ hàng (TM-05) Fullstack và Test Cases | [PR #112 ](https://github.com/HTDat06/nhom-5v3s-thuong-mai-dien-tu-/pull/112) |
 | AI-07 | 18/11 | Phát triển & Kiểm thử | Hoàn thiện Trang giỏ hàng TM-05 (sửa số lượng, xóa, tổng tiền) và đồng bộ nhánh develop | [PR #138 ](https://github.com/HTDat06/nhom-5v3s-thuong-mai-dien-tu-/pull/138) |
 | AI-08 | 20/11 | Phát triển & Kiểm thử | Review PR TM-06, đồng bộ CSDL và triển khai & kiểm thử Đơn hàng của tôi TM-07 (chống IDOR 403/404, hủy đơn hoàn tồn kho) | [PR #152 ](https://github.com/HTDat06/nhom-5v3s-thuong-mai-dien-tu-/pull/152) |
+| AI-09 | 20/11 | Phát triển & Kiểm thử | Review PR TM-02, triển khai Quản lý đơn hàng Admin TM-13 (State Machine chặn đi ngược) và phân quyền Header Admin | [PR #153 ](https://github.com/HTDat06/nhom-5v3s-thuong-mai-dien-tu-/pull/153) |
 
 ---
 
@@ -139,7 +140,7 @@
 - Ngày / Người dùng: 2026-11-20 / Hoàng Tiến Đạt
 - Công cụ: Gemini
 - Giai đoạn: Phát triển & Kiểm thử
-- Task / Commit / PR: [TM-07] Đơn hàng của tôi / `feat(TM-07): don hang cua toi` / nhánh `feature/TM-07-don-cua-toi`
+- Task / Commit / PR: [TM-07] Đơn hàng của tôi / `feat(TM-07): don hang cua toi` / PR #152
 - Mục đích: Review và gộp PR `TM-06` (#152) vào `develop`, xử lý cập nhật cột bắt buộc `receiver_name` trên SQL Server mà không làm mất dữ liệu cũ, triển khai trọn vẹn tính năng Đơn hàng của tôi (`TM-07`) gồm xem danh sách/chi tiết đơn, chặn xem đơn người khác (IDOR lỗi 403/404) và hủy đơn `"pending"` hoàn tồn kho trong transaction.
 - Prompt chính: "Hỗ trợ review PR TM-06, xử lý lỗi Prisma db push thêm cột bắt buộc receiver_name trên bảng orders có sẵn dữ liệu, và triển khai fullstack chức năng Đơn hàng của tôi TM-07 (danh sách đơn, chi tiết đơn chặn IDOR 403/404, hủy đơn pending hoàn tồn kho)."
 - Kết quả AI trả về (tóm tắt): Hướng dẫn kiểm tra xung đột 23 tệp trong PR #152 trước khi merge; cung cấp câu lệnh SQL `ALTER TABLE` / `UPDATE` bổ sung cột `receiver_name` giữ nguyên 10 bản ghi cũ; xuất mã nguồn Backend (`OrderService.js`, `OrderController.js`, `orderRoutes.js`) và Frontend (`myOrderService.js`, `MyOrdersPage.jsx`, `OrderDetailPage.jsx`, `App.jsx`, `Header.jsx`) cho `TM-07`.
@@ -148,3 +149,21 @@
 - Cách kiểm chứng: Chạy thực tế trên `localhost:5173/my-orders` với các kịch bản: xem danh sách và chi tiết đơn của tài khoản đang đăng nhập, thử đổi ID đơn hàng trên URL sang đơn của người dùng khác (hệ thống trả lỗi `403` / `404` và chặn hiển thị), hủy đơn ở trạng thái `"pending"` và kiểm tra số lượng `stock` trong bảng `products` được hoàn lại chính xác.
 - Tỷ lệ nội dung AI còn giữ lại (ước lượng): 80%
 - Điều học được: Khi schema Prisma thêm cột `NOT NULL` không có giá trị mặc định vào bảng đã có dữ liệu, cần bổ sung dữ liệu cho các dòng cũ bằng SQL trước khi chạy `npx prisma db push` thay vì `--force-reset`; đồng thời luôn kiểm tra quyền sở hữu (`order.user_id === currentUserId`) ở tầng Service để chống truy cập trái phép qua tham số URL.
+
+
+
+---
+
+### [AI-09] Review PR TM-02 và triển khai Quản lý đơn hàng Admin (TM-13)
+- Ngày / Người dùng: 2026-11-20 / Hoàng Tiến Đạt
+- Công cụ: Gemini
+- Giai đoạn: Phát triển & Kiểm thử
+- Task / Commit / PR: [TM-13] Quản lý đơn hàng Admin / `feat(TM-13): chuyen trang thai don` / PR #153
+- Mục đích: Review xung đột PR `#144` (`TM-02` Tìm kiếm), xây dựng chức năng Quản lý đơn hàng cho Admin (`TM-13`) gồm lọc danh sách đơn theo trạng thái và máy trạng thái chuyển một chiều (`Chờ xác nhận` ➔ `Đang giao` ➔ `Hoàn thành` / `Đã hủy`, chặn đi ngược), đồng thời ẩn nút Giỏ hàng và Đơn hàng của tôi trên Header khi đăng nhập quyền Admin.
+- Prompt chính: "Gợi ý biểu diễn máy trạng thái đơn hàng cho TM-13 (lọc theo trạng thái, chuyển Chờ xác nhận -> Đang giao -> Hoàn thành hoặc Đã hủy, chặn đi ngược) khớp với authMiddleware và trang Admin hiện tại."
+- Kết quả AI trả về (tóm tắt): Thiết kế bảng chuyển trạng thái `ALLOWED_TRANSITIONS` kiểm tra hợp lệ ở tầng Service, xuất mã nguồn Backend (`OrderService.js`, `OrderController.js`, `orderRoutes.js` gắn `authenticate, requireAdmin`) và Frontend (`adminOrderService.js`, `AdminOrderManager.jsx`, cập nhật `Admin.jsx` và `Header.jsx`).
+- Đánh giá: Đúng – Chặn chặt chẽ chuyển trạng thái ngược chiều/nhảy bước ở cả giao diện lẫn API Backend, hoàn tồn kho khi Admin hủy đơn `pending`.
+- Đã chỉnh sửa gì: Loại bỏ mệnh đề `include: { users }` trong `OrderService.js` để khớp với tên quan hệ trong `schema.prisma` hiện tại của nhóm, ẩn nút Giỏ hàng/Đơn hàng của tôi trên `Header.jsx` đối với tài khoản `admin` mà vẫn giữ nguyên ô tìm kiếm của `TM-02`, và bổ sung bộ test cases `TM-13` vào `docs/test-cases.md`.
+- Cách kiểm chứng: Đăng nhập `admin@gmail.com` trên `localhost:5173/admin`, kiểm tra bộ lọc trạng thái, chuyển xuôi trạng thái đơn hàng, kiểm tra khóa nút ở đơn `Hoàn thành`/`Đã hủy`, và dùng PowerShell gọi trực tiếp API `PUT /api/orders/:id/status` chuyển ngược về `pending` để xác nhận server trả lỗi `400`.
+- Tỷ lệ nội dung AI còn giữ lại (ước lượng): 80%
+- Điều học được: Biểu diễn máy trạng thái bằng từ điển `ALLOWED_TRANSITIONS` giúp kiểm soát tập trung mọi luồng chuyển đổi hợp lệ và ngăn chặn triệt để thao tác gọi API đi ngược quy trình.

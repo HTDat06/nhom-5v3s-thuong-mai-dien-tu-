@@ -4,11 +4,7 @@ class OrderController {
     async placeOrder(req, res) {
         try {
             const userId = req.user?.user_id ?? req.user?.userId ?? req.user?.id;
-
-            const order = await orderService.placeOrder(
-                userId,
-                req.body || {}
-            );
+            const order = await orderService.placeOrder(userId, req.body || {});
 
             return res.status(201).json({
                 success: true,
@@ -17,7 +13,6 @@ class OrderController {
             });
         } catch (error) {
             console.error("Place order error:", error);
-
             return res.status(error.statusCode || 500).json({
                 success: false,
                 message: error.statusCode
@@ -81,6 +76,50 @@ class OrderController {
                 message: error.statusCode
                     ? error.message
                     : "Không thể hủy đơn hàng."
+            });
+        }
+    }
+
+    // TM-13: Admin xem tất cả đơn & lọc theo trạng thái
+    async getAllOrdersForAdmin(req, res) {
+        try {
+            const { status } = req.query;
+            const orders = await orderService.getAllOrdersForAdmin(status);
+
+            return res.status(200).json({
+                success: true,
+                data: orders
+            });
+        } catch (error) {
+            return res.status(error.statusCode || 500).json({
+                success: false,
+                message: error.statusCode
+                    ? error.message
+                    : "Không thể tải danh sách đơn hàng quản trị."
+            });
+        }
+    }
+
+    // TM-13: Admin cập nhật trạng thái đơn
+    async updateOrderStatusByAdmin(req, res) {
+        try {
+            const { status } = req.body || {};
+            const updatedOrder = await orderService.updateOrderStatusByAdmin(
+                req.params.id,
+                status
+            );
+
+            return res.status(200).json({
+                success: true,
+                message: "Cập nhật trạng thái đơn hàng thành công!",
+                data: updatedOrder
+            });
+        } catch (error) {
+            return res.status(error.statusCode || 500).json({
+                success: false,
+                message: error.statusCode
+                    ? error.message
+                    : "Không thể cập nhật trạng thái đơn hàng."
             });
         }
     }

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
+import AdminOrderManager from "../components/AdminOrderManager";
 
 function Admin() {
     const { token } = useAuth();
@@ -38,7 +39,14 @@ function Admin() {
     return (
         <section style={{ width: "90%", maxWidth: 1200, margin: "32px auto" }}>
             <h1>Trang quản trị</h1>
-            {status === "loading" ? <p>Đang kiểm tra quyền truy cập...</p> : <p>{message}</p>}
+            {status === "loading" && <p>Đang kiểm tra quyền truy cập...</p>}
+            {status === "error" && <p style={{ color: "#c62828" }}>{message}</p>}
+            {status === "success" && (
+                <>
+                    {message && <p style={{ color: "#2e7d32" }}>{message}</p>}
+                    <AdminOrderManager />
+                </>
+            )}
         </section>
     );
 }
