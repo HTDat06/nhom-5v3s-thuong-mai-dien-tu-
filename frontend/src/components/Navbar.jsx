@@ -8,14 +8,11 @@ function Navbar() {
 
     const categories = [
         { name: "Trang chủ", path: "/" },
-        { name: "VGA", path: "/products?category=vga" },
-        { name: "RAM", path: "/products?category=ram" },
-        { name: "CPU", path: "/products?category=cpu" },
-        { name: "Mainboard", path: "/products?category=mainboard" },
-        { name: "SSD", path: "/products?category=ssd" },
-        { name: "PSU", path: "/products?category=psu" },
-        { name: "Case PC", path: "/products?category=case" },
-        { name: "Tản nhiệt", path: "/products?category=cooler" }
+        { name: "CPU - Bộ vi xử lý", path: "/?category_id=1" },
+        { name: "Mainboard - Bo mạch chủ", path: "/?category_id=2" },
+        { name: "RAM - Bộ nhớ", path: "/?category_id=3" },
+        { name: "VGA - Card màn hình", path: "/?category_id=4" },
+        { name: "Ổ cứng - Lưu trữ", path: "/?category_id=5" }
     ];
 
     return (
