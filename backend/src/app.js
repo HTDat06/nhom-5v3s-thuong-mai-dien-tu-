@@ -1,8 +1,26 @@
 const express = require("express");
 const path = require("path");
 const cors = require("cors");
+
 const app = express();
 
+// Cấu hình CORS cho React Vite
+app.use(
+    cors({
+        origin: "http://localhost:5173",
+        methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+        credentials: true
+    })
+);
+
+app.use(express.json());
+
+app.use(
+    "/uploads",
+    express.static(
+        path.join(__dirname, "../uploads")
+    )
+);
 
 const healthRoutes = require("./Routes/healthRoutes");
 const authRoutes = require("./Routes/authRoutes");
@@ -12,20 +30,9 @@ const categoryRoutes = require("./Routes/categoryRoutes");
 const productRoutes = require("./Routes/productRoutes");
 const userRoutes = require("./Routes/userRoutes");
 const orderRoutes = require("./Routes/orderRoutes");
-app.use(express.json());
 
-app.use(
-  "/uploads",
-  express.static(
-    path.join(__dirname, "../uploads")
-  )
-);
-app.use(cors({
-    origin: "http://localhost:5173",
-    credentials: true
-}));
 app.get("/", (req, res) => {
-  res.json({ message: "Ecommerce API is running!" });
+    res.json({ message: "Ecommerce API is running!" });
 });
 
 app.use("/api/health", healthRoutes);

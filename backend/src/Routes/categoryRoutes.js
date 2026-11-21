@@ -8,13 +8,13 @@ const {
   requireAdmin
 } = require("../Middlewares/authMiddleware");
 
-// Tất cả API danh mục đều yêu cầu quyền Admin
-router.use(authenticate, requireAdmin);
-
-// GET: Lấy danh sách danh mục
+// GET: Lấy danh sách danh mục - Không cần đăng nhập
 router.get("/", (req, res) =>
   categoryController.getAll(req, res)
 );
+
+// Các API bên dưới yêu cầu đăng nhập và quyền Admin
+router.use(authenticate, requireAdmin);
 
 // POST: Thêm danh mục
 router.post("/", (req, res) =>

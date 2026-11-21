@@ -1,27 +1,74 @@
-
 const prisma = require("../config/prisma");
 
 class ProductRepository {
   // Lấy danh sách sản phẩm, tìm kiếm và phân trang
-  async findAll({ skip, take, search, categoryId, isActive }) {
+  async findAll({
+    skip,
+    take,
+    search,
+    keyword,
+    categoryId,
+    minPrice,
+    maxPrice,
+    isActive,
+    sort
+  }) {
     const where = {};
 
-   
-    // Tìm kiếm theo tên sản phẩm
-    if (search) {
-      where.product_name = {
-        contains: search
-      };
+    // Tìm kiếm theo tên hoặc mô tả
+    const searchKeyword = keyword || search;
+
+    if (searchKeyword) {
+      where.OR = [
+        {
+          product_name: {
+            contains: searchKeyword
+          }
+        },
+        {
+          description: {
+            contains: searchKeyword
+          }
+        }
+      ];
     }
 
-    // Lọc theo danh mục
+    // Lọc danh mục
     if (categoryId !== undefined) {
       where.category_id = categoryId;
     }
 
-    // Lọc theo trạng thái ẩn/hiện
+    // Lọc trạng thái
     if (isActive !== undefined) {
       where.is_active = isActive;
+    }
+
+    // Lọc khoảng giá
+    if (minPrice !== undefined || maxPrice !== undefined) {
+      where.price = {};
+
+      if (minPrice !== undefined) {
+        where.price.gte = minPrice;
+      }
+
+      if (maxPrice !== undefined) {
+        where.price.lte = maxPrice;
+      }
+    }
+
+    // Sắp xếp
+    let orderBy = {
+      product_id: "desc"
+    };
+
+    if (sort === "price_asc") {
+      orderBy = {
+        price: "asc"
+      };
+    } else if (sort === "price_desc") {
+      orderBy = {
+        price: "desc"
+      };
     }
 
     const [products, total] = await Promise.all([
@@ -29,9 +76,7 @@ class ProductRepository {
         where,
         skip,
         take,
-        orderBy: {
-          product_id: "desc"
-        },
+        orderBy,
         include: {
           categories: true
         }
