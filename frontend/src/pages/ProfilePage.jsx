@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
@@ -146,7 +145,6 @@ export default function ProfilePage() {
                 getAuthConfig()
             );
 
-            // Nếu backend trả về user mới thì lấy dữ liệu đó.
             const updatedData =
                 res.data.data || res.data.user || {};
 
@@ -159,7 +157,6 @@ export default function ProfilePage() {
                 address: updatedData.address ?? previous.address
             }));
 
-            // Đồng bộ tên mới với Navbar
             syncUserName(finalName);
 
             setStatusMsg({
@@ -194,7 +191,7 @@ export default function ProfilePage() {
         if (newPassword !== confirmPassword) {
             setPassMsg({
                 type: "error",
-                text: "Mật khẩu nhập lại không khớp."
+                text: "Mật khẩu nhập lại không khớp với mật khẩu mới."
             });
             return;
         }
@@ -214,7 +211,8 @@ export default function ProfilePage() {
                 `${API_URL}/change-password`,
                 {
                     oldPassword,
-                    newPassword
+                    newPassword,
+                    confirmNewPassword: confirmPassword
                 },
                 getAuthConfig()
             );

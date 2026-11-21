@@ -1,4 +1,3 @@
-
 const UserService = require("../Services/UserService");
 
 class UserController {
@@ -84,12 +83,18 @@ class UserController {
                 });
             }
 
-            const { oldPassword, newPassword } = req.body;
+            const {
+                oldPassword,
+                newPassword,
+                confirmNewPassword,
+                confirmPassword
+            } = req.body;
 
             const result = await UserService.changePassword(
                 userId,
                 oldPassword,
-                newPassword
+                newPassword,
+                confirmNewPassword ?? confirmPassword
             );
 
             return res.status(200).json({

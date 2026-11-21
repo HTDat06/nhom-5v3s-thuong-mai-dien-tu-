@@ -1,4 +1,3 @@
-
 const prisma = require("../config/prisma");
 const bcrypt = require("bcrypt");
 const UserRepository = require("../Repositories/UserRepository");
@@ -118,7 +117,7 @@ class UserService {
     }
 
     // 3. Đổi mật khẩu
-    async changePassword(userId, oldPassword, newPassword) {
+    async changePassword(userId, oldPassword, newPassword, confirmNewPassword) {
         const parsedId = Number(userId);
 
         if (!Number.isInteger(parsedId) || parsedId <= 0) {
@@ -132,19 +131,30 @@ class UserService {
             typeof oldPassword !== "string" ||
             oldPassword.length === 0 ||
             typeof newPassword !== "string" ||
-            newPassword.length === 0
+            newPassword.length === 0 ||
+            typeof confirmNewPassword !== "string" ||
+            confirmNewPassword.length === 0
         ) {
             const error = new Error(
-                "Vui lòng nhập đầy đủ mật khẩu cũ và mật khẩu mới"
+                "Vui lòng nhập đầy đủ mật khẩu cũ, mật khẩu mới và xác nhận mật khẩu"
             );
             error.statusCode = 400;
             throw error;
         }
 
-        // Mật khẩu mới tối thiểu 8 ký tự theo Ngày 8
+        // Mật khẩu mới tối thiểu 8 ký tự
         if (newPassword.length < 8) {
             const error = new Error(
                 "Mật khẩu mới phải có ít nhất 8 ký tự"
+            );
+            error.statusCode = 400;
+            throw error;
+        }
+
+        // Kiểm tra mật khẩu nhập lại khớp nhau
+        if (newPassword !== confirmNewPassword) {
+            const error = new Error(
+                "Mật khẩu nhập lại không khớp với mật khẩu mới"
             );
             error.statusCode = 400;
             throw error;

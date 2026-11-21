@@ -37,7 +37,7 @@ nhom--thuong-mai-dien-tu-/
 Mở Terminal (hoặc Git Bash) và chạy lệnh sau:
 
 ```bash
-git clone [https://github.com/HTDat06/nhom--thuong-mai-dien-tu-.git](https://github.com/HTDat06/nhom--thuong-mai-dien-tu-.git)
+git clone [https://github.com/HTDat06/nhom-5v3s-thuong-mai-dien-tu-.git](https://github.com/HTDat06/nhom-5v3s-thuong-mai-dien-tu-.git)
 cd nhom--thuong-mai-dien-tu-
 git checkout develop
 git pull origin develop
