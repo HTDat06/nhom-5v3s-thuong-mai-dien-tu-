@@ -1,70 +1,36 @@
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import AccountMenu from "../components/AccountMenu";
 
 function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
 
     const categories = [
         { name: "Trang chủ", path: "/" },
-        { name: "VGA", path: "/products?category=vga" },
-        { name: "RAM", path: "/products?category=ram" },
-        { name: "CPU", path: "/products?category=cpu" },
-        { name: "Mainboard", path: "/products?category=mainboard" },
-        { name: "SSD", path: "/products?category=ssd" },
-        { name: "PSU", path: "/products?category=psu" },
-        { name: "Case PC", path: "/products?category=case" },
-        { name: "Tản nhiệt", path: "/products?category=cooler" }
+        { name: "CPU - Bộ vi xử lý", path: "/?category_id=1" },
+        { name: "Mainboard - Bo mạch chủ", path: "/?category_id=2" },
+        { name: "RAM - Bộ nhớ", path: "/?category_id=3" },
+        { name: "VGA - Card màn hình", path: "/?category_id=4" },
+        { name: "Ổ cứng - Lưu trữ", path: "/?category_id=5" }
     ];
 
     return (
-        <nav
-            className="navbar"
-            style={{
-                width: "100%",
-                backgroundColor: "#2563eb"
-            }}
-        >
-            <div
-                className="navbar-container"
-                style={{
-                    display: "flex",
-                    flexDirection: "row",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    flexWrap: "nowrap",
-                    gap: "15px",
-                    padding: "0 20px"
-                }}
-            >
+        <nav className="navbar">
+            <div className="navbar-container">
+
                 <button
+                    type="button"
                     className="category-toggle"
                     onClick={() => setIsOpen(!isOpen)}
+                    aria-expanded={isOpen}
                 >
                     ☰ Danh mục
                     <span>{isOpen ? "▲" : "▼"}</span>
                 </button>
 
-                <ul
-                    className={`nav-list ${isOpen ? "active" : ""}`}
-                    style={{
-                        display: "flex",
-                        flexDirection: "row",
-                        alignItems: "center",
-                        flexWrap: "nowrap",
-                        flex: 1,
-                        gap: "25px",
-                        margin: 0,
-                        padding: 0,
-                        listStyle: "none"
-                    }}
-                >
+                <ul className={`nav-list ${isOpen ? "active" : ""}`}>
                     {categories.map((item) => (
-                        <li
-                            key={item.name}
-                            style={{ whiteSpace: "nowrap" }}
-                        >
+                        <li key={item.name}>
                             <Link
                                 to={item.path}
                                 onClick={() => setIsOpen(false)}
@@ -75,18 +41,6 @@ function Navbar() {
                     ))}
                 </ul>
 
-                <div
-                    className="navbar-account"
-                    style={{
-                        display: "flex",
-                        alignItems: "center",
-                        flexDirection: "row",
-                        flexShrink: 0,
-                        whiteSpace: "nowrap"
-                    }}
-                >
-                    <AccountMenu />
-                </div>
             </div>
         </nav>
     );
