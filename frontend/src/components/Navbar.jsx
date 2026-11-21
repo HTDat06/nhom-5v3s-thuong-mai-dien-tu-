@@ -1,6 +1,7 @@
 
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import AccountMenu from "../components/AccountMenu";
 
 function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
@@ -17,14 +18,26 @@ function Navbar() {
         { name: "Tản nhiệt", path: "/products?category=cooler" }
     ];
 
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    const isAdmin = user.role === 'admin';
-
     return (
-        <nav className="navbar">
-            <div className="navbar-container">
-
-                {/* Nút danh mục chỉ hiện trên điện thoại */}
+        <nav
+            className="navbar"
+            style={{
+                width: "100%",
+                backgroundColor: "#2563eb"
+            }}
+        >
+            <div
+                className="navbar-container"
+                style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    flexWrap: "nowrap",
+                    gap: "15px",
+                    padding: "0 20px"
+                }}
+            >
                 <button
                     className="category-toggle"
                     onClick={() => setIsOpen(!isOpen)}
@@ -33,10 +46,25 @@ function Navbar() {
                     <span>{isOpen ? "▲" : "▼"}</span>
                 </button>
 
-                {/* Danh sách danh mục */}
-                <ul className={`nav-list ${isOpen ? "active" : ""}`}>
+                <ul
+                    className={`nav-list ${isOpen ? "active" : ""}`}
+                    style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        alignItems: "center",
+                        flexWrap: "nowrap",
+                        flex: 1,
+                        gap: "25px",
+                        margin: 0,
+                        padding: 0,
+                        listStyle: "none"
+                    }}
+                >
                     {categories.map((item) => (
-                        <li key={item.name}>
+                        <li
+                            key={item.name}
+                            style={{ whiteSpace: "nowrap" }}
+                        >
                             <Link
                                 to={item.path}
                                 onClick={() => setIsOpen(false)}
@@ -46,6 +74,19 @@ function Navbar() {
                         </li>
                     ))}
                 </ul>
+
+                <div
+                    className="navbar-account"
+                    style={{
+                        display: "flex",
+                        alignItems: "center",
+                        flexDirection: "row",
+                        flexShrink: 0,
+                        whiteSpace: "nowrap"
+                    }}
+                >
+                    <AccountMenu />
+                </div>
             </div>
         </nav>
     );
