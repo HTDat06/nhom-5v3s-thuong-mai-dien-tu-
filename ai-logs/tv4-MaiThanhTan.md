@@ -5,6 +5,7 @@
 | Nhóm, đề tài | Nhóm 8 – Thương mại điện tử |
 | Vai trò | TV4 – BE (csdl) |
 | Công cụ AI dùng | ChatGPT, Claude |
+
 ###[AI-01]
 1.Yêu cầu xác định mối quan hệ giữa các bảng
 2.Tạo code để vẽ sơ đồ trên dbdiagram.io
@@ -97,10 +98,40 @@
 - Hướng dẫn sử dụng Postman để kiểm thử API Admin, đăng nhập lấy Bearer Token và gửi dữ liệu hợp lệ, không hợp lệ.
 - Hỗ trợ kiểm tra chức năng upload ảnh sản phẩm, định dạng JPG/PNG và giới hạn dung lượng tối đa 2 MB.
 - Hướng dẫn cập nhật ảnh cho sản phẩm hiện có thông qua API PUT, đồng thời kiểm tra đường dẫn ảnh được lưu trong SQL Server.
+
+  **[AI-08] Xây dựng Unit Test cho CategoryService (TV4)**
+
+- **Ngày / Người dùng:** 2026-11-21 / Mai Thanh Tân
+- **Công cụ:** ChatGPT (GPT-6)
+- **Giai đoạn:** Kiểm thử | Backend – Database
+**Nội dung sử dụng AI:**
+- Nhờ ChatGPT hướng dẫn xây dựng Unit Test cho `CategoryService` bằng Jest.
+- Hỗ trợ viết và kiểm thử các trường hợp xử lý danh mục, bao gồm:
+Kiểm thử chức năng thêm danh mục (createCategory), gồm các trường hợp:
+- Tên danh mục để trống.
+- Tên danh mục chỉ chứa khoảng trắng.
+- Tên danh mục vượt quá 225 ký tự.
+- Tên danh mục bị trùng.
+- Thêm danh mục với dữ liệu hợp lệ.
+Kiểm thử chức năng cập nhật danh mục (updateCategory), gồm các trường hợp:
+- ID danh mục không hợp lệ.
+- Không tìm thấy danh mục cần cập nhật.
+- Tên danh mục để trống.
+- Tên danh mục bị trùng.
+- Không có dữ liệu cập nhật.
+- Cập nhật danh mục với dữ liệu hợp lệ.
+Kiểm thử chức năng xóa danh mục (deleteCategory), gồm các trường hợp:
+- ID danh mục không hợp lệ.
+- Không tìm thấy danh mục cần xóa.
+- Không cho phép xóa danh mục đang có sản phẩm.
+- Xóa danh mục thành công khi không có sản phẩm.
+- Hướng dẫn sử dụng mock Repository để kiểm thử Service độc lập, không cần thao tác trực tiếp với cơ sở dữ liệu.
+- Hướng dẫn chạy Jest và đọc kết quả kiểm thử.
+**Tỷ lệ sử dụng AI:**
+- AI hỗ trợ: 40% – hướng dẫn xây dựng cấu trúc Unit Test, gợi ý các trường hợp kiểm thử và hỗ trợ xử lý lỗi.
+- Tự thực hiện: 60% – tích hợp code, điều chỉnh test theo dự án, chạy Jest, kiểm tra kết quả và xác nhận các trường hợp kiểm thử.
 - Hỗ trợ truy vấn SQL Server để kiểm tra dữ liệu danh mục, sản phẩm, ảnh sản phẩm và các trạng thái đơn hàng mẫu.
 **Kết quả:**
 - Rà soát được các điều kiện validation của danh mục và sản phẩm.
 - Kiểm thử API Admin bằng Postman và xác nhận một số trường hợp trả về lỗi 400 như ID danh mục không hợp lệ.
 - Kiểm tra dữ liệu mẫu hiện có gồm 10 danh mục, 32 sản phẩm và 10 đơn hàng với 5 trạng thái khác nhau.
-- Thực hiện upload ảnh PNG thành công và xác nhận đường dẫn ảnh được cập nhật trong database.
-- Xác định các công việc tiếp theo để hoàn thiện ảnh Demo và tích hợp hiển thị sản phẩm trên Frontend.
