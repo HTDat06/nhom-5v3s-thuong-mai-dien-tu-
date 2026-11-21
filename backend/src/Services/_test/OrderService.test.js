@@ -2,18 +2,18 @@
 const mockPrisma = {
     $transaction: jest.fn()
 };
+jest.mock("../../config/prisma", () => mockPrisma);
 
-jest.mock("../config/prisma", () => mockPrisma);
-
-const prisma = require("../config/prisma");
+const prisma = require("../../config/prisma");
 const { Prisma } = require("@prisma/client");
-const orderService = require("./OrderService");
+const orderService = require("../OrderService");
 
 describe("OrderService.placeOrder", () => {
     let tx;
 
     const userId = 12;
     const orderData = {
+        receiver_name: "Nguyen Van A",
         shipping_address: "123 Nguyễn Trãi, TP.HCM",
         phone: "0901234567"
     };
@@ -49,7 +49,7 @@ describe("OrderService.placeOrder", () => {
             quantity: 2,
             products: {
                 product_id: 1,
-                product_name: "Áo thun",
+                product_name: "Intel Core i3-12100F",
                 price: new Prisma.Decimal("100000"),
                 stock: 10
             }
@@ -183,6 +183,99 @@ describe("OrderService.placeOrder", () => {
 
         // Không truy vấn lại đơn hàng.
         expect(tx.orders.findUnique).not.toHaveBeenCalled();
+    });
+    test("Hai phiên cùng đặt cuốn sách cuối cùng: chỉ một đơn thành công", async () => {
+        let stock = 1;
+        let orderId = 0;
+        const committedOrders = [];
+
+        const cartItem = {
+            quantity: 1,
+            products: {
+                product_id: 1,
+                product_name: "Sach lap trinh",
+                price: new Prisma.Decimal("100000"),
+                stock: 1
+            }
+        };
+
+        // Mỗi phiên có transaction riêng nhưng dùng chung tồn kho.
+        prisma.$transaction.mockImplementation(async (callback) => {
+            const stagedOrders = [];
+
+            const transaction = {
+                cart_items: {
+                    findMany: jest.fn().mockResolvedValue([cartItem]),
+                    deleteMany: jest.fn().mockResolvedValue({ count: 1 })
+                },
+                orders: {
+                    create: jest.fn().mockImplementation(async () => {
+                        orderId++;
+                        return { order_id: orderId };
+                    }),
+                    findUnique: jest.fn().mockImplementation(async ({ where }) => ({
+                        order_id: where.order_id,
+                        status: "pending"
+                    }))
+                },
+                products: {
+                    updateMany: jest.fn().mockImplementation(async ({ where, data }) => {
+                        // Cập nhật tồn kho có điều kiện một cách nguyên tử.
+                        if (stock >= where.stock.gte) {
+                            stock -= data.stock.decrement;
+                            return { count: 1 };
+                        }
+                        return { count: 0 };
+                    })
+                },
+                order_items: {
+                    createMany: jest.fn().mockResolvedValue({ count: 1 })
+                }
+            };
+
+            const originalCreate = transaction.orders.create;
+
+            transaction.orders.create = jest.fn(async (...args) => {
+                const order = await originalCreate(...args);
+                stagedOrders.push(order);
+                return order;
+            });
+
+            const result = await callback(transaction);
+
+            // Chỉ ghi nhận đơn nếu transaction thành công.
+            committedOrders.push(...stagedOrders);
+
+            return result;
+        });
+
+        const results = await Promise.allSettled([
+            orderService.placeOrder(12, {
+                ...orderData,
+                receiver_name: "Nguyen Van A"
+            }),
+            orderService.placeOrder(13, {
+                ...orderData,
+                receiver_name: "Nguyen Van B"
+            })
+        ]);
+
+        const success = results.filter(
+            result => result.status === "fulfilled"
+        );
+
+        const failed = results.filter(
+            result => result.status === "rejected"
+        );
+
+        expect(success).toHaveLength(1);
+        expect(failed).toHaveLength(1);
+
+        expect(failed[0].reason.statusCode).toBe(409);
+
+        expect(committedOrders).toHaveLength(1);
+        expect(stock).toBe(0);
+        expect(stock).toBeGreaterThanOrEqual(0);
     });
 
 });

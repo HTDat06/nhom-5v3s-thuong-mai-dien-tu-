@@ -101,6 +101,11 @@ class AuthService {
       error.statusCode = 401;
       throw error;
     }
+    if (user.status !== "ACTIVE") {
+      const error = new Error("Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.");
+      error.statusCode = 403;
+      throw error;
+    }
 
     if (!process.env.JWT_SECRET) {
       throw new Error("Thiếu cấu hình JWT_SECRET trong file .env.");
