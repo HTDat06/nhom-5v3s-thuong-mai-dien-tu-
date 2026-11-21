@@ -20,6 +20,8 @@
 | AI-07 | 18/11 | Phát triển & Kiểm thử | Hoàn thiện Trang giỏ hàng TM-05 (sửa số lượng, xóa, tổng tiền) và đồng bộ nhánh develop | [PR #138 ](https://github.com/HTDat06/nhom-5v3s-thuong-mai-dien-tu-/pull/138) |
 | AI-08 | 20/11 | Phát triển & Kiểm thử | Review PR TM-06, đồng bộ CSDL và triển khai & kiểm thử Đơn hàng của tôi TM-07 (chống IDOR 403/404, hủy đơn hoàn tồn kho) | [PR #152 ](https://github.com/HTDat06/nhom-5v3s-thuong-mai-dien-tu-/pull/152) |
 | AI-09 | 20/11 | Phát triển & Kiểm thử | Review PR TM-02, triển khai Quản lý đơn hàng Admin TM-13 (State Machine chặn đi ngược) và phân quyền Header Admin | [PR #153 ](https://github.com/HTDat06/nhom-5v3s-thuong-mai-dien-tu-/pull/153) |
+| AI-10 | 21/11 | Tích hợp & Kiểm thử | Kiểm thử chặn đi ngược TM-13, đồng bộ seed.js, giải quyết xung đột gộp nhánh vào develop và dọn nhánh cũ | develop |
+| AI-11 | 21/11 | Kiểm thử & Phát hành | Viết Unit test CartService, tổng hợp 12 chức năng docs/test-cases.md và phát hành Release v0.5 | test/TM-05 / v0.5 |
 
 ---
 
@@ -167,3 +169,36 @@
 - Cách kiểm chứng: Đăng nhập `admin@gmail.com` trên `localhost:5173/admin`, kiểm tra bộ lọc trạng thái, chuyển xuôi trạng thái đơn hàng, kiểm tra khóa nút ở đơn `Hoàn thành`/`Đã hủy`, và dùng PowerShell gọi trực tiếp API `PUT /api/orders/:id/status` chuyển ngược về `pending` để xác nhận server trả lỗi `400`.
 - Tỷ lệ nội dung AI còn giữ lại (ước lượng): 80%
 - Điều học được: Biểu diễn máy trạng thái bằng từ điển `ALLOWED_TRANSITIONS` giúp kiểm soát tập trung mọi luồng chuyển đổi hợp lệ và ngăn chặn triệt để thao tác gọi API đi ngược quy trình.
+
+
+---
+
+### [AI-10] Kiểm thử TM-13, đồng bộ seed.js và giải quyết xung đột gộp nhánh vào develop
+- Ngày / Người dùng: 2026-11-21 / Hoàng Tiến Đạt
+- Công cụ: Gemini
+- Giai đoạn: Tích hợp & Kiểm thử
+- Task / Commit / PR: [TM-13] & Đồng bộ nhánh / `merge: gop feature/TM-02-tim-kiem vao develop` / `develop`
+- Mục đích: Hoàn tất kiểm thử API chặn đi ngược trạng thái đơn hàng `TM-13`, đồng bộ dữ liệu mẫu `backend/prisma/seed.js` khớp với schema mới, giải quyết xung đột mã nguồn khi hợp nhất các nhánh tính năng (`TM-02`, `TM-08`) vào `develop` thông qua Pull Request (tạm giữ lại `TM-14`) và dọn dẹp các nhánh đã gộp.
+- Prompt chính: "Hỗ trợ kiểm thử API chặn chuyển ngược trạng thái TM-13, cập nhật seed.js khớp schema hiện tại và hướng dẫn giải quyết xung đột khi gộp các nhánh tính năng vào develop."
+- Kết quả AI trả về (tóm tắt): Cung cấp lệnh PowerShell kiểm thử API `PUT /api/orders/:id/status` đi ngược trạng thái trả về lỗi `400`, cập nhật `backend/prisma/seed.js` bổ sung trường bắt buộc `receiver_name` cùng 4 trạng thái (`pending`, `shipping`, `completed`, `cancelled`), và hướng dẫn ghép code sạch khi xung đột giữa `develop` và `feature/TM-02-tim-kiem`.
+- Đánh giá: Đúng – Giữ nguyên được toàn bộ tính năng tìm kiếm/lọc/phân trang của `TM-02` đồng thời bảo toàn phân quyền Admin và luồng quản lý đơn hàng của `TM-13`.
+- Đã chỉnh sửa gì: Sửa lỗi thiếu prop `key` trong `AdminOrderManager.jsx`, kiểm tra lịch sử commit của `feature/TM-01-trang-chu` để tránh gộp đè commit cũ đã tích hợp từ PR #113, tạo nhánh tạm đẩy lên GitHub để gộp vào `develop` đúng quy tắc bảo vệ nhánh và xóa 9 nhánh tính năng đã hợp nhất.
+- Cách kiểm chứng: Chạy `node prisma/seed.js` nạp dữ liệu sạch không lỗi, gọi API kiểm tra chặn đi ngược trạng thái trên Terminal, đối chiếu `git branch -r --merged origin/develop` xác nhận toàn bộ nhánh đã gộp đều ở trạng thái `Ahead = 0`.
+- Tỷ lệ nội dung AI còn giữ lại (ước lượng): 80%
+- Điều học được: Khi nhánh `develop` bật quy tắc bảo vệ (bắt buộc qua Pull Request), cần đẩy bản merge lên nhánh trung gian để tạo PR và luôn đối chiếu `git log` trước khi gộp các nhánh cũ tụt hậu nhiều commit để tránh ghi đè code mới.
+
+---
+
+### [AI-11] Viết Unit test CartService, tổng hợp 12 chức năng test-cases.md và phát hành v0.5
+- Ngày / Người dùng: 2026-11-21 / Hoàng Tiến Đạt
+- Công cụ: Gemini
+- Giai đoạn: Kiểm thử & Phát hành
+- Task / Commit / PR: [TEST] Test case & [DOC] Tag v0.5 / `test(TM-05): bo sung unit test CartService va 12 chuc nang test-cases.md` / `test/TM-05` / `v0.5`
+- Mục đích: Viết Unit test tự động cho `CartService` (kiểm tra từ chối thêm/cập nhật giỏ hàng vượt tồn kho), tổng hợp đầy đủ `docs/test-cases.md` cho 12 chức năng bắt buộc (mỗi chức năng $\ge 2$ test cases), hoàn thiện AI Log và gộp `develop` sang `main` để gắn tag phát hành `v0.5`.
+- Prompt chính: "Viết Unit test cho CartService kiểm tra từ chối thêm/cập nhật vượt tồn kho khớp với cấu trúc backend hiện tại và tổng hợp docs/test-cases.md cho đủ 12 chức năng bắt buộc."
+- Kết quả AI trả về (tóm tắt): Tạo tệp `backend/tests/CartService.test.js` sử dụng module `node:test` và `node:assert` có sẵn của Node.js (mock `PrismaClient` và `CartRepository` để kiểm thử 5 kịch bản tồn kho độc lập với CSDL), bổ sung script `"test"` trong `backend/package.json` và hoàn thiện bảng 50 test cases phủ đủ 12 chức năng (`TM-01` đến `TM-13`) trong `docs/test-cases.md`.
+- Đánh giá: Đúng – Unit test chạy nhanh, không phụ thuộc thư viện ngoài và không làm thay đổi dữ liệu thật trong SQL Server; bộ test cases bám sát luồng xử lý thực tế của từng chức năng.
+- Đã chỉnh sửa gì: Chạy thực tế bộ test qua `npm test` tại thư mục `backend`, rà soát mã lỗi HTTP (`400`, `403`, `404`, `409`) và điều kiện biên của từng chức năng trong `docs/test-cases.md` trước khi commit lên nhánh `test/TM-05`.
+- Cách kiểm chứng: Chạy lệnh `npm test` trong thư mục `backend` xác nhận 5/5 test cases đạt trạng thái `PASS` (`fail 0`); kiểm tra định dạng bảng Markdown của `docs/test-cases.md` và AI Log trên GitHub trước khi tạo PR `develop` -> `main` và gắn tag `v0.5`.
+- Tỷ lệ nội dung AI còn giữ lại (ước lượng): 85%
+- Điều học được: Có thể tận dụng `node:test` và `node:assert` tích hợp sẵn trong Node.js kết hợp mock tầng Repository/Prisma để viết Unit test cô lập logic nghiệp vụ ở tầng Service mà không cần cài thêm framework kiểm thử nặng nề.
