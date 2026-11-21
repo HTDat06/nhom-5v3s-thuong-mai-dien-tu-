@@ -1,4 +1,3 @@
-
 const express = require("express");
 const router = express.Router();
 
@@ -22,7 +21,7 @@ router.get("/", (req, res) =>
   productController.getAll(req, res)
 );
 
-// GET: Chi tiết sản phẩm
+// GET chi tiết sản phẩm: công khai
 router.get("/:id", (req, res) =>
   productController.getById(req, res)
 );

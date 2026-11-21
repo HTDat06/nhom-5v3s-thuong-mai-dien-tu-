@@ -42,7 +42,7 @@ class UserController {
         }
     }
 
-    // --- BỔ SUNG HÀM ĐỔI MẬT KHẨU ---
+    // --- ĐỔI MẬT KHẨU (ĐÃ CẬP NHẬT ĐỦ THAM SỐ) ---
     async changePassword(req, res) {
         try {
             const userId = req.user?.user_id || req.user?.id || req.user?.userId;
@@ -51,8 +51,11 @@ class UserController {
                 return res.status(400).json({ success: false, message: "Không tìm thấy thông tin xác thực người dùng trong token" });
             }
 
-            const { oldPassword, newPassword } = req.body;
-            const result = await UserService.changePassword(userId, oldPassword, newPassword);
+            // Lấy thêm confirmNewPassword từ request body
+            const { oldPassword, newPassword, confirmNewPassword } = req.body;
+            
+            // Truyền đủ 4 tham số xuống UserService
+            const result = await UserService.changePassword(userId, oldPassword, newPassword, confirmNewPassword);
 
             return res.status(200).json({
                 success: true,
