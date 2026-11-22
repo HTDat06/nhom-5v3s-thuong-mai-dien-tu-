@@ -101,6 +101,11 @@ class AuthService {
       error.statusCode = 401;
       throw error;
     }
+    if (user.status !== "ACTIVE") {
+      const error = new Error("Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.");
+      error.statusCode = 403;
+      throw error;
+    }
 
     // TM-14: Không cho phép tài khoản bị khóa đăng nhập
     if (user.status !== "ACTIVE") {
