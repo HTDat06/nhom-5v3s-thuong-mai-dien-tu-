@@ -1,5 +1,5 @@
 
-jest.mock("../../Repositories/UserRepository", () => ({
+jest.mock("../src/Repositories/UserRepository", () => ({
     findByEmail: jest.fn(),
     create: jest.fn()
 }));
@@ -13,8 +13,8 @@ jest.mock("jsonwebtoken", () => ({
     sign: jest.fn()
 }));
 
-const AuthService = require("../AuthService");
-const userRepository = require("../../Repositories/UserRepository");
+const AuthService = require("../src/Services/AuthService");
+const userRepository = require("../src/Repositories/UserRepository");
 const bcrypt = require("bcryptjs");
 
 describe("Unit Test - AuthService", () => {

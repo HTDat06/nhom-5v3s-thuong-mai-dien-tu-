@@ -1,22 +1,37 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+
+const API_URL = "http://localhost:5000/api/users";
+
+const initialProfile = {
+    name: "",
+    email: "",
+    phone: "",
+    address: ""
+};
+
+const initialPassword = {
+    oldPassword: "",
+    newPassword: "",
+    confirmPassword: ""
+};
 
 export default function ProfilePage() {
-    const [formData, setFormData] = useState({
-        name: '',
-        email: '',
-        phone: '',
-        address: ''
-    });
-
-    const [passwordData, setPasswordData] = useState({
-        oldPassword: '',
-        newPassword: ''
-    });
-
-    const [statusMsg, setStatusMsg] = useState({ type: '', text: '' });
-    const [passMsg, setPassMsg] = useState({ type: '', text: '' });
+    const [formData, setFormData] = useState(initialProfile);
+    const [passwordData, setPasswordData] = useState(initialPassword);
+    const [statusMsg, setStatusMsg] = useState({ type: "", text: "" });
+    const [passMsg, setPassMsg] = useState({ type: "", text: "" });
     const [loading, setLoading] = useState(true);
+    const [savingProfile, setSavingProfile] = useState(false);
+    const [savingPassword, setSavingPassword] = useState(false);
+
+    const getToken = () => localStorage.getItem("token");
+
+    const getAuthConfig = () => ({
+        headers: {
+            Authorization: `Bearer ${getToken()}`
+        }
+    });
 
     useEffect(() => {
         fetchProfile();
@@ -24,150 +39,296 @@ export default function ProfilePage() {
 
     const fetchProfile = async () => {
         try {
-            const token = localStorage.getItem('token');
-            const res = await axios.get('http://localhost:5000/api/users/profile', {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            const userData = res.data.data || res.data;
+            const token = getToken();
+
+            if (!token) {
+                setStatusMsg({
+                    type: "error",
+                    text: "Bạn cần đăng nhập để xem hồ sơ."
+                });
+                return;
+            }
+
+            const res = await axios.get(
+                `${API_URL}/profile`,
+                getAuthConfig()
+            );
+
+            const userData = res.data.data || res.data.user || res.data;
+
             setFormData({
-                name: userData.name || '',
-                email: userData.email || '',
-                phone: userData.phone || '',
-                address: userData.address || ''
+                name: userData.name || "",
+                email: userData.email || "",
+                phone: userData.phone || "",
+                address: userData.address || ""
             });
-        } catch (err) {
-            setStatusMsg({ type: 'error', text: 'Không thể tải thông tin hồ sơ.' });
+        } catch (error) {
+            setStatusMsg({
+                type: "error",
+                text: error.response?.data?.message ||
+                    "Không thể tải thông tin hồ sơ."
+            });
         } finally {
             setLoading(false);
         }
     };
 
-    const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+    const handleChange = (event) => {
+        const { name, value } = event.target;
+
+        setFormData((previous) => ({
+            ...previous,
+            [name]: value
+        }));
     };
 
-    const handlePasswordChange = (e) => {
-        setPasswordData({ ...passwordData, [e.target.name]: e.target.value });
+    const handlePasswordChange = (event) => {
+        const { name, value } = event.target;
+
+        setPasswordData((previous) => ({
+            ...previous,
+            [name]: value
+        }));
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setStatusMsg({ type: '', text: '' });
+    // Cập nhật tên trong localStorage và thông báo cho Navbar
+    const syncUserName = (newName) => {
+        let savedUser = {};
+
         try {
-            const token = localStorage.getItem('token');
-            // Đã bổ sung address vào object gửi lên API
-            await axios.put('http://localhost:5000/api/users/profile', {
-                name: formData.name,
-                phone: formData.phone,
-                address: formData.address 
-            }, {
-                headers: { Authorization: `Bearer ${token}` }
+            savedUser = JSON.parse(
+                localStorage.getItem("user") || "{}"
+            );
+        } catch {
+            savedUser = {};
+        }
+
+        const updatedUser = {
+            ...savedUser,
+            name: newName
+        };
+
+        localStorage.setItem("user", JSON.stringify(updatedUser));
+
+        // Sự kiện này giúp Navbar cập nhật ngay trong cùng tab
+        window.dispatchEvent(
+            new CustomEvent("userUpdated", {
+                detail: updatedUser
+            })
+        );
+    };
+
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+        setStatusMsg({ type: "", text: "" });
+
+        const newName = formData.name.trim();
+
+        if (!newName) {
+            setStatusMsg({
+                type: "error",
+                text: "Họ và tên không được để trống."
             });
-            
-            setStatusMsg({ type: 'success', text: 'Cập nhật hồ sơ thành công!' });
+            return;
+        }
 
-            // Cập nhật tên mới vào localStorage để đồng bộ với Navbar
-            const savedUser = JSON.parse(localStorage.getItem('user') || '{}');
-            savedUser.name = formData.name;
-            localStorage.setItem('user', JSON.stringify(savedUser));
+        try {
+            setSavingProfile(true);
 
-            // Làm mới trang sau 1 giây để Navbar hiển thị tên mới
-            setTimeout(() => {
-                window.location.reload();
-            }, 1000);
+            const res = await axios.put(
+                `${API_URL}/profile`,
+                {
+                    name: newName,
+                    phone: formData.phone,
+                    address: formData.address
+                },
+                getAuthConfig()
+            );
 
-        } catch (err) {
-            setStatusMsg({ type: 'error', text: err.response?.data?.message || 'Cập nhật thất bại.' });
+            const updatedData =
+                res.data.data || res.data.user || {};
+
+            const finalName = updatedData.name || newName;
+
+            setFormData((previous) => ({
+                ...previous,
+                name: finalName,
+                phone: updatedData.phone ?? previous.phone,
+                address: updatedData.address ?? previous.address
+            }));
+
+            syncUserName(finalName);
+
+            setStatusMsg({
+                type: "success",
+                text: res.data.message || "Cập nhật hồ sơ thành công!"
+            });
+        } catch (error) {
+            setStatusMsg({
+                type: "error",
+                text: error.response?.data?.message ||
+                    "Cập nhật hồ sơ thất bại."
+            });
+        } finally {
+            setSavingProfile(false);
         }
     };
 
-    const handlePasswordSubmit = async (e) => {
-        e.preventDefault();
-        setPassMsg({ type: '', text: '' });
+    const handlePasswordSubmit = async (event) => {
+        event.preventDefault();
+        setPassMsg({ type: "", text: "" });
+
+        const { oldPassword, newPassword, confirmPassword } = passwordData;
+
+        if (newPassword.length < 8) {
+            setPassMsg({
+                type: "error",
+                text: "Mật khẩu mới phải có ít nhất 8 ký tự."
+            });
+            return;
+        }
+
+        if (newPassword !== confirmPassword) {
+            setPassMsg({
+                type: "error",
+                text: "Mật khẩu nhập lại không khớp với mật khẩu mới."
+            });
+            return;
+        }
+
+        if (oldPassword === newPassword) {
+            setPassMsg({
+                type: "error",
+                text: "Mật khẩu mới phải khác mật khẩu cũ."
+            });
+            return;
+        }
+
         try {
-            const token = localStorage.getItem('token');
-            const res = await axios.put('http://localhost:5000/api/users/change-password', {
-                oldPassword: passwordData.oldPassword,
-                newPassword: passwordData.newPassword
-            }, {
-                headers: { Authorization: `Bearer ${token}` }
+            setSavingPassword(true);
+
+            const res = await axios.put(
+                `${API_URL}/change-password`,
+                {
+                    oldPassword,
+                    newPassword,
+                    confirmNewPassword: confirmPassword
+                },
+                getAuthConfig()
+            );
+
+            setPassMsg({
+                type: "success",
+                text: res.data.message || "Đổi mật khẩu thành công!"
             });
 
-            setPassMsg({ type: 'success', text: res.data.message || 'Đổi mật khẩu thành công!' });
-            setPasswordData({ oldPassword: '', newPassword: '' });
-        } catch (err) {
-            setPassMsg({ type: 'error', text: err.response?.data?.message || 'Đổi mật khẩu thất bại.' });
+            setPasswordData(initialPassword);
+        } catch (error) {
+            setPassMsg({
+                type: "error",
+                text: error.response?.data?.message ||
+                    "Đổi mật khẩu thất bại."
+            });
+        } finally {
+            setSavingPassword(false);
         }
     };
-
-    if (loading) {
-        return <div style={{ textAlign: 'center', padding: '80px', fontSize: '16px', color: '#475569' }}>Đang tải thông tin...</div>;
-    }
 
     const inputStyle = {
-        width: '100%',
-        padding: '10px 14px',
-        border: '1px solid #cbd5e1',
-        borderRadius: '8px',
-        fontSize: '14px',
-        boxSizing: 'border-box',
-        marginTop: '6px',
-        outline: 'none'
+        width: "100%",
+        padding: "11px 14px",
+        border: "1px solid #cbd5e1",
+        borderRadius: "8px",
+        fontSize: "14px",
+        boxSizing: "border-box",
+        marginTop: "6px",
+        outline: "none"
     };
 
+    const labelStyle = {
+        fontSize: "14px",
+        fontWeight: "600",
+        color: "#334155",
+        display: "block"
+    };
+
+    const messageStyle = (type) => ({
+        padding: "12px 16px",
+        borderRadius: "8px",
+        marginBottom: "18px",
+        fontSize: "14px",
+        backgroundColor: type === "success" ? "#dcfce7" : "#fee2e2",
+        color: type === "success" ? "#166534" : "#991b1b",
+        border: `1px solid ${type === "success" ? "#bbf7d0" : "#fecaca"}`
+    });
+
+    if (loading) {
+        return (
+            <div style={{ textAlign: "center", padding: "80px" }}>
+                Đang tải thông tin hồ sơ...
+            </div>
+        );
+    }
+
     return (
-        <div style={{ 
-            backgroundColor: '#f8fafc', 
-            minHeight: 'calc(100vh - 48px)', 
-            display: 'flex', 
-            justifyContent: 'center', 
-            alignItems: 'center', 
-            padding: '30px 20px' 
+        <div style={{
+            backgroundColor: "#f8fafc",
+            minHeight: "calc(100vh - 48px)",
+            padding: "35px 16px"
         }}>
             <div style={{
-                width: '100%',
-                maxWidth: '520px',
-                backgroundColor: '#ffffff',
-                borderRadius: '12px',
-                padding: '32px',
-                boxShadow: '0 4px 16px rgba(0, 0, 0, 0.08)',
-                boxSizing: 'border-box'
+                width: "100%",
+                maxWidth: "600px",
+                margin: "0 auto",
+                backgroundColor: "#fff",
+                borderRadius: "12px",
+                padding: "30px",
+                boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
+                boxSizing: "border-box"
             }}>
-                <div style={{ borderBottom: '1px solid #e2e8f0', paddingBottom: '16px', marginBottom: '24px' }}>
-                    <h2 style={{ margin: 0, fontSize: '24px', fontWeight: 'bold', color: '#0f172a' }}>Hồ sơ cá nhân</h2>
-                    <p style={{ margin: '6px 0 0', fontSize: '13px', color: '#64748b' }}>Quản lý thông tin tài khoản và bảo mật của bạn</p>
-                </div>
+                <h2 style={{
+                    margin: "0 0 8px",
+                    fontSize: "24px",
+                    color: "#0f172a"
+                }}>
+                    Hồ sơ cá nhân
+                </h2>
+
+                <p style={{
+                    color: "#64748b",
+                    fontSize: "14px",
+                    marginBottom: "24px"
+                }}>
+                    Quản lý thông tin tài khoản và bảo mật của bạn
+                </p>
 
                 {statusMsg.text && (
-                    <div style={{
-                        padding: '12px 16px',
-                        borderRadius: '8px',
-                        marginBottom: '20px',
-                        fontSize: '14px',
-                        backgroundColor: statusMsg.type === 'success' ? '#dcfce7' : '#fee2e2',
-                        color: statusMsg.type === 'success' ? '#166534' : '#991b1b',
-                        border: `1px solid ${statusMsg.type === 'success' ? '#bbf7d0' : '#fecaca'}`
-                    }}>
+                    <div style={messageStyle(statusMsg.type)}>
                         {statusMsg.text}
                     </div>
                 )}
 
-                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+                <form onSubmit={handleSubmit} style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "18px"
+                }}>
                     <div>
-                        <label style={{ fontSize: '14px', fontWeight: '600', color: '#334155', display: 'block' }}>Email đăng nhập</label>
+                        <label style={labelStyle}>Email đăng nhập</label>
                         <input
                             type="email"
                             value={formData.email}
                             disabled
-                            style={{ ...inputStyle, backgroundColor: '#f1f5f9', color: '#64748b', cursor: 'not-allowed' }}
+                            style={{
+                                ...inputStyle,
+                                backgroundColor: "#f1f5f9",
+                                color: "#64748b"
+                            }}
                         />
-                        <span style={{ fontSize: '12px', color: '#94a3b8', marginTop: '4px', display: 'block' }}>Email không thể thay đổi.</span>
                     </div>
 
                     <div>
-                        <label style={{ fontSize: '14px', fontWeight: '600', color: '#334155', display: 'block' }}>
-                            Họ và tên <span style={{ color: '#ef4444' }}>*</span>
-                        </label>
+                        <label style={labelStyle}>Họ và tên *</label>
                         <input
                             type="text"
                             name="name"
@@ -179,11 +340,11 @@ export default function ProfilePage() {
                     </div>
 
                     <div>
-                        <label style={{ fontSize: '14px', fontWeight: '600', color: '#334155', display: 'block' }}>Số điện thoại</label>
+                        <label style={labelStyle}>Số điện thoại</label>
                         <input
                             type="text"
                             name="phone"
-                            value={formData.phone || ''}
+                            value={formData.phone}
                             onChange={handleChange}
                             placeholder="Nhập số điện thoại"
                             style={inputStyle}
@@ -191,98 +352,127 @@ export default function ProfilePage() {
                     </div>
 
                     <div>
-                        <label style={{ fontSize: '14px', fontWeight: '600', color: '#334155', display: 'block' }}>Địa chỉ giao hàng</label>
+                        <label style={labelStyle}>Địa chỉ giao hàng</label>
                         <textarea
                             name="address"
                             rows="3"
-                            value={formData.address || ''}
+                            value={formData.address}
                             onChange={handleChange}
-                            placeholder="Nhập địa chỉ nhận hàng mặc định"
-                            style={{ ...inputStyle, resize: 'vertical', fontFamily: 'inherit' }}
+                            placeholder="Nhập địa chỉ nhận hàng"
+                            style={{
+                                ...inputStyle,
+                                resize: "vertical",
+                                fontFamily: "inherit"
+                            }}
                         />
                     </div>
 
                     <button
                         type="submit"
+                        disabled={savingProfile}
                         style={{
-                            marginTop: '4px',
-                            backgroundColor: '#2563eb',
-                            color: '#ffffff',
-                            border: 'none',
-                            borderRadius: '8px',
-                            padding: '12px',
-                            fontSize: '15px',
-                            fontWeight: '600',
-                            cursor: 'pointer',
-                            transition: 'background-color 0.2s'
+                            backgroundColor: "#2563eb",
+                            color: "#fff",
+                            border: "none",
+                            borderRadius: "8px",
+                            padding: "12px",
+                            fontSize: "15px",
+                            fontWeight: "600",
+                            cursor: savingProfile ? "not-allowed" : "pointer"
                         }}
                     >
-                        Lưu thay đổi hồ sơ
+                        {savingProfile ? "Đang lưu..." : "Lưu thay đổi hồ sơ"}
                     </button>
                 </form>
 
-                {/* --- PHẦN ĐỔI MẬT KHẨU --- */}
-                <div style={{ marginTop: '36px', borderTop: '1px solid #e2e8f0', paddingTop: '24px' }}>
-                    <h3 style={{ fontSize: '18px', fontWeight: 'bold', color: '#0f172a', marginBottom: '6px' }}>Đổi mật khẩu</h3>
-                    <p style={{ fontSize: '13px', color: '#64748b', marginBottom: '16px' }}>Đảm bảo tài khoản của bạn đang sử dụng mật khẩu an toàn</p>
+                <div style={{
+                    marginTop: "36px",
+                    borderTop: "1px solid #e2e8f0",
+                    paddingTop: "24px"
+                }}>
+                    <h3 style={{
+                        fontSize: "19px",
+                        color: "#0f172a",
+                        marginBottom: "8px"
+                    }}>
+                        Đổi mật khẩu
+                    </h3>
+
+                    <p style={{
+                        fontSize: "13px",
+                        color: "#64748b",
+                        marginBottom: "18px"
+                    }}>
+                        Mật khẩu mới phải có ít nhất 8 ký tự.
+                    </p>
 
                     {passMsg.text && (
-                        <div style={{
-                            padding: '12px 16px',
-                            borderRadius: '8px',
-                            marginBottom: '16px',
-                            fontSize: '14px',
-                            backgroundColor: passMsg.type === 'success' ? '#dcfce7' : '#fee2e2',
-                            color: passMsg.type === 'success' ? '#166534' : '#991b1b',
-                            border: `1px solid ${passMsg.type === 'success' ? '#bbf7d0' : '#fecaca'}`
-                        }}>
+                        <div style={messageStyle(passMsg.type)}>
                             {passMsg.text}
                         </div>
                     )}
 
-                    <form onSubmit={handlePasswordSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    <form onSubmit={handlePasswordSubmit} style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "16px"
+                    }}>
                         <div>
-                            <label style={{ fontSize: '14px', fontWeight: '600', color: '#334155', display: 'block' }}>Mật khẩu cũ</label>
+                            <label style={labelStyle}>Mật khẩu cũ</label>
                             <input
                                 type="password"
                                 name="oldPassword"
                                 value={passwordData.oldPassword}
                                 onChange={handlePasswordChange}
-                                placeholder="Nhập mật khẩu hiện tại"
                                 required
                                 style={inputStyle}
+                                placeholder="Nhập mật khẩu hiện tại"
                             />
                         </div>
 
                         <div>
-                            <label style={{ fontSize: '14px', fontWeight: '600', color: '#334155', display: 'block' }}>Mật khẩu mới</label>
+                            <label style={labelStyle}>Mật khẩu mới</label>
                             <input
                                 type="password"
                                 name="newPassword"
                                 value={passwordData.newPassword}
                                 onChange={handlePasswordChange}
-                                placeholder="Nhập mật khẩu mới (tối thiểu 6 ký tự)"
+                                minLength={8}
                                 required
                                 style={inputStyle}
+                                placeholder="Ít nhất 8 ký tự"
+                            />
+                        </div>
+
+                        <div>
+                            <label style={labelStyle}>Nhập lại mật khẩu mới</label>
+                            <input
+                                type="password"
+                                name="confirmPassword"
+                                value={passwordData.confirmPassword}
+                                onChange={handlePasswordChange}
+                                minLength={8}
+                                required
+                                style={inputStyle}
+                                placeholder="Nhập lại mật khẩu mới"
                             />
                         </div>
 
                         <button
                             type="submit"
+                            disabled={savingPassword}
                             style={{
-                                marginTop: '4px',
-                                backgroundColor: '#0f172a',
-                                color: '#ffffff',
-                                border: 'none',
-                                borderRadius: '8px',
-                                padding: '12px',
-                                fontSize: '15px',
-                                fontWeight: '600',
-                                cursor: 'pointer',
-                                transition: 'background-color 0.2s'
+                                backgroundColor: "#0f172a",
+                                color: "#fff",
+                                border: "none",
+                                borderRadius: "8px",
+                                padding: "12px",
+                                fontSize: "15px",
+                                fontWeight: "600",
+                                cursor: savingPassword ? "not-allowed" : "pointer"
                             }}
                         >
-                            Cập nhật mật khẩu
+                            {savingPassword ? "Đang cập nhật..." : "Cập nhật mật khẩu"}
                         </button>
                     </form>
                 </div>

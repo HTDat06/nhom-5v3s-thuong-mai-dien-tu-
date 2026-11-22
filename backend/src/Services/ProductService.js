@@ -1,4 +1,3 @@
-
 const productRepository = require("../Repositories/ProductRepository");
 
 const {
@@ -195,44 +194,42 @@ class ProductService {
     );
   }
 
-  // Lấy danh sách, tìm kiếm và phân trang
-  async getAllProducts(query = {}) {
-    const page = query.page === undefined
+  // Tìm kiếm, lọc và phân trang sản phẩm
+  async search(
+    keyword,
+    categoryId,
+    minPrice,
+    maxPrice,
+    sort,
+    page
+  ) {
+    // Kiểm tra trang
+    page = page === undefined || page === ""
       ? 1
-      : Number(query.page);
+      : Number(page);
 
-    const limit = query.limit === undefined
-      ? 10
-      : Number(query.limit);
-
-    if (
-      !Number.isInteger(page) ||
-      page < 1 ||
-      !Number.isInteger(limit) ||
-      limit < 1 ||
-      limit > 100
-    ) {
+    if (!Number.isInteger(page) || page < 1) {
       throw this.createError(
-        "Thông tin phân trang không hợp lệ.",
+        "Số trang không hợp lệ.",
         400
       );
     }
 
     // Từ khóa tìm kiếm
-    const search =
-      typeof query.search === "string"
-        ? query.search.trim()
+    keyword =
+      typeof keyword === "string"
+        ? keyword.trim()
         : "";
 
-    // Lọc theo danh mục
-    let categoryId;
+    // Lọc danh mục
+    let parsedCategoryId;
 
-    if (query.category_id !== undefined) {
-      categoryId = Number(query.category_id);
+    if (categoryId !== undefined && categoryId !== "") {
+      parsedCategoryId = Number(categoryId);
 
       if (
-        !Number.isInteger(categoryId) ||
-        categoryId <= 0
+        !Number.isInteger(parsedCategoryId) ||
+        parsedCategoryId <= 0
       ) {
         throw this.createError(
           "ID danh mục không hợp lệ.",
@@ -241,21 +238,81 @@ class ProductService {
       }
     }
 
-    // Lọc theo trạng thái
-    let isActive;
+    // Lọc giá thấp nhất
+    let parsedMinPrice;
 
-    if (query.is_active !== undefined) {
-      isActive = this.parseBoolean(query.is_active);
+    if (minPrice !== undefined && minPrice !== "") {
+      parsedMinPrice = Number(minPrice);
+
+      if (
+        !Number.isFinite(parsedMinPrice) ||
+        parsedMinPrice < 0
+      ) {
+        throw this.createError(
+          "Giá thấp nhất không hợp lệ.",
+          400
+        );
+      }
     }
 
+    // Lọc giá cao nhất
+    let parsedMaxPrice;
+
+    if (maxPrice !== undefined && maxPrice !== "") {
+      parsedMaxPrice = Number(maxPrice);
+
+      if (
+        !Number.isFinite(parsedMaxPrice) ||
+        parsedMaxPrice < 0
+      ) {
+        throw this.createError(
+          "Giá cao nhất không hợp lệ.",
+          400
+        );
+      }
+    }
+
+    // Kiểm tra khoảng giá
+    if (
+      parsedMinPrice !== undefined &&
+      parsedMaxPrice !== undefined &&
+      parsedMinPrice > parsedMaxPrice
+    ) {
+      throw this.createError(
+        "Giá thấp nhất không được lớn hơn giá cao nhất.",
+        400
+      );
+    }
+
+    // Kiểm tra kiểu sắp xếp
+    sort = sort || "newest";
+
+    const allowedSort = [
+      "newest",
+      "price_asc",
+      "price_desc"
+    ];
+
+    if (!allowedSort.includes(sort)) {
+      throw this.createError(
+        "Kiểu sắp xếp không hợp lệ.",
+        400
+      );
+    }
+
+    // Phân trang: 12 sản phẩm mỗi trang
+    const limit = 12;
     const skip = (page - 1) * limit;
 
     const result = await productRepository.findAll({
       skip,
       take: limit,
-      search,
-      categoryId,
-      isActive
+      keyword,
+      search: keyword,
+      categoryId: parsedCategoryId,
+      minPrice: parsedMinPrice,
+      maxPrice: parsedMaxPrice,
+      sort
     });
 
     return {
@@ -267,6 +324,18 @@ class ProductService {
         totalPages: Math.ceil(result.total / limit)
       }
     };
+  }
+
+  // Lấy danh sách sản phẩm
+  async getAllProducts(query = {}) {
+    return this.search(
+      query.keyword ?? query.search,
+      query.category_id,
+      query.min_price,
+      query.max_price,
+      query.sort,
+      query.page
+    );
   }
 
   // Lấy chi tiết sản phẩm
@@ -290,7 +359,6 @@ class ProductService {
   // Thêm sản phẩm
   async createProduct(data, file) {
     try {
-      // Bắt buộc có ảnh đại diện khi thêm sản phẩm
       if (!file) {
         throw this.createError(
           "Vui lòng tải ảnh đại diện sản phẩm.",
@@ -300,15 +368,12 @@ class ProductService {
 
       const productData = this.validateProductData(data);
 
-      // Kiểm tra danh mục
       await this.validateCategory(productData.category_id);
 
-      // Đường dẫn ảnh
       productData.image = file.imageUrl;
 
       return await productRepository.create(productData);
     } catch (error) {
-      // Nếu thêm sản phẩm thất bại thì xóa file ảnh vừa tải
       removeUploadedImage(file?.path);
       throw error;
     }
@@ -334,12 +399,10 @@ class ProductService {
         true
       );
 
-      // Kiểm tra danh mục nếu có thay đổi
       if (updateData.category_id !== undefined) {
         await this.validateCategory(updateData.category_id);
       }
 
-      // Nếu tải ảnh mới thì cập nhật đường dẫn
       if (file) {
         updateData.image = file.imageUrl;
       }
@@ -351,13 +414,11 @@ class ProductService {
         );
       }
 
-      // Cập nhật database trước
       const updatedProduct = await productRepository.update(
         productId,
         updateData
       );
 
-      // Cập nhật thành công mới xóa ảnh cũ
       if (file && existingProduct.image) {
         const oldFilePath = this.getUploadedImagePath(
           existingProduct.image
@@ -368,7 +429,6 @@ class ProductService {
 
       return updatedProduct;
     } catch (error) {
-      // Nếu cập nhật thất bại thì xóa ảnh mới vừa tải
       removeUploadedImage(file?.path);
       throw error;
     }
@@ -434,7 +494,6 @@ class ProductService {
         productId
       );
 
-      // Xóa ảnh sau khi xóa sản phẩm thành công
       const imagePath = this.getUploadedImagePath(
         product.image
       );
@@ -443,7 +502,6 @@ class ProductService {
 
       return deletedProduct;
     } catch (error) {
-      // Xử lý trường hợp có dữ liệu liên quan phát sinh
       if (error.code === "P2003") {
         throw this.createError(
           "Không thể xóa sản phẩm vì đang được sử dụng.",

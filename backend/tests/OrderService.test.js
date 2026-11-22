@@ -2,11 +2,11 @@
 const mockPrisma = {
     $transaction: jest.fn()
 };
-jest.mock("../../config/prisma", () => mockPrisma);
+jest.mock("../src/config/prisma", () => mockPrisma);
 
-const prisma = require("../../config/prisma");
+const prisma = require("../src/config/prisma");
 const { Prisma } = require("@prisma/client");
-const orderService = require("../OrderService");
+const orderService = require("../src/Services/OrderService");
 
 describe("OrderService.placeOrder", () => {
     let tx;
