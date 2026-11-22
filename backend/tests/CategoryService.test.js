@@ -1,5 +1,5 @@
 
-jest.mock("../../Repositories/CategoryRepository", () => ({
+jest.mock("../src/Repositories/CategoryRepository", () => ({
   findAll: jest.fn(),
   findById: jest.fn(),
   findAllNames: jest.fn(),
@@ -9,8 +9,8 @@ jest.mock("../../Repositories/CategoryRepository", () => ({
   delete: jest.fn()
 }));
 
-const categoryRepository = require("../../Repositories/CategoryRepository");
-const categoryService = require("../CategoryService");
+const categoryRepository = require("../src/Repositories/CategoryRepository");
+const categoryService = require("../src/Services/CategoryService");
 
 beforeEach(() => {
   jest.resetAllMocks();
