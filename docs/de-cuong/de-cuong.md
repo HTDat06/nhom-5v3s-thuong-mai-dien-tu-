@@ -7,7 +7,7 @@ NHÓM 5v3s
 - **Backend (BE):** Node.js kết hợp framework Express.js
 - **Frontend (FE):** ReactJS
 - **Cơ sở dữ liệu (CSDL):** SQL Server
-- **ORM:** Sử dụng Sequelize / Prisma để tương tác với CSDL
+- **ORM:** Sử dụng Prisma để tương tác với CSDL
 - **Công cụ hỗ trợ:** 
   - RESTful API: Giao tiếp độc lập giữa Frontend và Backend.
   - Swagger: Quản lý và xây dựng tài liệu API.
@@ -44,7 +44,7 @@ NHÓM 5v3s
 
 - **TV3 (Phạm Thiên Phúc):**
   - `TM-01`: Trang chủ (Hiển thị linh kiện mới nhập và danh mục sản phẩm nổi bật).
-  - `TM-02`: Tìm kiếm, lọc sản phẩm linh kiện (Lọc theo hãng, khoảng giá, sắp xếp, phân trang server)[cite: 13].
+  - `TM-02`: Tìm kiếm, lọc sản phẩm linh kiện (Lọc theo hãng, khoảng giá, sắp xếp, phân trang server).
   - `TM-03`: Xem chi tiết sản phẩm linh kiện (Hiển thị thông số kỹ thuật, tồn kho, kiểm tra đăng nhập khi bấm thêm giỏ).
 
 - **TV4 (Mai Thanh Tân):**

@@ -1,5 +1,8 @@
+
 import { useEffect, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
+import AdminOrderManager from "../components/AdminOrderManager";
+import AdminUserManager from "../components/AdminUserManager";
 
 function Admin() {
     const { token } = useAuth();
@@ -32,13 +35,36 @@ function Admin() {
                 }
             });
 
-        return () => { cancelled = true; };
+        return () => {
+            cancelled = true;
+        };
     }, [token]);
 
     return (
         <section style={{ width: "90%", maxWidth: 1200, margin: "32px auto" }}>
             <h1>Trang quản trị</h1>
-            {status === "loading" ? <p>Đang kiểm tra quyền truy cập...</p> : <p>{message}</p>}
+
+            {status === "loading" && (
+                <p>Đang kiểm tra quyền truy cập...</p>
+            )}
+
+            {status === "error" && (
+                <p style={{ color: "#c62828" }}>{message}</p>
+            )}
+
+            {status === "success" && (
+                <>
+                    {message && (
+                        <p style={{ color: "#2e7d32" }}>{message}</p>
+                    )}
+
+                    {/* TM-14: Quản lý tài khoản */}
+                    <AdminUserManager />
+
+                    {/* Quản lý đơn hàng hiện có */}
+                    <AdminOrderManager />
+                </>
+            )}
         </section>
     );
 }

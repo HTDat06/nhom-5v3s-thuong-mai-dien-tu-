@@ -37,8 +37,8 @@ nhom--thuong-mai-dien-tu-/
 Mở Terminal (hoặc Git Bash) và chạy lệnh sau:
 
 ```bash
-git clone https://github.com/HTDat06/nhom-5v3s-thuong-mai-dien-tu-.git
-cd nhom-5v3s-thuong-mai-dien-tu-
+git clone [https://github.com/HTDat06/nhom-5v3s-thuong-mai-dien-tu-.git](https://github.com/HTDat06/nhom-5v3s-thuong-mai-dien-tu-.git)
+cd nhom--thuong-mai-dien-tu-
 git checkout develop
 git pull origin develop
 ```
@@ -88,6 +88,8 @@ npx prisma generate
 # Nạp dữ liệu mẫu (5 danh mục, 30 sản phẩm, 11 tài khoản, 10 đơn hàng)
 node prisma/seed.js
 
+npm install cors
+npm install bcrypt
 # Khởi động Backend Server
 npm run dev
 ```
@@ -98,6 +100,7 @@ Mở một cửa sổ **Terminal thứ hai** (giữ nguyên Terminal đang chạ
 
 ```powershell
 cd frontend
+npm install axios
 npm install
 npm run dev
 ```

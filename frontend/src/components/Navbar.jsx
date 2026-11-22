@@ -1,18 +1,17 @@
+
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 function Navbar() {
-    const [menuOpen, setMenuOpen] = useState(false);
+    const [isOpen, setIsOpen] = useState(false);
 
     const categories = [
-        "Trang chủ",
-        "VGA",
-        "RAM",
-        "CPU",
-        "Mainboard",
-        "SSD",
-        "PSU",
-        "Case PC",
-        "Tản nhiệt"
+        { name: "Trang chủ", path: "/" },
+        { name: "CPU - Bộ vi xử lý", path: "/?category_id=1" },
+        { name: "Mainboard - Bo mạch chủ", path: "/?category_id=2" },
+        { name: "RAM - Bộ nhớ", path: "/?category_id=3" },
+        { name: "VGA - Card màn hình", path: "/?category_id=4" },
+        { name: "Ổ cứng - Lưu trữ", path: "/?category_id=5" }
     ];
 
     return (
@@ -20,18 +19,24 @@ function Navbar() {
             <div className="navbar-container">
 
                 <button
-                    className="menu-toggle"
-                    onClick={() => setMenuOpen(!menuOpen)}
+                    type="button"
+                    className="category-toggle"
+                    onClick={() => setIsOpen(!isOpen)}
+                    aria-expanded={isOpen}
                 >
                     ☰ Danh mục
+                    <span>{isOpen ? "▲" : "▼"}</span>
                 </button>
 
-                <ul className={`nav-list ${menuOpen ? "active" : ""}`}>
-                    {categories.map((category, index) => (
-                        <li key={category}>
-                            <a href={index === 0 ? "/" : "#"}>
-                                {category}
-                            </a>
+                <ul className={`nav-list ${isOpen ? "active" : ""}`}>
+                    {categories.map((item) => (
+                        <li key={item.name}>
+                            <Link
+                                to={item.path}
+                                onClick={() => setIsOpen(false)}
+                            >
+                                {item.name}
+                            </Link>
                         </li>
                     ))}
                 </ul>

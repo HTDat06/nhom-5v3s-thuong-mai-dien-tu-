@@ -46,40 +46,50 @@ const products = [
 ];
 
 const orderStatuses = [
-  "pending", "confirmed", "shipping", "completed", "cancelled",
-  "pending", "confirmed", "shipping", "completed", "completed"
+  "pending", "pending", "shipping", "completed", "cancelled",
+  "pending", "shipping", "shipping", "completed", "completed"
 ];
 
 async function main() {
-  const existingCategories = await prisma.categories.count();
-  if (existingCategories > 0) {
+  const existingOrders = await prisma.orders.count();
+  if (existingOrders > 0) {
     console.log("Dữ liệu mẫu đã tồn tại, bỏ qua bước nạp lại.");
     return;
   }
 
   const hashedPassword = await bcrypt.hash("123456", 10);
 
-  // 1. Tạo 5 danh mục
+  // 1. Tạo hoặc lấy lại 5 danh mục
   const categoryMap = {};
   for (const cat of categories) {
-    const created = await prisma.categories.create({ data: cat });
-    categoryMap[created.category_name] = created.category_id;
+    let record = await prisma.categories.findFirst({
+      where: { category_name: cat.category_name }
+    });
+    if (!record) {
+      record = await prisma.categories.create({ data: cat });
+    }
+    categoryMap[record.category_name] = record.category_id;
   }
 
-  // 2. Tạo 30 sản phẩm
+  // 2. Tạo hoặc lấy lại 30 sản phẩm
   const createdProducts = [];
   for (const prod of products) {
-    const created = await prisma.products.create({
-      data: {
-        category_id: categoryMap[prod.category_name],
-        product_name: prod.product_name,
-        description: `Sản phẩm ${prod.product_name}`,
-        price: prod.price,
-        stock: prod.stock,
-        image: null
-      }
+    let record = await prisma.products.findFirst({
+      where: { product_name: prod.product_name }
     });
-    createdProducts.push({ ...created, rawPrice: prod.price });
+    if (!record) {
+      record = await prisma.products.create({
+        data: {
+          category_id: categoryMap[prod.category_name],
+          product_name: prod.product_name,
+          description: `Sản phẩm ${prod.product_name}`,
+          price: prod.price,
+          stock: prod.stock,
+          image: null
+        }
+      });
+    }
+    createdProducts.push({ ...record, rawPrice: prod.price });
   }
 
   // 3. Tạo 1 admin và 10 khách hàng (mật khẩu chung: 123456)
@@ -122,6 +132,7 @@ async function main() {
     const order = await prisma.orders.create({
       data: {
         user_id: user.user_id,
+        receiver_name: user.name,
         total_amount: p1.rawPrice + p2.rawPrice,
         shipping_address: `Địa chỉ khách hàng ${i + 1}, TP. Hồ Chí Minh`,
         phone,
