@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
@@ -15,15 +16,12 @@ function Header() {
         navigate("/", { replace: true });
     };
 
-    // Xử lý tìm kiếm sản phẩm
     const handleSearch = (e) => {
         e.preventDefault();
 
         const search = keyword.trim();
 
-        if (!search) {
-            return;
-        }
+        if (!search) return;
 
         navigate(`/products?search=${encodeURIComponent(search)}`);
     };
@@ -31,7 +29,10 @@ function Header() {
     return (
         <header className="header">
             <div className="header-container">
-                <Link to="/" className="logo">MyShop</Link>
+
+                <Link to="/" className="logo">
+                    MyShop
+                </Link>
 
                 <form className="search-box" onSubmit={handleSearch}>
                     <input
@@ -45,20 +46,11 @@ function Header() {
                 </form>
 
                 <div className="header-actions">
+
                     {user?.role !== "admin" && (
                         <Link to="/cart" className="header-link">
                             🛒 Giỏ hàng
-                            <span
-                                style={{
-                                    backgroundColor: "#e53935",
-                                    color: "#fff",
-                                    borderRadius: "999px",
-                                    padding: "2px 7px",
-                                    fontSize: "12px",
-                                    marginLeft: "5px",
-                                    fontWeight: "bold",
-                                }}
-                            >
+                            <span className="cart-badge">
                                 {totalQuantity}
                             </span>
                         </Link>
@@ -67,20 +59,22 @@ function Header() {
                     {user ? (
                         <>
                             {user.role === "admin" ? (
-                                <Link to="/admin" className="header-link">Quản trị</Link>
+                                <Link to="/admin" className="header-link">
+                                    Quản trị
+                                </Link>
                             ) : (
                                 <Link to="/my-orders" className="header-link">
                                     📦 Đơn hàng của tôi
                                 </Link>
                             )}
 
-                            <span className="header-link">
+                            <span className="header-link user-name">
                                 Xin chào, {user.name}
                             </span>
 
                             <button
                                 type="button"
-                                className="header-link"
+                                className="header-link logout-button"
                                 onClick={handleLogout}
                             >
                                 Đăng xuất
@@ -97,6 +91,7 @@ function Header() {
                             </Link>
                         </>
                     )}
+
                 </div>
             </div>
         </header>
