@@ -64,17 +64,21 @@ function Home() {
 
     return (
         <div className="home-container">
-            <section className="banner">
-                <h1>Chào mừng đến với MyShop</h1>
-                <p>Khám phá các sản phẩm công nghệ mới nhất</p>
 
-                <button
-                    className="view-products-button"
-                    onClick={() => navigate("/products")}
-                >
-                    Xem sản phẩm
-                </button>
-            </section>
+            {/* Chỉ hiện banner khi ở trang chủ */}
+            {!categoryId && (
+                <section className="banner">
+                    <h1>Chào mừng đến với MyShop</h1>
+                    <p>Khám phá các sản phẩm công nghệ mới nhất</p>
+
+                    <button
+                        className="view-products-button"
+                        onClick={() => navigate("/products")}
+                    >
+                        Xem sản phẩm
+                    </button>
+                </section>
+            )}
 
             <section className="products-section">
                 <h2>{title}</h2>
@@ -96,6 +100,7 @@ function Home() {
                     </div>
                 )}
             </section>
+
         </div>
     );
 }
