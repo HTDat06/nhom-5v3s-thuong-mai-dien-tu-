@@ -3,11 +3,16 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import AdminOrderManager from "../components/AdminOrderManager";
 import AdminUserManager from "../components/AdminUserManager";
+import AdminCategoryManager from "../components/AdminCategoryManager";
+import AdminProductManager from "../components/AdminProductManager";
+import "./Admin.css";
 
 function Admin() {
     const { token } = useAuth();
+
     const [status, setStatus] = useState("loading");
     const [message, setMessage] = useState("");
+    const [activeTab, setActiveTab] = useState("products");
 
     useEffect(() => {
         let cancelled = false;
@@ -24,7 +29,7 @@ function Admin() {
             })
             .then((result) => {
                 if (!cancelled) {
-                    setMessage(result.message);
+                    setMessage(result.message || "");
                     setStatus("success");
                 }
             })
@@ -40,32 +45,44 @@ function Admin() {
         };
     }, [token]);
 
+    if (status === "loading") {
+        return <p className="admin-loading">Đang kiểm tra quyền truy cập...</p>;
+    }
+
+    if (status === "error") {
+        return <p className="admin-error">{message}</p>;
+    }
+
+    const tabs = [
+        { id: "products", label: "Quản lý sản phẩm" },
+        { id: "categories", label: "Quản lý danh mục" },
+        { id: "users", label: "Quản lý tài khoản" },
+        { id: "orders", label: "Quản lý đơn hàng" },
+    ];
+
     return (
-        <section style={{ width: "90%", maxWidth: 1200, margin: "32px auto" }}>
+        <main className="admin-page">
             <h1>Trang quản trị</h1>
 
-            {status === "loading" && (
-                <p>Đang kiểm tra quyền truy cập...</p>
-            )}
+            {message && <p className="admin-success">{message}</p>}
 
-            {status === "error" && (
-                <p style={{ color: "#c62828" }}>{message}</p>
-            )}
+            <nav className="admin-tabs">
+                {tabs.map((tab) => (
+                    <button
+                        key={tab.id}
+                        className={activeTab === tab.id ? "active" : ""}
+                        onClick={() => setActiveTab(tab.id)}
+                    >
+                        {tab.label}
+                    </button>
+                ))}
+            </nav>
 
-            {status === "success" && (
-                <>
-                    {message && (
-                        <p style={{ color: "#2e7d32" }}>{message}</p>
-                    )}
-
-                    {/* TM-14: Quản lý tài khoản */}
-                    <AdminUserManager />
-
-                    {/* Quản lý đơn hàng hiện có */}
-                    <AdminOrderManager />
-                </>
-            )}
-        </section>
+            {activeTab === "products" && <AdminProductManager />}
+            {activeTab === "categories" && <AdminCategoryManager />}
+            {activeTab === "users" && <AdminUserManager />}
+            {activeTab === "orders" && <AdminOrderManager />}
+        </main>
     );
 }
 

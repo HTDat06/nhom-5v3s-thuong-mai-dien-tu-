@@ -1,0 +1,194 @@
+
+.admin-page {
+    width: 92%;
+    max-width: 1400px;
+    margin: 32px auto;
+}
+
+.admin-page h1 {
+    margin-bottom: 20px;
+}
+
+.admin-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 12px;
+}
+
+.admin-tabs button,
+.catalog-manager button {
+    border: none;
+    border-radius: 5px;
+    padding: 9px 15px;
+    background: #1976d2;
+    color: white;
+    cursor: pointer;
+}
+
+.admin-tabs button.active {
+    background: #0d47a1;
+    font-weight: bold;
+}
+
+.admin-tabs button:hover,
+.catalog-manager button:hover {
+    opacity: 0.85;
+}
+
+.catalog-manager {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 25px;
+}
+
+.catalog-manager h2 {
+    margin: 0 0 20px;
+}
+
+.catalog-form {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    max-width: 650px;
+    margin-bottom: 25px;
+}
+
+.catalog-form input,
+.catalog-form textarea,
+.catalog-form select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font: inherit;
+}
+
+.catalog-form input:focus,
+.catalog-form textarea:focus,
+.catalog-form select:focus {
+    outline: 1px solid #1976d2;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.form-grid > div {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+}
+
+.catalog-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.catalog-manager .secondary-btn {
+    background: #757575;
+}
+
+.catalog-manager .danger-btn {
+    background: #d32f2f;
+    margin-left: 6px;
+}
+
+.success-message {
+    color: #2e7d32;
+    margin: 12px 0;
+}
+
+.error-message,
+.admin-error {
+    color: #c62828;
+    margin: 12px 0;
+}
+
+.admin-success {
+    color: #2e7d32;
+}
+
+.catalog-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.catalog-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.catalog-table th,
+.catalog-table td {
+    padding: 11px;
+    border: 1px solid #ddd;
+    text-align: left;
+    vertical-align: middle;
+}
+
+.catalog-table th {
+    background: #f5f5f5;
+}
+
+.catalog-table tr:hover {
+    background: #fafafa;
+}
+
+.product-admin-image {
+    width: 65px;
+    height: 65px;
+    object-fit: contain;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.pagination button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.admin-loading {
+    text-align: center;
+    margin: 40px;
+}
+
+@media (max-width: 650px) {
+    .admin-page {
+        width: 96%;
+    }
+
+    .catalog-manager {
+        padding: 12px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-tabs {
+        flex-direction: column;
+    }
+
+    .admin-tabs button {
+        width: 100%;
+    }
+
+    .catalog-table {
+        min-width: 650px;
+    }
+}
