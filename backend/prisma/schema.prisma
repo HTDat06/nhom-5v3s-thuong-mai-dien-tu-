@@ -71,6 +71,7 @@ model products {
   price        Decimal       @db.Decimal(12, 2)
   stock        Int           @default(0, map: "DF__products__stock__5070F446")
   image        String?       @db.NVarChar(225)
+  is_active    Boolean       @default(true)
   cart_items   cart_items[]
   order_items  order_items[]
   categories   categories    @relation(fields: [category_id], references: [category_id], map: "FK_products_categories")
