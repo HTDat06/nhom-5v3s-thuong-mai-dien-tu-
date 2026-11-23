@@ -34,7 +34,27 @@ export function AuthProvider({ children }) {
         setUser(userData);
         setToken(accessToken);
 
-        // Cập nhật AccountMenu
+        window.dispatchEvent(new Event("authChanged"));
+    };
+
+    // Cập nhật thông tin người dùng
+    const updateUser = (updatedData) => {
+        setUser((prevUser) => {
+            if (!prevUser) return prevUser;
+
+            const newUser = {
+                ...prevUser,
+                ...updatedData
+            };
+
+            localStorage.setItem(
+                "user",
+                JSON.stringify(newUser)
+            );
+
+            return newUser;
+        });
+
         window.dispatchEvent(new Event("authChanged"));
     };
 
@@ -46,12 +66,19 @@ export function AuthProvider({ children }) {
         setUser(null);
         setToken(null);
 
-        // Thông báo AccountMenu ẩn Hồ sơ cá nhân
         window.dispatchEvent(new Event("authChanged"));
     };
 
     return (
-        <AuthContext.Provider value={{ user, token, login, logout }}>
+        <AuthContext.Provider
+            value={{
+                user,
+                token,
+                login,
+                logout,
+                updateUser
+            }}
+        >
             {children}
         </AuthContext.Provider>
     );
