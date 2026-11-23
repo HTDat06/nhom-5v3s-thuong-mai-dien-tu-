@@ -213,6 +213,7 @@ a {
     width: 100%;
     background: var(--navy);
     color: white;
+   
 }
 
 .navbar-container {
@@ -757,5 +758,33 @@ textarea {
     .banner h1 {
         font-size: 23px;
     }
+} 
+/* HEADER + NAVBAR FIXED */
 
+.top-fixed {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    z-index: 9999;
+    background: var(--white);
+}
+
+.header {
+    width: 100%;
+    position: relative;
+}
+
+.navbar {
+    width: 100%;
+    position: relative;
+}
+
+/* MAIN CONTENT */
+.main-content {
+    width: 100%;
+    flex: 1;
+    min-height: 60vh;
+    padding-top: 137px;
 }
