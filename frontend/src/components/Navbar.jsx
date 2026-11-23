@@ -40,7 +40,18 @@ function Navbar() {
                         </li>
                     ))}
                 </ul>
-
+                 <div
+                    className="navbar-account"
+                    style={{
+                        display: "flex",
+                        alignItems: "center",
+                        flexDirection: "row",
+                        flexShrink: 0,
+                        whiteSpace: "nowrap"
+                    }}
+                >
+                    <AccountMenu />
+                </div>
             </div>
         </nav>
     );
