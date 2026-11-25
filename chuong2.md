@@ -17,11 +17,11 @@
 
 | Thành viên | Họ và tên | Vai trò chính | Chức năng bắt buộc (`TM-xx`) | Nhiệm vụ kiểm thử chéo & sửa lỗi | Phụ trách báo cáo & sản phẩm |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **TV1** | *(Điền tên)* | Trưởng nhóm (PM / Scrum Master) | `TM-08` (Hồ sơ cá nhân)<br>`TM-14` (Quản lý người dùng) | Quản lý Sprint S5, điều phối Trello; kiểm thử & sửa lỗi `TM-08`, `TM-14` | - Dàn ý báo cáo (`dan-y.md`)<br>- Chương 1, Chương 2<br>- Tổng hợp Chương 9, Chương 10<br>- Kiểm tra AI log toàn nhóm |
-| **TV2** | *(Điền tên)* | Backend Lead | `TM-04` (Đăng ký / Đăng nhập)<br>`TM-06` (Đặt hàng / Thanh toán) | Kiểm thử bảo mật cơ bản (SQLi, truy cập trái phép); sửa lỗi `TM-04`, `TM-06` | - Chương 5 (Phần Kiến trúc hệ thống)<br>- Chương 6 (Cài đặt, nghiệp vụ đặt hàng) |
-| **TV3** | *(Điền tên)* | Frontend Lead | `TM-01`, `TM-02`, `TM-03` (Giao diện trang chủ, danh sách & chi tiết sản phẩm) | Kiểm thử giao diện đa thiết bị (PC/Mobile); sửa lỗi UI/UX | - Chương 5 (Phần Giao diện người dùng)<br>- Kịch bản & quay video demo (3–5 phút) |
-| **TV4** | *(Điền tên)* | Cơ sở dữ liệu (DB Lead) | `TM-11` (Quản lý danh mục)<br>`TM-12` (Quản lý sản phẩm) | Kiểm thử ràng buộc dữ liệu, định dạng ảnh; sửa lỗi `TM-11`, `TM-12` | - Chương 3 (Công nghệ & thiết kế CSDL)<br>- Chương 5 (Phần CSDL: ERD, bảng, chỉ mục) |
-| **TV5** | *(Điền tên)* | Git & Kiểm thử (QA Lead) | `TM-05`, `TM-07`, `TM-13` (Giỏ hàng, theo dõi đơn, thống kê/quản trị) | Điều phối kiểm thử chéo, quản lý GitHub Issues & thẻ `[BUG]`; sửa lỗi `TM-05`, `TM-07`, `TM-13` | - Chương 7 (Kế hoạch & kết quả kiểm thử)<br>- Chương 8 (Quy trình Git, thống kê commit/PR) |
+| **TV1** | Nguyễn Chí Hải | Trưởng nhóm (PM / Scrum Master) | `TM-08` (Hồ sơ cá nhân)<br>`TM-14` (Quản lý người dùng) | Quản lý Sprint S5, điều phối Trello; kiểm thử & sửa lỗi `TM-08`, `TM-14` | - Dàn ý báo cáo (`dan-y.md`)<br>- Chương 1, Chương 2<br>- Tổng hợp Chương 9, Chương 10<br>- Kiểm tra AI log toàn nhóm |
+| **TV2** | Trần Ngọc Duy | Backend Lead | `TM-04` (Đăng ký / Đăng nhập)<br>`TM-06` (Đặt hàng / Thanh toán) | Kiểm thử bảo mật cơ bản (SQLi, truy cập trái phép); sửa lỗi `TM-04`, `TM-06` | - Chương 5 (Phần Kiến trúc hệ thống)<br>- Chương 6 (Cài đặt, nghiệp vụ đặt hàng) |
+| **TV3** | Phạm Thiên Phúc | Frontend Lead | `TM-01`, `TM-02`, `TM-03` (Giao diện trang chủ, danh sách & chi tiết sản phẩm) | Kiểm thử giao diện đa thiết bị (PC/Mobile); sửa lỗi UI/UX | - Chương 5 (Phần Giao diện người dùng)<br>- Kịch bản & quay video demo (3–5 phút) |
+| **TV4** | Mai Thanh Tân | Cơ sở dữ liệu (DB Lead) | `TM-11` (Quản lý danh mục)<br>`TM-12` (Quản lý sản phẩm) | Kiểm thử ràng buộc dữ liệu, định dạng ảnh; sửa lỗi `TM-11`, `TM-12` | - Chương 3 (Công nghệ & thiết kế CSDL)<br>- Chương 5 (Phần CSDL: ERD, bảng, chỉ mục) |
+| **TV5** | Hoàng Tiến Đạt | Git & Kiểm thử (QA Lead) | `TM-05`, `TM-07`, `TM-13` (Giỏ hàng, theo dõi đơn, thống kê/quản trị) | Điều phối kiểm thử chéo, quản lý GitHub Issues & thẻ `[BUG]`; sửa lỗi `TM-05`, `TM-07`, `TM-13` | - Chương 7 (Kế hoạch & kết quả kiểm thử)<br>- Chương 8 (Quy trình Git, thống kê commit/PR) |
 
 ### Bảng 2.2. Ma trận trách nhiệm (RACI) theo giai đoạn dự án
 
