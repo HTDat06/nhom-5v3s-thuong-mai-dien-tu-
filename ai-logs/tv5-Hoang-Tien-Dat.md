@@ -236,3 +236,22 @@ z
 - Cách kiểm chứng: Đối chiếu số lượng commit tổng (180 commits) và tỷ lệ phần trăm từng thành viên với kết quả terminal thực tế; kiểm tra hiển thị bảng Markdown và sơ đồ nhánh trên nhánh `docs/bao-cao-c7-c8`.
 - Tỷ lệ nội dung AI còn giữ lại (ước lượng): 85%
 - Điều học được: Khi thống kê đóng góp qua `git shortlog`, cần chuẩn hóa và gộp các tên tác giả (`user.name`) khác nhau của cùng một thành viên trên nhiều máy tính để đảm bảo tính khách quan và chính xác cho báo cáo.
+
+---
+
+## Tổng kết & Phản tư quá trình sử dụng AI (AI Reflection – TV5)
+
+1. **Hiệu quả mang lại:**
+   * **Tăng tốc viết Test Case & Unit Test:** AI hỗ trợ sinh nhanh khung kịch bản kiểm thử biên cho các phân hệ (`TM-01` đến `TM-14`) và gợi ý cách dùng `node:test` kết hợp mock tầng Repository giúp cô lập logic kiểm thử tồn kho mà không làm ảnh hưởng dữ liệu SQL Server.
+   * **Hỗ trợ xử lý sự cố Git & Môi trường:** Giải quyết nhanh các tình huống thực tế khi làm việc nhóm như clone nông (`--depth 1`), quy tắc bảo vệ nhánh `main`/`develop`, gộp nhánh tránh mất dữ liệu và đồng bộ schema Prisma trên SQL Server.
+   * **Chuẩn hóa tài liệu kỹ thuật:** Rút ngắn thời gian biên soạn tài liệu hướng dẫn cài đặt `README.md`, báo cáo kiểm thử (Chương 7) và thống kê lịch sử mã nguồn (Chương 8).
+
+2. **Hạn chế & Rủi ro nhận diện được:**
+   * **Sai lệch ngữ cảnh mã nguồn:** Ở một số thời điểm, AI sinh code tham chiếu tên quan hệ Prisma (`include: { users }`) hoặc tên biến JWT không khớp với mã nguồn thực tế các thành viên khác vừa cập nhật.
+   * **Rủi ro mất dữ liệu khi đồng bộ CSDL:** AI đôi khi gợi ý cờ `--force-reset` khi thay đổi schema, nếu áp dụng máy móc sẽ xóa sạch dữ liệu mẫu cả nhóm đang dùng chung.
+   * **Số liệu báo cáo cần kiểm chứng:** Khi tổng hợp thống kê Git, AI không tự nhận biết được việc một thành viên dùng nhiều tên `git config user.name` trên nhiều máy nếu không trực tiếp đối chiếu và gộp thủ công.
+
+3. **Bài học kinh nghiệm & Nguyên tắc kiểm soát:**
+   * **Luôn kiểm chứng thực thi:** Mọi đoạn mã, câu lệnh SQL hay hướng dẫn cài đặt do AI đề xuất đều phải chạy thử nghiệm thực tế trên môi trường local (`npm test`, kiểm thử trình duyệt, thử nghiệm trên thư mục sạch) trước khi tạo Pull Request.
+   * **Cung cấp ngữ cảnh cụ thể:** Khi nhờ AI viết code tích hợp, cần đính kèm cấu trúc thư mục, schema Prisma hoặc file Service hiện tại để tránh sai lệch tên biến và kiến trúc.
+   * **Làm chủ quy trình Git:** Chỉ dùng AI để tra cứu lệnh và phương án xử lý xung đột, luôn tự kiểm tra `git status` và `git diff` trước khi `commit` hoặc `merge`.
