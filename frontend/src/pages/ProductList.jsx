@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import ProductCard from "../components/ProductCard";
@@ -9,7 +10,6 @@ function ProductList() {
     const [searchParams, setSearchParams] = useSearchParams();
 
     const [products, setProducts] = useState([]);
-    const [categories, setCategories] = useState([]);
     const [pagination, setPagination] = useState({
         currentPage: 1,
         totalPages: 1,
@@ -20,27 +20,7 @@ function ProductList() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
-    // Lấy danh mục từ Backend
-    useEffect(() => {
-        const fetchCategories = async () => {
-            try {
-                const response = await fetch(`${API_URL}/admin/categories`);
-                const result = await response.json();
-
-                if (!response.ok || result.success === false) {
-                    throw new Error(result.message || "Không thể tải danh mục.");
-                }
-
-                setCategories(Array.isArray(result.data) ? result.data : []);
-            } catch (error) {
-                console.error("Lỗi tải danh mục:", error);
-            }
-        };
-
-        fetchCategories();
-    }, []);
-
-    // Lấy sản phẩm theo điều kiện trên URL
+    // Lấy sản phẩm theo danh mục và trang trên URL
     const queryString = searchParams.toString();
 
     useEffect(() => {
@@ -55,7 +35,6 @@ function ProductList() {
                     params.set("page", "1");
                 }
 
-                // Backend quy định 12 sản phẩm mỗi trang
                 params.set("limit", "12");
 
                 const response = await fetch(
@@ -70,7 +49,9 @@ function ProductList() {
                     );
                 }
 
-                setProducts(Array.isArray(result.data) ? result.data : []);
+                setProducts(
+                    Array.isArray(result.data) ? result.data : []
+                );
 
                 setPagination(
                     result.pagination || {
@@ -92,21 +73,7 @@ function ProductList() {
         fetchProducts();
     }, [queryString]);
 
-    // Cập nhật bộ lọc và quay về trang 1
-    const updateFilter = (key, value) => {
-        const newParams = new URLSearchParams(searchParams);
-
-        if (value === "") {
-            newParams.delete(key);
-        } else {
-            newParams.set(key, value);
-        }
-
-        newParams.set("page", "1");
-        setSearchParams(newParams);
-    };
-
-    // Chuyển trang, giữ nguyên các bộ lọc
+    // Chuyển trang, giữ nguyên danh mục đang chọn
     const changePage = (page) => {
         const newParams = new URLSearchParams(searchParams);
         newParams.set("page", String(page));
@@ -124,83 +91,7 @@ function ProductList() {
         <div className="product-list-page">
             <div className="product-list-heading"></div>
 
-            {/* Bộ lọc sản phẩm */}
-            <div className="product-filter">
-                <div className="filter-item">
-                    <label htmlFor="category">Danh mục</label>
-                    <select
-                        id="category"
-                        value={searchParams.get("category_id") || ""}
-                        onChange={(e) =>
-                            updateFilter("category_id", e.target.value)
-                        }
-                    >
-                        <option value="">Tất cả danh mục</option>
-
-                        {categories.map((category) => (
-                            <option
-                                key={category.category_id}
-                                value={category.category_id}
-                            >
-                                {category.category_name}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-
-                <div className="filter-item">
-                    <label htmlFor="minPrice">Giá thấp nhất</label>
-                    <input
-                        id="minPrice"
-                        type="number"
-                        min="0"
-                        placeholder="Từ giá"
-                        value={searchParams.get("min_price") || ""}
-                        onChange={(e) =>
-                            updateFilter("min_price", e.target.value)
-                        }
-                    />
-                </div>
-
-                <div className="filter-item">
-                    <label htmlFor="maxPrice">Giá cao nhất</label>
-                    <input
-                        id="maxPrice"
-                        type="number"
-                        min="0"
-                        placeholder="Đến giá"
-                        value={searchParams.get("max_price") || ""}
-                        onChange={(e) =>
-                            updateFilter("max_price", e.target.value)
-                        }
-                    />
-                </div>
-
-                <div className="filter-item">
-                    <label htmlFor="sort">Sắp xếp</label>
-                    <select
-                        id="sort"
-                        value={searchParams.get("sort") || ""}
-                        onChange={(e) =>
-                            updateFilter("sort", e.target.value)
-                        }
-                    >
-                        <option value="">Mặc định</option>
-                        <option value="price_asc">Giá tăng dần</option>
-                        <option value="price_desc">Giá giảm dần</option>
-                        <option value="newest">Mới nhất</option>
-                    </select>
-                </div>
-
-                <button
-                    type="button"
-                    className="reset-filter-btn"
-                    onClick={() => setSearchParams({})}
-                >
-                    Xóa bộ lọc
-                </button>
-            </div>
-
+            {/* Tiêu đề danh sách sản phẩm */}
             <div className="product-list-toolbar">
                 <h2>Tất cả sản phẩm</h2>
                 <span>{pagination.totalProducts} sản phẩm</span>
@@ -208,9 +99,13 @@ function ProductList() {
 
             {/* Danh sách sản phẩm */}
             {loading ? (
-                <p className="product-message">Đang tải sản phẩm...</p>
+                <p className="product-message">
+                    Đang tải sản phẩm...
+                </p>
             ) : error ? (
-                <p className="product-message error">{error}</p>
+                <p className="product-message error">
+                    {error}
+                </p>
             ) : products.length === 0 ? (
                 <p className="product-message">
                     Không tìm thấy sản phẩm phù hợp.
