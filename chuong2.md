@@ -39,5 +39,20 @@
 | Tổng hợp & hoàn thiện Báo cáo 10 chương | **A / R** | R | R | R | R |
 
 ## 2.4. Tổng hợp retrospective & minh chứng Trello
-- Tổng hợp các điểm làm tốt, điểm còn tồn đọng qua các buổi làm việc/sprint và biện pháp cải thiện ở giai đoạn tiếp theo.
-- <img width="857" height="505" alt="image" src="https://github.com/user-attachments/assets/bfa4668e-0ed6-4697-9668-aaf7306e5892" />
+
+### Tổng hợp retrospective
+- **Những điểm làm tốt:**
+  - Phân công vai trò và mã chức năng (`TM-xx`) rõ ràng ngay từ đầu giúp hạn chế chồng chéo công việc.
+  - Duy trì cập nhật trạng thái thẻ trên Trello, tuân thủ quy tắc nhánh Git (`fix/...`, `docs/...`) và mốc đóng băng chức năng khi bước vào Sprint S5.
+  - Phối hợp kiểm thử chéo, ghi nhận Issue và phân loại thẻ `[BUG]` / `[DOC]` để tập trung xử lý lỗi và tài liệu.
+- **Điểm còn tồn đọng / hạn chế:**
+  - Một số đầu mục chức năng hoặc sửa lỗi có thể bị dồn vào cuối ngày/cuối sprint nếu không rà soát sớm trước mốc kiểm tra.
+  - Việc cập nhật tiến độ ngắn trên thẻ Trello và ghi nhận AI log đôi lúc chưa đồng đều giữa các thành viên.
+- **Biện pháp cải thiện cho giai đoạn tiếp theo:**
+  - Trưởng nhóm rà soát tiến độ và cột *Lỗi* sớm hơn (trước mốc 22:00) để kịp thời điều phối hoặc ghi rõ lý do nếu có hạng mục chậm.
+  - Nhắc nhở các thành viên kéo thẻ đúng trạng thái, ghi 1 dòng tiến độ cuối buổi làm việc và cập nhật đầy đủ AI log (đảm bảo tối thiểu theo yêu cầu).
+  - Ưu tiên xử lý dứt điểm lỗi tồn đọng và hoàn thiện bản nháp các chương báo cáo đúng hạn đã phân công.
+
+### Minh chứng bảng Trello
+<img width="1681" height="822" alt="image" src="https://github.com/user-attachments/assets/e58b360b-2adf-4b09-a1a9-a1161d639bed" />
+
