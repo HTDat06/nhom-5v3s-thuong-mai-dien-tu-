@@ -5,6 +5,7 @@ import ProductCard from "../components/ProductCard";
 import { useAuth } from "../contexts/AuthContext";
 import { useCart } from "../contexts/CartContext";
 import "../styles/ProductDetail.css";
+import { getImageUrl } from "../utils/imageUrl";
 
 const API_URL = "http://localhost:5000/api";
 
@@ -141,10 +142,11 @@ function ProductDetail() {
             <section className="product-detail">
                 <div className="detail-image">
                     <img
-                        src={product.image || "/images/no-image.png"}
+                        src={getImageUrl(product.image)}
                         alt={product.product_name}
                         onError={(e) => {
-                            e.currentTarget.src = "/images/no-image.png";
+                            e.currentTarget.onerror = null;
+                            e.currentTarget.style.display = "none";
                         }}
                     />
                 </div>
@@ -184,10 +186,10 @@ function ProductDetail() {
                         {isOutOfStock
                             ? "Hết hàng"
                             : adding
-                            ? "Đang thêm..."
-                            : addedSuccess
-                            ? "✓ Đã thêm vào giỏ"
-                            : "Thêm vào giỏ hàng"}
+                                ? "Đang thêm..."
+                                : addedSuccess
+                                    ? "✓ Đã thêm vào giỏ"
+                                    : "Thêm vào giỏ hàng"}
                     </button>
                 </div>
             </section>

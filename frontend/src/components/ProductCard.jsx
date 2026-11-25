@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useCart } from "../contexts/CartContext";
 import "../styles/ProductCard.css";
+import { getImageUrl } from "../utils/imageUrl";
 
 function formatPrice(price) {
     const value = Number(String(price).replace(/[^\d]/g, ""));
@@ -47,9 +48,13 @@ function ProductCard({ product }) {
     return (
         <div className="product-card">
             <img
-                src={product.image}
+                src={getImageUrl(product.image)}
                 alt={product.name || product.product_name}
                 className="product-image"
+                onError={(e) => {
+                    e.currentTarget.onerror = null;
+                    e.currentTarget.style.display = "none";
+                }}
             />
 
             <div className="product-info">
