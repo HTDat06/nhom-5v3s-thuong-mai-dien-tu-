@@ -117,7 +117,18 @@ Hướng dẫn chạy Kiểm thử tự động (Unit Test)
 Để chạy bộ kiểm thử đơn vị tầng nghiệp vụ (CartService), mở Terminal tại thư mục backend/ và thực hiện:
 
 cd backend
-npm test
+
+AuthService: npx jest tests/AuthService.test.js
+
+CartService: npx jest tests/CartService.test.js
+
+CategoryService: npx jest tests/CategoryService.test.js
+
+OrderService: npx jest tests/OrderService.test.js
+
+ProductService: npx jest tests/ProductService.test.js
+
+UserService: npx jest tests/UserService.test.js
 
 ## Tài khoản mẫu kiểm thử
 
