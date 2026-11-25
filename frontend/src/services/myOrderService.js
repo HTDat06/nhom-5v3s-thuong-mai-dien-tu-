@@ -53,3 +53,45 @@ export async function cancelOrderRequest(token, orderId) {
     }
     return result;
 }
+
+export async function confirmReceivedOrderRequest(token, orderId) {
+    const response = await fetch(`${API_BASE_URL}/api/orders/${orderId}/confirm-received`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+    });
+
+    const result = await response.json();
+    if (!response.ok) {
+        const error = new Error(result.message || "Không thể xác nhận đã nhận hàng.");
+        error.status = response.status;
+        throw error;
+    }
+    return result;
+}
+
+export async function submitReturnRequest(token, orderId, { reason, evidenceFile }) {
+    const formData = new FormData();
+    formData.append("reason", reason);
+    if (evidenceFile) {
+        formData.append("evidence", evidenceFile);
+    }
+
+    const response = await fetch(`${API_BASE_URL}/api/orders/${orderId}/return-request`, {
+        method: "POST",
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+    });
+
+    const result = await response.json();
+    if (!response.ok) {
+        const error = new Error(result.message || "Không thể gửi yêu cầu trả hàng.");
+        error.status = response.status;
+        throw error;
+    }
+    return result;
+}

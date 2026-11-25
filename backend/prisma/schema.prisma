@@ -50,15 +50,20 @@ model order_items {
 }
 
 model orders {
-  order_id         Int           @id(map: "PK__orders__465962298F769C5F") @default(autoincrement())
-  user_id          Int
-  total_amount     Decimal       @db.Decimal(12, 2)
-  receiver_name    String        @db.NVarChar(225)
-  shipping_address String        @db.NVarChar(225)
-  phone            String        @db.NVarChar(225)
-  status           String        @default("pending", map: "DF__orders__status__5BE2A6F2") @db.NVarChar(225)
-  order_items      order_items[]
-  Users            User          @relation(fields: [user_id], references: [user_id], map: "FK_orders_Users")
+  order_id           Int           @id(map: "PK__orders__465962298F769C5F") @default(autoincrement())
+  user_id            Int
+  total_amount       Decimal       @db.Decimal(12, 2)
+  receiver_name      String        @db.NVarChar(225)
+  shipping_address   String        @db.NVarChar(225)
+  phone              String        @db.NVarChar(225)
+  status             String        @default("pending", map: "DF__orders__status__5BE2A6F2") @db.NVarChar(225)
+  customer_confirmed Boolean       @default(false)
+  confirmed_at       DateTime?
+  return_reason      String?       @db.NVarChar(Max)
+  return_evidence    String?       @db.NVarChar(500)
+  admin_return_note  String?       @db.NVarChar(Max)
+  order_items        order_items[]
+  Users              User          @relation(fields: [user_id], references: [user_id], map: "FK_orders_Users")
 
   @@index([user_id, status], map: "idx_orders_user_id_status")
 }

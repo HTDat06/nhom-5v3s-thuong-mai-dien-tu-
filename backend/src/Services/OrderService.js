@@ -12,6 +12,8 @@ const STATUS_LABELS = {
     pending: "Chờ xác nhận",
     shipping: "Đang giao",
     completed: "Hoàn thành",
+    return_requested: "Yêu cầu trả hàng",
+    returned: "Đã trả hàng & Hoàn tiền",
     cancelled: "Đã hủy"
 };
 
@@ -19,6 +21,8 @@ const ALLOWED_TRANSITIONS = {
     pending: ["shipping", "cancelled"],
     shipping: ["completed"],
     completed: [],
+    return_requested: [],
+    returned: [],
     cancelled: []
 };
 
@@ -218,7 +222,7 @@ class OrderService {
         return order;
     }
 
-    // TM-07: Khách hàng hủy đơn khi còn "pending"
+    // TM-07: Khách hàng hủy đơn khi còn "pending" (chặn khi đang giao "shipping")
     async cancelOrder(userId, orderId) {
         const parsedUserId = Number(userId);
         const parsedOrderId = Number(orderId);
@@ -271,6 +275,102 @@ class OrderService {
                     }
                 }
             });
+        });
+    }
+
+    // TM-07: Khách hàng xác nhận đã nhận hàng sau khi Admin chuyển sang "completed"
+    async confirmReceivedOrder(userId, orderId) {
+        const parsedUserId = Number(userId);
+        const parsedOrderId = Number(orderId);
+
+        if (!Number.isInteger(parsedUserId) || parsedUserId <= 0) {
+            throw createError("Người dùng không hợp lệ.", 401);
+        }
+
+        if (!Number.isInteger(parsedOrderId) || parsedOrderId <= 0) {
+            throw createError("Mã đơn hàng không hợp lệ.", 400);
+        }
+
+        const order = await prisma.orders.findUnique({
+            where: { order_id: parsedOrderId }
+        });
+
+        if (!order) {
+            throw createError("Không tìm thấy đơn hàng.", 404);
+        }
+
+        if (order.user_id !== parsedUserId) {
+            throw createError("Bạn không có quyền thao tác trên đơn hàng này.", 403);
+        }
+
+        if (order.status !== "completed") {
+            throw createError("Chỉ có thể xác nhận đã nhận hàng khi đơn hàng đã giao hoàn thành.", 400);
+        }
+
+        if (order.customer_confirmed) {
+            throw createError("Bạn đã xác nhận nhận hàng cho đơn này trước đó.", 400);
+        }
+
+        return await prisma.orders.update({
+            where: { order_id: parsedOrderId },
+            data: {
+                customer_confirmed: true,
+                confirmed_at: new Date()
+            },
+            include: {
+                order_items: {
+                    include: { products: true }
+                }
+            }
+        });
+    }
+
+    // TM-07: Khách hàng gửi form yêu cầu trả hàng kèm lý do và bằng chứng
+    async submitReturnRequest(userId, orderId, { reason, evidenceUrl } = {}) {
+        const parsedUserId = Number(userId);
+        const parsedOrderId = Number(orderId);
+
+        if (!Number.isInteger(parsedUserId) || parsedUserId <= 0) {
+            throw createError("Người dùng không hợp lệ.", 401);
+        }
+
+        if (!Number.isInteger(parsedOrderId) || parsedOrderId <= 0) {
+            throw createError("Mã đơn hàng không hợp lệ.", 400);
+        }
+
+        if (typeof reason !== "string" || !reason.trim()) {
+            throw createError("Vui lòng nhập lý do trả hàng.", 400);
+        }
+
+        const order = await prisma.orders.findUnique({
+            where: { order_id: parsedOrderId }
+        });
+
+        if (!order) {
+            throw createError("Không tìm thấy đơn hàng.", 404);
+        }
+
+        if (order.user_id !== parsedUserId) {
+            throw createError("Bạn không có quyền gửi yêu cầu trả hàng cho đơn này.", 403);
+        }
+
+        if (order.status !== "completed") {
+            throw createError("Chỉ có thể yêu cầu trả hàng đối với đơn hàng đã hoàn thành.", 400);
+        }
+
+        return await prisma.orders.update({
+            where: { order_id: parsedOrderId },
+            data: {
+                status: "return_requested",
+                return_reason: reason.trim(),
+                return_evidence: evidenceUrl || null,
+                admin_return_note: null
+            },
+            include: {
+                order_items: {
+                    include: { products: true }
+                }
+            }
         });
     }
 
@@ -335,7 +435,7 @@ class OrderService {
                 const currentLabel = STATUS_LABELS[currentStatus] || currentStatus;
                 const nextLabel = STATUS_LABELS[nextStatus] || nextStatus;
                 throw createError(
-                    `Không thể chuyển trạng thái từ "${currentLabel}" sang "${nextLabel}" (không cho phép đi ngược hoặc nhảy bước).`,
+                    `Không thể chuyển trạng thái từ "${currentLabel}" sang "${nextLabel}".`,
                     400
                 );
             }
@@ -355,6 +455,82 @@ class OrderService {
             return await tx.orders.update({
                 where: { order_id: parsedOrderId },
                 data: { status: nextStatus },
+                include: {
+                    order_items: {
+                        include: { products: true }
+                    }
+                }
+            });
+        });
+    }
+
+    // TM-13: Admin xét duyệt yêu cầu trả hàng (approve: thu hồi hàng & hoàn tiền + hoàn kho | reject: từ chối)
+    async reviewReturnRequestByAdmin(orderId, { action, adminNote } = {}) {
+        const parsedOrderId = Number(orderId);
+        if (!Number.isInteger(parsedOrderId) || parsedOrderId <= 0) {
+            throw createError("Mã đơn hàng không hợp lệ.", 400);
+        }
+
+        if (action !== "approve" && action !== "reject") {
+            throw createError("Hành động xét duyệt phải là 'approve' hoặc 'reject'.", 400);
+        }
+
+        return await prisma.$transaction(async (tx) => {
+            const order = await tx.orders.findUnique({
+                where: { order_id: parsedOrderId },
+                include: {
+                    order_items: {
+                        include: { products: true }
+                    }
+                }
+            });
+
+            if (!order) {
+                throw createError("Không tìm thấy đơn hàng.", 404);
+            }
+
+            if (order.status !== "return_requested") {
+                throw createError("Đơn hàng này không ở trạng thái chờ duyệt trả hàng.", 400);
+            }
+
+            if (action === "approve") {
+                // Thu hồi hàng -> hoàn lại tồn kho cho từng sản phẩm
+                for (const item of order.order_items) {
+                    await tx.products.update({
+                        where: { product_id: item.product_id },
+                        data: {
+                            stock: { increment: item.quantity }
+                        }
+                    });
+                }
+
+                return await tx.orders.update({
+                    where: { order_id: parsedOrderId },
+                    data: {
+                        status: "returned",
+                        admin_return_note:
+                            typeof adminNote === "string" && adminNote.trim()
+                                ? adminNote.trim()
+                                : "Đã xác nhận thu hồi hàng và hoàn tiền."
+                    },
+                    include: {
+                        order_items: {
+                            include: { products: true }
+                        }
+                    }
+                });
+            }
+
+            // Từ chối yêu cầu trả hàng -> trả đơn về trạng thái "completed"
+            return await tx.orders.update({
+                where: { order_id: parsedOrderId },
+                data: {
+                    status: "completed",
+                    admin_return_note:
+                        typeof adminNote === "string" && adminNote.trim()
+                            ? adminNote.trim()
+                            : "Yêu cầu trả hàng bị từ chối do lý do hoặc bằng chứng chưa hợp lệ."
+                },
                 include: {
                     order_items: {
                         include: { products: true }
