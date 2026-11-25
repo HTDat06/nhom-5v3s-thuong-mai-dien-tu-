@@ -1,12 +1,12 @@
 # CHƯƠNG 2: TỔ CHỨC NHÓM VÀ QUẢN LÝ DỰ ÁN
 
 ## 2.1. Cơ cấu nhóm và phân công vai trò
-- Nhóm gồm 5 thành viên với phân công vai trò và chức năng bắt buộc như sau:
-  - **TV1 (Trưởng nhóm – PM/Scrum Master):** Điều phối tiến độ, sprint, báo cáo; phụ trách `TM-14`, `TM-08`.
-  - **TV2 (Backend lead):** Phụ trách luồng xử lý nghiệp vụ phía máy chủ; phụ trách `TM-04`, `TM-06`.
-  - **TV3 (Frontend lead):** Phụ trách giao diện người dùng và trải nghiệm đa thiết bị; phụ trách `TM-01`, `TM-02`, `TM-03`.
-  - **TV4 (Cơ sở dữ liệu):** Phụ trách thiết kế và quản trị dữ liệu; phụ trách `TM-11`, `TM-12`.
-  - **TV5 (Git & kiểm thử / QA):** Điều phối kiểm thử, theo dõi Issue/chất lượng; phụ trách `TM-05`, `TM-07`, `TM-13`.
+- Nhóm gồm 5 thành viên, phân công vai trò và chức năng bắt buộc như sau:
+  - **TV1 – Nguyễn Chí Hải (Trưởng nhóm – PM/Scrum Master):** Điều phối tiến độ, sprint, báo cáo; phụ trách `TM-14`, `TM-08`.
+  - **TV2 – Trần Ngọc Duy (Backend lead):** Phụ trách luồng xử lý nghiệp vụ phía máy chủ; phụ trách `TM-04`, `TM-06`.
+  - **TV3 – Phạm Thiên Phúc (Frontend lead):** Phụ trách giao diện người dùng và trải nghiệm đa thiết bị; phụ trách `TM-01`, `TM-02`, `TM-03`.
+  - **TV4 – Mai Thanh Tân (Cơ sở dữ liệu):** Phụ trách thiết kế và quản trị dữ liệu; phụ trách `TM-11`, `TM-12`.
+  - **TV5 – Hoàng Tiến Đạt (Git & kiểm thử / QA):** Điều phối kiểm thử, theo dõi Issue/chất lượng; phụ trách `TM-05`, `TM-07`, `TM-13`.
 
 ## 2.2. Quản lý sprint và đóng băng chức năng
 - Nhóm duy trì bảng theo dõi công việc trên Trello theo từng sprint (đến Sprint S5 kéo dài tới thứ 6).
