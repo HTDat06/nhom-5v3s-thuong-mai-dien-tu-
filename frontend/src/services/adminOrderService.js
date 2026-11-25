@@ -33,3 +33,20 @@ export async function updateOrderStatusAdminRequest(token, orderId, status) {
     }
     return result;
 }
+
+export async function reviewReturnRequestAdmin(token, orderId, { action, adminNote }) {
+    const response = await fetch(`${API_BASE_URL}/api/orders/${orderId}/review-return`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ action, admin_note: adminNote }),
+    });
+
+    const result = await response.json();
+    if (!response.ok) {
+        throw new Error(result.message || "Không thể xét duyệt yêu cầu trả hàng.");
+    }
+    return result;
+}

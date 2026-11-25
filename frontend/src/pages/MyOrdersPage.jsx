@@ -1,13 +1,20 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import { cancelOrderRequest, getMyOrdersRequest } from "../services/myOrderService";
+import {
+    cancelOrderRequest,
+    confirmReceivedOrderRequest,
+    getMyOrdersRequest,
+    submitReturnRequest,
+} from "../services/myOrderService";
 
 const STATUS_CONFIG = {
     pending: { label: "Chờ xác nhận", bg: "#fff8e1", color: "#f57c00", border: "#ffe082" },
     confirmed: { label: "Đã xác nhận", bg: "#e3f2fd", color: "#1565c0", border: "#90caf9" },
     shipping: { label: "Đang giao hàng", bg: "#e8eaf6", color: "#283593", border: "#9fa8da" },
     completed: { label: "Hoàn thành", bg: "#e8f5e9", color: "#2e7d32", border: "#a5d6a7" },
+    return_requested: { label: "Yêu cầu trả hàng", bg: "#fff3e0", color: "#e65100", border: "#ffcc80" },
+    returned: { label: "Đã trả hàng & Hoàn tiền", bg: "#f3e5f5", color: "#6a1b9a", border: "#ce93d8" },
     cancelled: { label: "Đã hủy", bg: "#ffebee", color: "#c62828", border: "#ef9a9a" },
 };
 
@@ -16,8 +23,15 @@ function MyOrdersPage() {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [cancellingId, setCancellingId] = useState(null);
+    const [confirmingId, setConfirmingId] = useState(null);
     const [errorMessage, setErrorMessage] = useState("");
     const [successMessage, setSuccessMessage] = useState("");
+
+    // State cho Modal Form trả hàng
+    const [returnModalOrder, setReturnModalOrder] = useState(null);
+    const [returnReason, setReturnReason] = useState("");
+    const [returnFile, setReturnFile] = useState(null);
+    const [submittingReturn, setSubmittingReturn] = useState(false);
 
     const fetchOrders = useCallback(async () => {
         if (!token) {
@@ -55,6 +69,61 @@ function MyOrdersPage() {
             setErrorMessage(err.message || "Hủy đơn hàng thất bại.");
         } finally {
             setCancellingId(null);
+        }
+    };
+
+    const handleConfirmReceived = async (orderId) => {
+        if (!window.confirm(`Xác nhận bạn đã nhận đầy đủ hàng của đơn #${orderId}?`)) {
+            return;
+        }
+        try {
+            setConfirmingId(orderId);
+            setErrorMessage("");
+            setSuccessMessage("");
+            const res = await confirmReceivedOrderRequest(token, orderId);
+            setSuccessMessage(res.message || `Đã xác nhận nhận hàng cho đơn #${orderId}.`);
+            await fetchOrders();
+        } catch (err) {
+            setErrorMessage(err.message || "Xác nhận nhận hàng thất bại.");
+        } finally {
+            setConfirmingId(null);
+        }
+    };
+
+    const openReturnModal = (order) => {
+        setReturnModalOrder(order);
+        setReturnReason("");
+        setReturnFile(null);
+    };
+
+    const closeReturnModal = () => {
+        setReturnModalOrder(null);
+        setReturnReason("");
+        setReturnFile(null);
+    };
+
+    const handleSubmitReturn = async (e) => {
+        e.preventDefault();
+        if (!returnModalOrder) return;
+        if (!returnReason.trim()) {
+            alert("Vui lòng nhập lý do trả hàng.");
+            return;
+        }
+        try {
+            setSubmittingReturn(true);
+            setErrorMessage("");
+            setSuccessMessage("");
+            const res = await submitReturnRequest(token, returnModalOrder.order_id, {
+                reason: returnReason.trim(),
+                evidenceFile: returnFile,
+            });
+            setSuccessMessage(res.message || "Đã gửi yêu cầu trả hàng thành công.");
+            closeReturnModal();
+            await fetchOrders();
+        } catch (err) {
+            alert(err.message || "Gửi yêu cầu trả hàng thất bại.");
+        } finally {
+            setSubmittingReturn(false);
         }
     };
 
@@ -103,6 +172,8 @@ function MyOrdersPage() {
                         };
                         const items = order.order_items || [];
                         const isPending = order.status === "pending";
+                        const isShipping = order.status === "shipping";
+                        const isCompleted = order.status === "completed";
 
                         return (
                             <div key={order.order_id} style={styles.orderCard}>
@@ -114,16 +185,21 @@ function MyOrdersPage() {
                                             | Người nhận: {order.receiver_name} ({order.phone})
                                         </span>
                                     </div>
-                                    <span
-                                        style={{
-                                            ...styles.statusBadge,
-                                            backgroundColor: statusInfo.bg,
-                                            color: statusInfo.color,
-                                            border: `1px solid ${statusInfo.border}`,
-                                        }}
-                                    >
-                                        {statusInfo.label}
-                                    </span>
+                                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                        {order.customer_confirmed && (
+                                            <span style={styles.confirmedTag}>✓ Đã nhận hàng</span>
+                                        )}
+                                        <span
+                                            style={{
+                                                ...styles.statusBadge,
+                                                backgroundColor: statusInfo.bg,
+                                                color: statusInfo.color,
+                                                border: `1px solid ${statusInfo.border}`,
+                                            }}
+                                        >
+                                            {statusInfo.label}
+                                        </span>
+                                    </div>
                                 </div>
 
                                 <div style={styles.cardBody}>
@@ -132,15 +208,27 @@ function MyOrdersPage() {
                                     </div>
                                     <div style={styles.itemPreviewList}>
                                         {items.map((item) => (
-                                            <div key={item.order_item_id} style={styles.itemRow}>
+                                            <div key={item.order_items_id || item.order_item_id} style={styles.itemRow}>
                                                 <span>
-                                                    • {item.products?.product_name || "Sản phẩm"} x{" "}
+                                                    - {item.products?.product_name || "Sản phẩm"} x{" "}
                                                     <strong>{item.quantity}</strong>
                                                 </span>
                                                 <span>{formatCurrency(item.subtotal)}</span>
                                             </div>
                                         ))}
                                     </div>
+
+                                    {isShipping && (
+                                        <div style={styles.shippingNotice}>
+                                            🚚 Đơn hàng đang được vận chuyển (không thể hủy trong lúc đang giao).
+                                        </div>
+                                    )}
+
+                                    {order.admin_return_note && (
+                                        <div style={styles.adminNoteBox}>
+                                            <strong>Phản hồi từ cửa hàng:</strong> {order.admin_return_note}
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div style={styles.cardFooter}>
@@ -157,6 +245,7 @@ function MyOrdersPage() {
                                         >
                                             Xem chi tiết
                                         </Link>
+
                                         {isPending && (
                                             <button
                                                 type="button"
@@ -169,11 +258,90 @@ function MyOrdersPage() {
                                                     : "Hủy đơn hàng"}
                                             </button>
                                         )}
+
+                                        {isCompleted && !order.customer_confirmed && (
+                                            <button
+                                                type="button"
+                                                disabled={confirmingId === order.order_id}
+                                                onClick={() => handleConfirmReceived(order.order_id)}
+                                                style={styles.confirmBtn}
+                                            >
+                                                {confirmingId === order.order_id
+                                                    ? "Đang xác nhận..."
+                                                    : "Đã nhận hàng"}
+                                            </button>
+                                        )}
+
+                                        {isCompleted && (
+                                            <button
+                                                type="button"
+                                                onClick={() => openReturnModal(order)}
+                                                style={styles.returnBtn}
+                                            >
+                                                Yêu cầu trả hàng
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
                             </div>
                         );
                     })}
+                </div>
+            )}
+
+            {/* Modal Form yêu cầu trả hàng */}
+            {returnModalOrder && (
+                <div style={styles.modalOverlay}>
+                    <div style={styles.modalBox}>
+                        <h3 style={{ marginTop: 0, marginBottom: "12px" }}>
+                            🔄 Yêu cầu trả hàng / Hoàn tiền - Đơn #{returnModalOrder.order_id}
+                        </h3>
+                        <form onSubmit={handleSubmitReturn}>
+                            <div style={{ marginBottom: "12px" }}>
+                                <label style={styles.label}>
+                                    Lý do trả hàng <span style={{ color: "red" }}>*</span>
+                                </label>
+                                <textarea
+                                    rows={4}
+                                    required
+                                    value={returnReason}
+                                    onChange={(e) => setReturnReason(e.target.value)}
+                                    placeholder="Mô tả chi tiết tình trạng lỗi, sai mẫu mã hoặc lý do hoàn trả..."
+                                    style={styles.textarea}
+                                />
+                            </div>
+
+                            <div style={{ marginBottom: "16px" }}>
+                                <label style={styles.label}>
+                                    Ảnh / Video bằng chứng (tối đa 10MB)
+                                </label>
+                                <input
+                                    type="file"
+                                    accept="image/*,video/*"
+                                    onChange={(e) => setReturnFile(e.target.files?.[0] || null)}
+                                    style={{ display: "block", marginTop: "6px" }}
+                                />
+                            </div>
+
+                            <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
+                                <button
+                                    type="button"
+                                    onClick={closeReturnModal}
+                                    disabled={submittingReturn}
+                                    style={styles.secondaryBtn}
+                                >
+                                    Đóng
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={submittingReturn}
+                                    style={styles.primaryBtn}
+                                >
+                                    {submittingReturn ? "Đang gửi..." : "Gửi yêu cầu trả hàng"}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             )}
         </div>
@@ -224,6 +392,15 @@ const styles = {
         gap: "8px",
     },
     receiverInfo: { color: "#555", fontSize: "14px" },
+    confirmedTag: {
+        backgroundColor: "#e0f2f1",
+        color: "#00695c",
+        border: "1px solid #80cbc4",
+        padding: "4px 10px",
+        borderRadius: "999px",
+        fontSize: "12px",
+        fontWeight: "600",
+    },
     statusBadge: {
         padding: "4px 10px",
         borderRadius: "999px",
@@ -245,6 +422,22 @@ const styles = {
         fontSize: "14px",
         color: "#333",
     },
+    shippingNotice: {
+        marginTop: "10px",
+        fontSize: "13px",
+        color: "#283593",
+        backgroundColor: "#e8eaf6",
+        padding: "8px 12px",
+        borderRadius: "5px",
+    },
+    adminNoteBox: {
+        marginTop: "10px",
+        fontSize: "13px",
+        color: "#4a148c",
+        backgroundColor: "#f3e5f5",
+        padding: "8px 12px",
+        borderRadius: "5px",
+    },
     cardFooter: {
         padding: "12px 16px",
         borderTop: "1px solid #eee",
@@ -255,15 +448,28 @@ const styles = {
         gap: "12px",
     },
     totalPrice: { fontSize: "18px", color: "#d32f2f" },
-    actions: { display: "flex", gap: "10px" },
+    actions: { display: "flex", gap: "10px", flexWrap: "wrap" },
     primaryBtn: {
         display: "inline-block",
         backgroundColor: "#1976d2",
         color: "#fff",
-        padding: "10px 18px",
+        padding: "9px 16px",
         borderRadius: "6px",
+        border: "none",
+        cursor: "pointer",
         textDecoration: "none",
         fontWeight: "600",
+        fontSize: "14px",
+    },
+    secondaryBtn: {
+        backgroundColor: "#e0e0e0",
+        color: "#333",
+        padding: "9px 16px",
+        borderRadius: "6px",
+        border: "none",
+        cursor: "pointer",
+        fontWeight: "500",
+        fontSize: "14px",
     },
     detailBtn: {
         display: "inline-block",
@@ -284,6 +490,58 @@ const styles = {
         cursor: "pointer",
         fontSize: "14px",
         fontWeight: "500",
+    },
+    confirmBtn: {
+        backgroundColor: "#2e7d32",
+        color: "#fff",
+        border: "none",
+        padding: "7px 14px",
+        borderRadius: "5px",
+        cursor: "pointer",
+        fontSize: "14px",
+        fontWeight: "500",
+    },
+    returnBtn: {
+        backgroundColor: "#fff",
+        color: "#e65100",
+        border: "1px solid #e65100",
+        padding: "7px 14px",
+        borderRadius: "5px",
+        cursor: "pointer",
+        fontSize: "14px",
+        fontWeight: "500",
+    },
+    modalOverlay: {
+        position: "fixed",
+        inset: 0,
+        backgroundColor: "rgba(0,0,0,0.5)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        zIndex: 1000,
+        padding: "16px",
+    },
+    modalBox: {
+        backgroundColor: "#fff",
+        borderRadius: "8px",
+        padding: "24px",
+        width: "100%",
+        maxWidth: "500px",
+        boxShadow: "0 10px 25px rgba(0,0,0,0.2)",
+    },
+    label: {
+        display: "block",
+        fontWeight: "600",
+        fontSize: "14px",
+        marginBottom: "6px",
+    },
+    textarea: {
+        width: "100%",
+        padding: "10px",
+        borderRadius: "6px",
+        border: "1px solid #ccc",
+        fontSize: "14px",
+        boxSizing: "border-box",
     },
 };
 

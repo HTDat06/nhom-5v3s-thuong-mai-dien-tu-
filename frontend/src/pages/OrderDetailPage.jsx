@@ -1,7 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import { cancelOrderRequest, getOrderDetailRequest } from "../services/myOrderService";
+import {
+    cancelOrderRequest,
+    confirmReceivedOrderRequest,
+    getOrderDetailRequest,
+    submitReturnRequest,
+} from "../services/myOrderService";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "";
 
@@ -10,6 +15,8 @@ const STATUS_LABEL = {
     confirmed: "Đã xác nhận",
     shipping: "Đang giao hàng",
     completed: "Hoàn thành",
+    return_requested: "Yêu cầu trả hàng",
+    returned: "Đã trả hàng & Hoàn tiền",
     cancelled: "Đã hủy",
 };
 
@@ -26,8 +33,15 @@ function OrderDetailPage() {
     const [order, setOrder] = useState(null);
     const [loading, setLoading] = useState(true);
     const [cancelling, setCancelling] = useState(false);
+    const [confirming, setConfirming] = useState(false);
     const [errorState, setErrorState] = useState(null);
     const [successMessage, setSuccessMessage] = useState("");
+
+    // Modal trả hàng
+    const [showReturnModal, setShowReturnModal] = useState(false);
+    const [returnReason, setReturnReason] = useState("");
+    const [returnFile, setReturnFile] = useState(null);
+    const [submittingReturn, setSubmittingReturn] = useState(false);
 
     const fetchDetail = useCallback(async () => {
         if (!token) {
@@ -67,6 +81,48 @@ function OrderDetailPage() {
             alert(err.message || "Không thể hủy đơn hàng.");
         } finally {
             setCancelling(false);
+        }
+    };
+
+    const handleConfirmReceived = async () => {
+        if (!window.confirm(`Xác nhận bạn đã nhận hàng cho đơn #${order.order_id}?`)) {
+            return;
+        }
+        try {
+            setConfirming(true);
+            setSuccessMessage("");
+            const res = await confirmReceivedOrderRequest(token, order.order_id);
+            setOrder(res.data);
+            setSuccessMessage(res.message || "Xác nhận đã nhận hàng thành công!");
+        } catch (err) {
+            alert(err.message || "Không thể xác nhận đã nhận hàng.");
+        } finally {
+            setConfirming(false);
+        }
+    };
+
+    const handleSubmitReturn = async (e) => {
+        e.preventDefault();
+        if (!returnReason.trim()) {
+            alert("Vui lòng nhập lý do trả hàng.");
+            return;
+        }
+        try {
+            setSubmittingReturn(true);
+            setSuccessMessage("");
+            const res = await submitReturnRequest(token, order.order_id, {
+                reason: returnReason.trim(),
+                evidenceFile: returnFile,
+            });
+            setOrder(res.data);
+            setShowReturnModal(false);
+            setReturnReason("");
+            setReturnFile(null);
+            setSuccessMessage(res.message || "Đã gửi yêu cầu trả hàng thành công!");
+        } catch (err) {
+            alert(err.message || "Không thể gửi yêu cầu trả hàng.");
+        } finally {
+            setSubmittingReturn(false);
         }
     };
 
@@ -112,6 +168,7 @@ function OrderDetailPage() {
     if (!order) return null;
 
     const isPending = order.status === "pending";
+    const isCompleted = order.status === "completed";
 
     return (
         <div style={styles.container}>
@@ -126,9 +183,14 @@ function OrderDetailPage() {
             <div style={styles.box}>
                 <div style={styles.headerRow}>
                     <h2 style={{ margin: 0 }}>Chi tiết đơn hàng #{order.order_id}</h2>
-                    <span style={styles.statusBadge}>
-                        Trạng thái: <strong>{STATUS_LABEL[order.status] || order.status}</strong>
-                    </span>
+                    <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                        {order.customer_confirmed && (
+                            <span style={styles.confirmedBadge}>✓ Khách đã xác nhận nhận hàng</span>
+                        )}
+                        <span style={styles.statusBadge}>
+                            Trạng thái: <strong>{STATUS_LABEL[order.status] || order.status}</strong>
+                        </span>
+                    </div>
                 </div>
 
                 <div style={styles.infoGrid}>
@@ -143,6 +205,34 @@ function OrderDetailPage() {
                     </div>
                 </div>
 
+                {(order.return_reason || order.admin_return_note) && (
+                    <div style={styles.returnInfoBox}>
+                        <h4 style={{ margin: "0 0 8px 0" }}>Thông tin yêu cầu trả hàng</h4>
+                        {order.return_reason && (
+                            <p style={{ margin: "4px 0" }}>
+                                <strong>Lý do trả hàng:</strong> {order.return_reason}
+                            </p>
+                        )}
+                        {order.return_evidence && (
+                            <p style={{ margin: "4px 0" }}>
+                                <strong>Bằng chứng đính kèm:</strong>{" "}
+                                <a
+                                    href={resolveImageUrl(order.return_evidence)}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                >
+                                    Xem tệp bằng chứng
+                                </a>
+                            </p>
+                        )}
+                        {order.admin_return_note && (
+                            <p style={{ margin: "4px 0", color: "#6a1b9a" }}>
+                                <strong>Phản hồi của quản trị viên:</strong> {order.admin_return_note}
+                            </p>
+                        )}
+                    </div>
+                )}
+
                 <table style={styles.table}>
                     <thead>
                         <tr style={styles.theadRow}>
@@ -154,7 +244,7 @@ function OrderDetailPage() {
                     </thead>
                     <tbody>
                         {(order.order_items || []).map((item) => (
-                            <tr key={item.order_item_id} style={styles.tr}>
+                            <tr key={item.order_items_id || item.order_item_id} style={styles.tr}>
                                 <td style={styles.tdProduct}>
                                     <img
                                         src={resolveImageUrl(item.products?.image)}
@@ -181,18 +271,95 @@ function OrderDetailPage() {
                         </strong>
                     </div>
 
-                    {isPending && (
-                        <button
-                            type="button"
-                            disabled={cancelling}
-                            onClick={handleCancelOrder}
-                            style={styles.cancelBtn}
-                        >
-                            {cancelling ? "Đang xử lý hủy..." : "Hủy đơn hàng"}
-                        </button>
-                    )}
+                    <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                        {isPending && (
+                            <button
+                                type="button"
+                                disabled={cancelling}
+                                onClick={handleCancelOrder}
+                                style={styles.cancelBtn}
+                            >
+                                {cancelling ? "Đang xử lý hủy..." : "Hủy đơn hàng"}
+                            </button>
+                        )}
+
+                        {isCompleted && !order.customer_confirmed && (
+                            <button
+                                type="button"
+                                disabled={confirming}
+                                onClick={handleConfirmReceived}
+                                style={styles.confirmBtn}
+                            >
+                                {confirming ? "Đang xác nhận..." : "Đã nhận hàng"}
+                            </button>
+                        )}
+
+                        {isCompleted && (
+                            <button
+                                type="button"
+                                onClick={() => setShowReturnModal(true)}
+                                style={styles.returnBtn}
+                            >
+                                Yêu cầu trả hàng
+                            </button>
+                        )}
+                    </div>
                 </div>
             </div>
+
+            {showReturnModal && (
+                <div style={styles.modalOverlay}>
+                    <div style={styles.modalBox}>
+                        <h3 style={{ marginTop: 0, marginBottom: "12px" }}>
+                            🔄 Yêu cầu trả hàng / Hoàn tiền - Đơn #{order.order_id}
+                        </h3>
+                        <form onSubmit={handleSubmitReturn}>
+                            <div style={{ marginBottom: "12px" }}>
+                                <label style={{ display: "block", fontWeight: "600", marginBottom: "6px" }}>
+                                    Lý do trả hàng <span style={{ color: "red" }}>*</span>
+                                </label>
+                                <textarea
+                                    rows={4}
+                                    required
+                                    value={returnReason}
+                                    onChange={(e) => setReturnReason(e.target.value)}
+                                    placeholder="Nhập lý do trả hàng cụ thể..."
+                                    style={styles.textarea}
+                                />
+                            </div>
+
+                            <div style={{ marginBottom: "16px" }}>
+                                <label style={{ display: "block", fontWeight: "600", marginBottom: "6px" }}>
+                                    Ảnh / Video bằng chứng
+                                </label>
+                                <input
+                                    type="file"
+                                    accept="image/*,video/*"
+                                    onChange={(e) => setReturnFile(e.target.files?.[0] || null)}
+                                />
+                            </div>
+
+                            <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
+                                <button
+                                    type="button"
+                                    onClick={() => setShowReturnModal(false)}
+                                    disabled={submittingReturn}
+                                    style={styles.secondaryBtn}
+                                >
+                                    Đóng
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={submittingReturn}
+                                    style={styles.primaryBtn}
+                                >
+                                    {submittingReturn ? "Đang gửi..." : "Gửi yêu cầu trả hàng"}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
@@ -232,6 +399,14 @@ const styles = {
         flexWrap: "wrap",
         gap: "10px",
     },
+    confirmedBadge: {
+        backgroundColor: "#e0f2f1",
+        color: "#00695c",
+        padding: "6px 12px",
+        borderRadius: "6px",
+        fontSize: "13px",
+        fontWeight: "600",
+    },
     statusBadge: {
         backgroundColor: "#f5f5f5",
         padding: "6px 12px",
@@ -244,6 +419,14 @@ const styles = {
         gap: "10px",
         backgroundColor: "#fafafa",
         padding: "14px",
+        borderRadius: "6px",
+        marginBottom: "18px",
+        fontSize: "14px",
+    },
+    returnInfoBox: {
+        backgroundColor: "#fff8e1",
+        border: "1px solid #ffe082",
+        padding: "12px 14px",
         borderRadius: "6px",
         marginBottom: "18px",
         fontSize: "14px",
@@ -270,8 +453,19 @@ const styles = {
         color: "#fff",
         padding: "10px 18px",
         borderRadius: "6px",
+        border: "none",
+        cursor: "pointer",
         textDecoration: "none",
         fontWeight: "600",
+    },
+    secondaryBtn: {
+        backgroundColor: "#e0e0e0",
+        color: "#333",
+        padding: "10px 18px",
+        borderRadius: "6px",
+        border: "none",
+        cursor: "pointer",
+        fontWeight: "500",
     },
     cancelBtn: {
         backgroundColor: "#d32f2f",
@@ -281,6 +475,49 @@ const styles = {
         borderRadius: "6px",
         cursor: "pointer",
         fontWeight: "600",
+    },
+    confirmBtn: {
+        backgroundColor: "#2e7d32",
+        color: "#fff",
+        border: "none",
+        padding: "10px 18px",
+        borderRadius: "6px",
+        cursor: "pointer",
+        fontWeight: "600",
+    },
+    returnBtn: {
+        backgroundColor: "#e65100",
+        color: "#fff",
+        border: "none",
+        padding: "10px 18px",
+        borderRadius: "6px",
+        cursor: "pointer",
+        fontWeight: "600",
+    },
+    modalOverlay: {
+        position: "fixed",
+        inset: 0,
+        backgroundColor: "rgba(0,0,0,0.5)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        zIndex: 1000,
+        padding: "16px",
+    },
+    modalBox: {
+        backgroundColor: "#fff",
+        borderRadius: "8px",
+        padding: "24px",
+        width: "100%",
+        maxWidth: "500px",
+    },
+    textarea: {
+        width: "100%",
+        padding: "10px",
+        borderRadius: "6px",
+        border: "1px solid #ccc",
+        fontSize: "14px",
+        boxSizing: "border-box",
     },
 };
 
