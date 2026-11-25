@@ -2,6 +2,10 @@
 
 Dự án xây dựng hệ thống thương mại điện tử chuyên cung cấp các sản phẩm linh kiện máy tính (CPU, Mainboard, RAM, VGA, Ổ cứng...), hỗ trợ quản lý danh mục, sản phẩm, giỏ hàng, đặt hàng và phân quyền người dùng (Khách hàng / Quản trị viên).
 
+- **Kho lưu trữ GitHub:** https://github.com/HTDat06/nhom-5v3s-thuong-mai-dien-tu-
+- **Bảng quản lý công việc (Trello):** https://trello.com/b/0VHqe3yj/nhom-5v3s-thuong-mai-dien-tu-web-2026
+- **Video Demo sản phẩm:** https://www.youtube.com/watch?v=jQs_4pSwcD4
+
 ## Công nghệ sử dụng
 
 * **Frontend:** React, Vite, CSS
@@ -12,7 +16,7 @@ Dự án xây dựng hệ thống thương mại điện tử chuyên cung cấp
 ## Cấu trúc thư mục
 
 ```text
-nhom--thuong-mai-dien-tu-/
+nhom-5v3s-thuong-mai-dien-tu-/
 ├── .github/            # Mẫu Pull Request (pull_request_template.md)
 ├── ai-logs/            # Nhật ký sử dụng AI của các thành viên
 ├── backend/            # Mã nguồn API Server, Prisma schema, Seed dữ liệu, Migrations
@@ -37,8 +41,8 @@ nhom--thuong-mai-dien-tu-/
 Mở Terminal (hoặc Git Bash) và chạy lệnh sau:
 
 ```bash
-git clone [https://github.com/HTDat06/nhom-5v3s-thuong-mai-dien-tu-.git](https://github.com/HTDat06/nhom-5v3s-thuong-mai-dien-tu-.git)
-cd nhom--thuong-mai-dien-tu-
+git clone https://github.com/HTDat06/nhom-5v3s-thuong-mai-dien-tu-.git
+cd nhom-5v3s-thuong-mai-dien-tu-
 git checkout develop
 git pull origin develop
 ```
@@ -80,16 +84,16 @@ Tiếp tục chạy các lệnh sau trong thư mục `backend/` để cài thư 
 ```powershell
 # Cài đặt thư viện (dùng --ignore-scripts để tránh lỗi biên dịch C++ của msnodesqlv8 trên Node mới)
 npm install --ignore-scripts
+npm install cors
+npm install bcrypt
 
 # Đồng bộ cấu trúc 6 bảng vào SQL Server và khởi tạo Prisma Client
 npx prisma db push
 npx prisma generate
 
-# Nạp dữ liệu mẫu (5 danh mục, 30 sản phẩm, 11 tài khoản, 10 đơn hàng)
+# Nạp dữ liệu mẫu (8 danh mục, 50 sản phẩm, 11 tài khoản, 10 đơn hàng)
 node prisma/seed.js
 
-npm install cors
-npm install bcrypt
 # Khởi động Backend Server
 npm run dev
 ```
@@ -100,14 +104,20 @@ Mở một cửa sổ **Terminal thứ hai** (giữ nguyên Terminal đang chạ
 
 ```powershell
 cd frontend
-npm install axios
 npm install
+npm install axios
 npm run dev
 ```
 
 Sau khi chạy thành công, mở trình duyệt và truy cập địa chỉ hiển thị trên Terminal (mặc định là **`http://localhost:5173`**).
 
 ---
+
+Hướng dẫn chạy Kiểm thử tự động (Unit Test)
+Để chạy bộ kiểm thử đơn vị tầng nghiệp vụ (CartService), mở Terminal tại thư mục backend/ và thực hiện:
+
+cd backend
+npm test
 
 ## Tài khoản mẫu kiểm thử
 
