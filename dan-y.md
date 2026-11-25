@@ -9,7 +9,6 @@
 
 | Chương / Hạng mục | Nội dung chính | Người phụ trách |
 | :--- | :--- | :--- |
-| **Phần mở đầu** | Trang bìa, bảng phân công & xác nhận, cam kết AI, mục lục, danh mục hình/bảng, từ viết tắt | TV1 (Nguyễn Chí Hải) |
 | **Chương 1** | Giới thiệu đề tài | TV1 (Nguyễn Chí Hải) |
 | **Chương 2** | Tổ chức nhóm và quản lý dự án | TV1 (Nguyễn Chí Hải) |
 | **Chương 3** | Công nghệ sử dụng | TV4 (Mai Thanh Tân) |
