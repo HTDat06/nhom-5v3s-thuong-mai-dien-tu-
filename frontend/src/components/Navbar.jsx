@@ -6,14 +6,17 @@ import AccountMenu from "../components/AccountMenu";
 function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
 
-    const categories = [
-        { name: "Trang chủ", path: "/" },
-        { name: "CPU - Bộ vi xử lý", path: "/?category_id=1" },
-        { name: "Mainboard - Bo mạch chủ", path: "/?category_id=2" },
-        { name: "RAM - Bộ nhớ", path: "/?category_id=3" },
-        { name: "VGA - Card màn hình", path: "/?category_id=4" },
-        { name: "Ổ cứng - Lưu trữ", path: "/?category_id=5" }
-    ];
+   const categories = [
+    { name: "Trang chủ", path: "/" },
+    { name: "CPU - Bộ vi xử lý", path: "/?category_id=1" },
+    { name: "Mainboard - Bo mạch chủ", path: "/?category_id=2" },
+    { name: "RAM - Bộ nhớ", path: "/?category_id=3" },
+    { name: "VGA - Card màn hình", path: "/?category_id=4" },
+    { name: "Ổ cứng - Lưu trữ", path: "/?category_id=5" },
+    { name: "PSU - Nguồn máy tính", path: "/?category_id=6" },
+    { name: "Case - Vỏ máy tính", path: "/?category_id=7" },
+    { name: "Tản nhiệt - Cooling", path: "/?category_id=8" }
+];
 
     return (
         <>
