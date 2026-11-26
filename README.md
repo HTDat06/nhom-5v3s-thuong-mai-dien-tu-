@@ -165,3 +165,7 @@ Sau khi chạy lệnh `node prisma/seed.js`, hệ thống tự động tạo s�
    git checkout -b feature/ten-tinh-nang
    ```
 3. Commit và đẩy nhánh lên GitHub, sau đó tạo **Pull Request** gộp vào nhánh **`develop`** và nhờ thành viên khác trong nhóm review/approve trước khi merge.
+
+## Video Demo
+
+[▶ Xem video demo dự án](https://youtu.be/inxDpYCTurA)
