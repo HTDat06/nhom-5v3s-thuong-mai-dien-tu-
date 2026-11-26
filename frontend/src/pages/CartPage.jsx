@@ -3,12 +3,24 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useCart } from "../contexts/CartContext";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 const resolveImageUrl = (image) => {
     if (!image) return "https://via.placeholder.com/80?text=No+Image";
-    if (image.startsWith("http://") || image.startsWith("https://")) return image;
-    return `${API_BASE_URL}${image.startsWith("/") ? "" : "/"}${image}`;
+
+    if (image.startsWith("http://") || image.startsWith("https://")) {
+        return image;
+    }
+
+    if (image.startsWith("/uploads/")) {
+        return `${API_BASE_URL}${image}`;
+    }
+
+    if (image.startsWith("uploads/")) {
+        return `${API_BASE_URL}/${image}`;
+    }
+
+    return `${API_BASE_URL}/uploads/products/${image.split("/").pop()}`;
 };
 
 function CartPage() {

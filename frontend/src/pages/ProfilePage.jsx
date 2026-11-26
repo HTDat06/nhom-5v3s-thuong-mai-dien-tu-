@@ -1,5 +1,7 @@
+
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { useAuth } from "../contexts/AuthContext";
 
 const API_URL = "http://localhost:5000/api/users";
 
@@ -17,10 +19,21 @@ const initialPassword = {
 };
 
 export default function ProfilePage() {
+    const { updateUser } = useAuth();
+
     const [formData, setFormData] = useState(initialProfile);
     const [passwordData, setPasswordData] = useState(initialPassword);
-    const [statusMsg, setStatusMsg] = useState({ type: "", text: "" });
-    const [passMsg, setPassMsg] = useState({ type: "", text: "" });
+
+    const [statusMsg, setStatusMsg] = useState({
+        type: "",
+        text: ""
+    });
+
+    const [passMsg, setPassMsg] = useState({
+        type: "",
+        text: ""
+    });
+
     const [loading, setLoading] = useState(true);
     const [savingProfile, setSavingProfile] = useState(false);
     const [savingPassword, setSavingPassword] = useState(false);
@@ -33,6 +46,7 @@ export default function ProfilePage() {
         }
     });
 
+    // Tải hồ sơ cá nhân
     useEffect(() => {
         fetchProfile();
     }, []);
@@ -54,7 +68,10 @@ export default function ProfilePage() {
                 getAuthConfig()
             );
 
-            const userData = res.data.data || res.data.user || res.data;
+            const userData =
+                res.data.data ||
+                res.data.user ||
+                res.data;
 
             setFormData({
                 name: userData.name || "",
@@ -62,6 +79,7 @@ export default function ProfilePage() {
                 phone: userData.phone || "",
                 address: userData.address || ""
             });
+
         } catch (error) {
             setStatusMsg({
                 type: "error",
@@ -73,6 +91,7 @@ export default function ProfilePage() {
         }
     };
 
+    // Thay đổi thông tin
     const handleChange = (event) => {
         const { name, value } = event.target;
 
@@ -82,6 +101,7 @@ export default function ProfilePage() {
         }));
     };
 
+    // Thay đổi mật khẩu
     const handlePasswordChange = (event) => {
         const { name, value } = event.target;
 
@@ -91,36 +111,14 @@ export default function ProfilePage() {
         }));
     };
 
-    // Cập nhật tên trong localStorage và thông báo cho Navbar
-    const syncUserName = (newName) => {
-        let savedUser = {};
-
-        try {
-            savedUser = JSON.parse(
-                localStorage.getItem("user") || "{}"
-            );
-        } catch {
-            savedUser = {};
-        }
-
-        const updatedUser = {
-            ...savedUser,
-            name: newName
-        };
-
-        localStorage.setItem("user", JSON.stringify(updatedUser));
-
-        // Sự kiện này giúp Navbar cập nhật ngay trong cùng tab
-        window.dispatchEvent(
-            new CustomEvent("userUpdated", {
-                detail: updatedUser
-            })
-        );
-    };
-
+    // Cập nhật hồ sơ
     const handleSubmit = async (event) => {
         event.preventDefault();
-        setStatusMsg({ type: "", text: "" });
+
+        setStatusMsg({
+            type: "",
+            text: ""
+        });
 
         const newName = formData.name.trim();
 
@@ -146,23 +144,39 @@ export default function ProfilePage() {
             );
 
             const updatedData =
-                res.data.data || res.data.user || {};
+                res.data.data ||
+                res.data.user ||
+                res.data;
 
             const finalName = updatedData.name || newName;
 
+            const finalPhone =
+                updatedData.phone ?? formData.phone;
+
+            const finalAddress =
+                updatedData.address ?? formData.address;
+
+            // Cập nhật form hồ sơ
             setFormData((previous) => ({
                 ...previous,
                 name: finalName,
-                phone: updatedData.phone ?? previous.phone,
-                address: updatedData.address ?? previous.address
+                phone: finalPhone,
+                address: finalAddress
             }));
 
-            syncUserName(finalName);
+            // Đồng bộ Header, Navbar và trang chủ
+            updateUser({
+                name: finalName,
+                phone: finalPhone,
+                address: finalAddress
+            });
 
             setStatusMsg({
                 type: "success",
-                text: res.data.message || "Cập nhật hồ sơ thành công!"
+                text: res.data.message ||
+                    "Cập nhật hồ sơ thành công!"
             });
+
         } catch (error) {
             setStatusMsg({
                 type: "error",
@@ -174,11 +188,28 @@ export default function ProfilePage() {
         }
     };
 
+    // Đổi mật khẩu
     const handlePasswordSubmit = async (event) => {
         event.preventDefault();
-        setPassMsg({ type: "", text: "" });
 
-        const { oldPassword, newPassword, confirmPassword } = passwordData;
+        setPassMsg({
+            type: "",
+            text: ""
+        });
+
+        const {
+            oldPassword,
+            newPassword,
+            confirmPassword
+        } = passwordData;
+
+        if (!oldPassword || !newPassword || !confirmPassword) {
+            setPassMsg({
+                type: "error",
+                text: "Vui lòng nhập đầy đủ thông tin mật khẩu."
+            });
+            return;
+        }
 
         if (newPassword.length < 8) {
             setPassMsg({
@@ -219,10 +250,12 @@ export default function ProfilePage() {
 
             setPassMsg({
                 type: "success",
-                text: res.data.message || "Đổi mật khẩu thành công!"
+                text: res.data.message ||
+                    "Đổi mật khẩu thành công!"
             });
 
             setPasswordData(initialPassword);
+
         } catch (error) {
             setPassMsg({
                 type: "error",
@@ -257,14 +290,22 @@ export default function ProfilePage() {
         borderRadius: "8px",
         marginBottom: "18px",
         fontSize: "14px",
-        backgroundColor: type === "success" ? "#dcfce7" : "#fee2e2",
-        color: type === "success" ? "#166534" : "#991b1b",
-        border: `1px solid ${type === "success" ? "#bbf7d0" : "#fecaca"}`
+        backgroundColor:
+            type === "success" ? "#dcfce7" : "#fee2e2",
+        color:
+            type === "success" ? "#166534" : "#991b1b",
+        border:
+            `1px solid ${
+                type === "success" ? "#bbf7d0" : "#fecaca"
+            }`
     });
 
     if (loading) {
         return (
-            <div style={{ textAlign: "center", padding: "80px" }}>
+            <div style={{
+                textAlign: "center",
+                padding: "80px"
+            }}>
                 Đang tải thông tin hồ sơ...
             </div>
         );
@@ -286,6 +327,7 @@ export default function ProfilePage() {
                 boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
                 boxSizing: "border-box"
             }}>
+
                 <h2 style={{
                     margin: "0 0 8px",
                     fontSize: "24px",
@@ -308,13 +350,20 @@ export default function ProfilePage() {
                     </div>
                 )}
 
-                <form onSubmit={handleSubmit} style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "18px"
-                }}>
+                {/* Form hồ sơ */}
+                <form
+                    onSubmit={handleSubmit}
+                    style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "18px"
+                    }}
+                >
                     <div>
-                        <label style={labelStyle}>Email đăng nhập</label>
+                        <label style={labelStyle}>
+                            Email đăng nhập
+                        </label>
+
                         <input
                             type="email"
                             value={formData.email}
@@ -328,7 +377,10 @@ export default function ProfilePage() {
                     </div>
 
                     <div>
-                        <label style={labelStyle}>Họ và tên *</label>
+                        <label style={labelStyle}>
+                            Họ và tên *
+                        </label>
+
                         <input
                             type="text"
                             name="name"
@@ -340,7 +392,10 @@ export default function ProfilePage() {
                     </div>
 
                     <div>
-                        <label style={labelStyle}>Số điện thoại</label>
+                        <label style={labelStyle}>
+                            Số điện thoại
+                        </label>
+
                         <input
                             type="text"
                             name="phone"
@@ -352,7 +407,10 @@ export default function ProfilePage() {
                     </div>
 
                     <div>
-                        <label style={labelStyle}>Địa chỉ giao hàng</label>
+                        <label style={labelStyle}>
+                            Địa chỉ giao hàng
+                        </label>
+
                         <textarea
                             name="address"
                             rows="3"
@@ -378,13 +436,18 @@ export default function ProfilePage() {
                             padding: "12px",
                             fontSize: "15px",
                             fontWeight: "600",
-                            cursor: savingProfile ? "not-allowed" : "pointer"
+                            cursor: savingProfile
+                                ? "not-allowed"
+                                : "pointer"
                         }}
                     >
-                        {savingProfile ? "Đang lưu..." : "Lưu thay đổi hồ sơ"}
+                        {savingProfile
+                            ? "Đang lưu..."
+                            : "Lưu thay đổi hồ sơ"}
                     </button>
                 </form>
 
+                {/* Form đổi mật khẩu */}
                 <div style={{
                     marginTop: "36px",
                     borderTop: "1px solid #e2e8f0",
@@ -412,13 +475,19 @@ export default function ProfilePage() {
                         </div>
                     )}
 
-                    <form onSubmit={handlePasswordSubmit} style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: "16px"
-                    }}>
+                    <form
+                        onSubmit={handlePasswordSubmit}
+                        style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: "16px"
+                        }}
+                    >
                         <div>
-                            <label style={labelStyle}>Mật khẩu cũ</label>
+                            <label style={labelStyle}>
+                                Mật khẩu cũ
+                            </label>
+
                             <input
                                 type="password"
                                 name="oldPassword"
@@ -431,7 +500,10 @@ export default function ProfilePage() {
                         </div>
 
                         <div>
-                            <label style={labelStyle}>Mật khẩu mới</label>
+                            <label style={labelStyle}>
+                                Mật khẩu mới
+                            </label>
+
                             <input
                                 type="password"
                                 name="newPassword"
@@ -445,7 +517,10 @@ export default function ProfilePage() {
                         </div>
 
                         <div>
-                            <label style={labelStyle}>Nhập lại mật khẩu mới</label>
+                            <label style={labelStyle}>
+                                Nhập lại mật khẩu mới
+                            </label>
+
                             <input
                                 type="password"
                                 name="confirmPassword"
@@ -469,13 +544,18 @@ export default function ProfilePage() {
                                 padding: "12px",
                                 fontSize: "15px",
                                 fontWeight: "600",
-                                cursor: savingPassword ? "not-allowed" : "pointer"
+                                cursor: savingPassword
+                                    ? "not-allowed"
+                                    : "pointer"
                             }}
                         >
-                            {savingPassword ? "Đang cập nhật..." : "Cập nhật mật khẩu"}
+                            {savingPassword
+                                ? "Đang cập nhật..."
+                                : "Cập nhật mật khẩu"}
                         </button>
                     </form>
                 </div>
+
             </div>
         </div>
     );

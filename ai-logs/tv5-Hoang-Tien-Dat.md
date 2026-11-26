@@ -20,9 +20,11 @@
 | AI-07 | 18/11 | Phát triển & Kiểm thử | Hoàn thiện Trang giỏ hàng TM-05 (sửa số lượng, xóa, tổng tiền) và đồng bộ nhánh develop | [PR #138 ](https://github.com/HTDat06/nhom-5v3s-thuong-mai-dien-tu-/pull/138) |
 | AI-08 | 20/11 | Phát triển & Kiểm thử | Review PR TM-06, đồng bộ CSDL và triển khai & kiểm thử Đơn hàng của tôi TM-07 (chống IDOR 403/404, hủy đơn hoàn tồn kho) | [PR #152 ](https://github.com/HTDat06/nhom-5v3s-thuong-mai-dien-tu-/pull/152) |
 | AI-09 | 20/11 | Phát triển & Kiểm thử | Review PR TM-02, triển khai Quản lý đơn hàng Admin TM-13 (State Machine chặn đi ngược) và phân quyền Header Admin | [PR #153 ](https://github.com/HTDat06/nhom-5v3s-thuong-mai-dien-tu-/pull/153) |
-| AI-10 | 21/11 | Tích hợp & Kiểm thử | Kiểm thử chặn đi ngược TM-13, đồng bộ seed.js, giải quyết xung đột gộp nhánh vào develop và dọn nhánh cũ | develop |
-| AI-11 | 21/11 | Kiểm thử & Phát hành | Viết Unit test CartService, tổng hợp 12 chức năng docs/test-cases.md và phát hành Release v0.5 | test/TM-05 / v0.5 |
-
+| AI-10 | 21/11 | Tích hợp & Kiểm thử | Kiểm thử chặn đi ngược TM-13, đồng bộ seed.js, giải quyết xung đột gộp nhánh vào develop và dọn nhánh cũ |
+| AI-11 | 21/11 | Kiểm thử & Phát hành | Viết Unit test CartService, tổng hợp 12 chức năng docs/test-cases.md và phát hành Release v0.5 | [PR #172 ](https://github.com/HTDat06/nhom-5v3s-thuong-mai-dien-tu-/pull/172) |
+| AI-12 | 25/11 | Phát triển & Tích hợp | Hoàn thiện luồng xác nhận nhận hàng, form yêu cầu trả hàng đính kèm bằng chứng, duyệt hoàn tiền/hoàn kho Admin và mở rộng seed 50 sản phẩm | [PR #190 ](https://github.com/HTDat06/nhom-5v3s-thuong-mai-dien-tu-/pull/190) |
+| AI-13 | 25/11 | Tài liệu & Kiểm thử | Soạn thảo Chương 7 (Kiểm thử hệ thống) và Chương 8 (Quản lý mã nguồn Git kèm thống kê 180 commits) | [PR #192 ](https://github.com/HTDat06/nhom-5v3s-thuong-mai-dien-tu-/pull/192) |
+z
 ---
 
 ### [AI-01] Tạo 5 test cases mẫu cho TM-05 Giỏ hàng
@@ -202,3 +204,54 @@
 - Cách kiểm chứng: Chạy lệnh `npm test` trong thư mục `backend` xác nhận 5/5 test cases đạt trạng thái `PASS` (`fail 0`); kiểm tra định dạng bảng Markdown của `docs/test-cases.md` và AI Log trên GitHub trước khi tạo PR `develop` -> `main` và gắn tag `v0.5`.
 - Tỷ lệ nội dung AI còn giữ lại (ước lượng): 85%
 - Điều học được: Có thể tận dụng `node:test` và `node:assert` tích hợp sẵn trong Node.js kết hợp mock tầng Repository/Prisma để viết Unit test cô lập logic nghiệp vụ ở tầng Service mà không cần cài thêm framework kiểm thử nặng nề.
+
+---
+
+### [AI-12] Hoàn thiện luồng xác nhận nhận hàng, yêu cầu trả hàng/hoàn tiền và mở rộng seed 50 sản phẩm
+- Ngày / Người dùng: 2026-11-25 / Hoàng Tiến Đạt
+- Công cụ: Gemini
+- Giai đoạn: Phát triển & Tích hợp
+- Task / Commit / PR: [TM-07 & TM-13] Giao nhận & Trả hàng / `feat(orders): add delivery confirmation, return request flow and 50 seed products` / `feat/order-return-flow`
+- Mục đích: Khắc phục các điểm còn thiếu ở luồng hậu mãi của `TM-07` và `TM-13` (khách xác nhận đã nhận hàng, gửi form yêu cầu trả hàng kèm ảnh/video bằng chứng, Admin xét duyệt thu hồi hàng/hoàn tiền và cộng lại tồn kho), đồng thời mở rộng `backend/prisma/seed.js` lên đủ 50 sản phẩm thuộc 8 danh mục.
+- Prompt chính: "Hỗ trợ hoàn thiện frontend/backend cho luồng xác nhận đã nhận hàng, gửi yêu cầu trả hàng kèm ảnh/video bằng chứng, Admin duyệt thu hồi và hoàn tiền; mở rộng file seed.js lên đủ 50 sản phẩm linh kiện máy tính và hướng dẫn xử lý xung đột merge với develop."
+- Kết quả AI trả về (tóm tắt): Cập nhật các hàm gọi API và giao diện tại `myOrderService.js`, `adminOrderService.js`, `MyOrdersPage.jsx`, `OrderDetailPage.jsx`, `AdminOrderManager.jsx` (tích hợp Modal gửi/duyệt bằng chứng trả hàng và hoàn tồn kho trong transaction), bổ sung 20 sản phẩm mới vào `seed.js` cho đủ 50 sản phẩm và hướng dẫn xử lý giao diện Vim khi merge nhánh.
+- Đánh giá: Đúng – Kết nối mượt mà với cấu hình `multer` và `express.static('/uploads')` ở Backend, bảo toàn dữ liệu mẫu cũ khi chạy lại script seed.
+- Đã chỉnh sửa gì: Rà soát cấu hình static file `/uploads` trong `backend/src/app.js`, xử lý lưu commit merge trên Vim (`:wq`), đồng bộ CSDL (`npx prisma db push`, `npx prisma generate`) và chạy `node prisma/seed.js` nạp đủ 50 sản phẩm.
+- Cách kiểm chứng: Chạy thử nghiệm End-to-End từ lúc đặt hàng $\rightarrow$ Admin giao hàng $\rightarrow$ Hoàn thành $\rightarrow$ Khách xác nhận nhận hàng & gửi ảnh bằng chứng trả hàng $\rightarrow$ Admin duyệt thu hồi/hoàn tiền và kiểm tra số lượng `stock` được cộng lại chính xác trong CSDL.
+- Tỷ lệ nội dung AI còn giữ lại (ước lượng): 80%
+- Điều học được: Khi gộp nhánh trên môi trường dòng lệnh Git mở trình soạn thảo mặc định Vim, sử dụng phím `Esc` + `:wq` để xác nhận commit merge; đồng thời viết script `seed.js` theo cơ chế kiểm tra tồn tại trước khi chèn (`findFirst`) giúp bổ sung dữ liệu mới an toàn mà không làm trùng bản ghi cũ.
+
+---
+
+### [AI-13] Soạn thảo Chương 7 (Kiểm thử hệ thống) và Chương 8 (Quản lý mã nguồn với Git)
+- Ngày / Người dùng: 2026-11-25 / Hoàng Tiến Đạt
+- Công cụ: Gemini
+- Giai đoạn: Tài liệu & Kiểm thử
+- Task / Commit / PR: [DOC] Báo cáo Chương 7 & 8 / `docs: add draft for chapter 7 and chapter 8` / `docs/bao-cao-c7-c8`
+- Mục đích: Xây dựng nội dung hoàn chỉnh cho Chương 7 (Kế hoạch kiểm thử, bảng Test Case sửa lỗi `TM-05`, `TM-07`, `TM-13`, Unit Test và kiểm thử chéo) và Chương 8 (Mô hình phân nhánh Git Flow rút gọn, quy trình PR/Conventional Commits và bảng thống kê đóng góp mã nguồn thực tế từ `git shortlog -sn --no-merges`).
+- Prompt chính: "Soạn thảo nội dung Chương 7 (kế hoạch kiểm thử, bảng test case, unit test, kiểm thử chéo) và Chương 8 (mô hình nhánh, thống kê commit/PR theo thành viên từ git shortlog -sn) cho báo cáo đồ án."
+- Kết quả AI trả về (tóm tắt): Xuất bản thảo hoàn chỉnh gồm 4 mục của Chương 7 (phủ 11 kịch bản kiểm thử trọng tâm và bảng tổng hợp 4 GitHub Issues kiểm thử chéo) và 3 mục của Chương 8 kèm sơ đồ cây nhánh Git và bảng thống kê tỷ lệ đóng góp từ 180 commits thực tế.
+- Đánh giá: Đúng – Bám sát toàn bộ tiến trình kỹ thuật thực tế của nhóm và đầy đủ các yêu cầu của nhiệm vụ TV5.
+- Đã chỉnh sửa gì: Chạy lệnh `git shortlog -sn --no-merges` lấy số liệu thực tế từ kho lưu trữ, gộp các tài khoản Git phụ (`HaiNe`/`HaiNguyen214`, `0306241272-htd`/`HTDat`/`HTDat06`, `ThanhTan06`/`thanhtu`, `TranNgDuy`/`tnduy30406`) về đúng 5 thành viên thực tế của nhóm và định dạng lại bảng Markdown chuẩn trước khi lưu.
+- Cách kiểm chứng: Đối chiếu số lượng commit tổng (180 commits) và tỷ lệ phần trăm từng thành viên với kết quả terminal thực tế; kiểm tra hiển thị bảng Markdown và sơ đồ nhánh trên nhánh `docs/bao-cao-c7-c8`.
+- Tỷ lệ nội dung AI còn giữ lại (ước lượng): 85%
+- Điều học được: Khi thống kê đóng góp qua `git shortlog`, cần chuẩn hóa và gộp các tên tác giả (`user.name`) khác nhau của cùng một thành viên trên nhiều máy tính để đảm bảo tính khách quan và chính xác cho báo cáo.
+
+---
+
+## Tổng kết & Phản tư quá trình sử dụng AI (AI Reflection – TV5)
+
+1. **Hiệu quả mang lại:**
+   * **Tăng tốc viết Test Case & Unit Test:** AI hỗ trợ sinh nhanh khung kịch bản kiểm thử biên cho các phân hệ (`TM-01` đến `TM-14`) và gợi ý cách dùng `node:test` kết hợp mock tầng Repository giúp cô lập logic kiểm thử tồn kho mà không làm ảnh hưởng dữ liệu SQL Server.
+   * **Hỗ trợ xử lý sự cố Git & Môi trường:** Giải quyết nhanh các tình huống thực tế khi làm việc nhóm như clone nông (`--depth 1`), quy tắc bảo vệ nhánh `main`/`develop`, gộp nhánh tránh mất dữ liệu và đồng bộ schema Prisma trên SQL Server.
+   * **Chuẩn hóa tài liệu kỹ thuật:** Rút ngắn thời gian biên soạn tài liệu hướng dẫn cài đặt `README.md`, báo cáo kiểm thử (Chương 7) và thống kê lịch sử mã nguồn (Chương 8).
+
+2. **Hạn chế & Rủi ro nhận diện được:**
+   * **Sai lệch ngữ cảnh mã nguồn:** Ở một số thời điểm, AI sinh code tham chiếu tên quan hệ Prisma (`include: { users }`) hoặc tên biến JWT không khớp với mã nguồn thực tế các thành viên khác vừa cập nhật.
+   * **Rủi ro mất dữ liệu khi đồng bộ CSDL:** AI đôi khi gợi ý cờ `--force-reset` khi thay đổi schema, nếu áp dụng máy móc sẽ xóa sạch dữ liệu mẫu cả nhóm đang dùng chung.
+   * **Số liệu báo cáo cần kiểm chứng:** Khi tổng hợp thống kê Git, AI không tự nhận biết được việc một thành viên dùng nhiều tên `git config user.name` trên nhiều máy nếu không trực tiếp đối chiếu và gộp thủ công.
+
+3. **Bài học kinh nghiệm & Nguyên tắc kiểm soát:**
+   * **Luôn kiểm chứng thực thi:** Mọi đoạn mã, câu lệnh SQL hay hướng dẫn cài đặt do AI đề xuất đều phải chạy thử nghiệm thực tế trên môi trường local (`npm test`, kiểm thử trình duyệt, thử nghiệm trên thư mục sạch) trước khi tạo Pull Request.
+   * **Cung cấp ngữ cảnh cụ thể:** Khi nhờ AI viết code tích hợp, cần đính kèm cấu trúc thư mục, schema Prisma hoặc file Service hiện tại để tránh sai lệch tên biến và kiến trúc.
+   * **Làm chủ quy trình Git:** Chỉ dùng AI để tra cứu lệnh và phương án xử lý xung đột, luôn tự kiểm tra `git status` và `git diff` trước khi `commit` hoặc `merge`.

@@ -1,137 +1,132 @@
-const { describe, it, beforeEach } = require('node:test');
-const assert = require('node:assert/strict');
 
-// Mock PrismaClient trước khi nạp CartService
+// Mock PrismaClient trước khi import CartService và CartRepository
 const mockPrisma = {
   products: {
-    findUnique: async () => null,
+    findUnique: jest.fn(),
   },
 };
 
-const prismaModule = require('@prisma/client');
-const OriginalPrismaClient = prismaModule.PrismaClient;
-prismaModule.PrismaClient = function () {
-  return mockPrisma;
-};
+jest.mock("@prisma/client", () => ({
+  PrismaClient: jest.fn(() => mockPrisma),
+}));
 
-const CartRepository = require('../src/Repositories/CartRepository');
-const CartService = require('../src/Services/CartService');
+const CartRepository = require("../src/Repositories/CartRepository");
+const CartService = require("../src/Services/CartService");
 
-// Khôi phục PrismaClient gốc sau khi CartService đã khởi tạo xong
-prismaModule.PrismaClient = OriginalPrismaClient;
-
-describe('CartService - Kiểm thử tồn kho khi thêm/cập nhật giỏ hàng', () => {
-  let createCalled = false;
-  let updateCalled = false;
+describe("CartService - Kiểm thử tồn kho khi thêm/cập nhật giỏ hàng", () => {
+  let createCalled;
+  let updateCalled;
 
   beforeEach(() => {
+    jest.clearAllMocks();
+
     createCalled = false;
     updateCalled = false;
 
-    // Reset mock mặc định trước mỗi test case
-    mockPrisma.products.findUnique = async () => ({
+    // Mặc định sản phẩm còn 5 sản phẩm
+    mockPrisma.products.findUnique.mockResolvedValue({
       product_id: 1,
-      product_name: 'Áo thun test',
+      product_name: "Áo thun test",
       stock: 5,
     });
 
-    CartRepository.findByUserAndProduct = async () => null;
-    CartRepository.create = async (userId, productId, qty) => {
+    // Mock Repository
+    CartRepository.findByUserAndProduct = jest.fn().mockResolvedValue(null);
+
+    CartRepository.create = jest.fn(async (userId, productId, qty) => {
       createCalled = true;
-      return { cart_item_id: 10, user_id: userId, product_id: productId, quantity: qty };
-    };
-    CartRepository.updateQuantity = async (cartItemId, qty) => {
+
+      return {
+        cart_item_id: 10,
+        user_id: userId,
+        product_id: productId,
+        quantity: qty,
+      };
+    });
+
+    CartRepository.updateQuantity = jest.fn(async (cartItemId, qty) => {
       updateCalled = true;
-      return { cart_item_id: cartItemId, quantity: qty };
-    };
+
+      return {
+        cart_item_id: cartItemId,
+        quantity: qty,
+      };
+    });
+
+    CartRepository.findById = jest.fn();
   });
 
-  it('Từ chối thêm mới vào giỏ khi số lượng vượt quá tồn kho', async () => {
-    await assert.rejects(
-      async () => {
-        await CartService.add(1, 1, 6); // Tồn kho = 5, thêm 6
-      },
-      (err) => {
-        assert.equal(err.statusCode, 400);
-        assert.equal(err.message, 'Số lượng vượt quá tồn kho (chỉ còn 5 sản phẩm).');
-        return true;
-      }
-    );
+  it("Từ chối thêm mới vào giỏ khi số lượng vượt quá tồn kho", async () => {
+    await expect(
+      CartService.add(1, 1, 6)
+    ).rejects.toMatchObject({
+      statusCode: 400,
+      message: "Số lượng vượt quá tồn kho (chỉ còn 5 sản phẩm).",
+    });
 
-    assert.equal(createCalled, false);
-    assert.equal(updateCalled, false);
+    expect(createCalled).toBe(false);
+    expect(updateCalled).toBe(false);
   });
 
-  it('Từ chối khi tổng số lượng đã có trong giỏ + số lượng thêm mới vượt tồn kho', async () => {
-    // Giỏ hàng đã có sẵn 3 sản phẩm, tồn kho tối đa là 5
-    CartRepository.findByUserAndProduct = async () => ({
+  it("Từ chối khi tổng số lượng trong giỏ + số lượng thêm mới vượt tồn kho", async () => {
+    CartRepository.findByUserAndProduct.mockResolvedValue({
       cart_item_id: 99,
       user_id: 1,
       product_id: 1,
       quantity: 3,
     });
 
-    await assert.rejects(
-      async () => {
-        await CartService.add(1, 1, 3); // 3 + 3 = 6 > 5
-      },
-      (err) => {
-        assert.equal(err.statusCode, 400);
-        assert.equal(err.message, 'Số lượng vượt quá tồn kho (chỉ còn 5 sản phẩm).');
-        return true;
-      }
-    );
+    await expect(
+      CartService.add(1, 1, 3)
+    ).rejects.toMatchObject({
+      statusCode: 400,
+      message: "Số lượng vượt quá tồn kho (chỉ còn 5 sản phẩm).",
+    });
 
-    assert.equal(updateCalled, false);
+    expect(updateCalled).toBe(false);
   });
 
-  it('Từ chối thêm vào giỏ khi sản phẩm đã hết hàng (stock = 0)', async () => {
-    mockPrisma.products.findUnique = async () => ({
+  it("Từ chối thêm vào giỏ khi sản phẩm đã hết hàng", async () => {
+    mockPrisma.products.findUnique.mockResolvedValue({
       product_id: 1,
-      product_name: 'Áo thun hết hàng',
+      product_name: "Áo thun hết hàng",
       stock: 0,
     });
 
-    await assert.rejects(
-      async () => {
-        await CartService.add(1, 1, 1);
-      },
-      (err) => {
-        assert.equal(err.statusCode, 400);
-        assert.equal(err.message, 'Sản phẩm hiện đã hết hàng.');
-        return true;
-      }
-    );
+    await expect(
+      CartService.add(1, 1, 1)
+    ).rejects.toMatchObject({
+      statusCode: 400,
+      message: "Sản phẩm hiện đã hết hàng.",
+    });
 
-    assert.equal(createCalled, false);
+    expect(createCalled).toBe(false);
+    expect(updateCalled).toBe(false);
   });
 
-  it('Từ chối cập nhật số lượng trong giỏ vượt quá tồn kho', async () => {
-    CartRepository.findById = async () => ({
+  it("Từ chối cập nhật số lượng trong giỏ vượt quá tồn kho", async () => {
+    CartRepository.findById.mockResolvedValue({
       cart_item_id: 99,
       user_id: 1,
       product_id: 1,
       quantity: 2,
     });
 
-    await assert.rejects(
-      async () => {
-        await CartService.updateQuantity(1, 99, 8); // Tồn kho = 5, cập nhật lên 8
-      },
-      (err) => {
-        assert.equal(err.statusCode, 400);
-        assert.equal(err.message, 'Số lượng vượt quá tồn kho (chỉ còn 5 sản phẩm).');
-        return true;
-      }
-    );
+    await expect(
+      CartService.updateQuantity(1, 99, 8)
+    ).rejects.toMatchObject({
+      statusCode: 400,
+      message: "Số lượng vượt quá tồn kho (chỉ còn 5 sản phẩm).",
+    });
 
-    assert.equal(updateCalled, false);
+    expect(updateCalled).toBe(false);
   });
 
-  it('Cho phép thêm vào giỏ khi số lượng nhỏ hơn hoặc bằng tồn kho', async () => {
-    const result = await CartService.add(1, 1, 5); // Tồn kho = 5, thêm 5
+  it("Cho phép thêm vào giỏ khi số lượng bằng tồn kho", async () => {
+    const result = await CartService.add(1, 1, 5);
 
-    assert.equal(createCalled, true);
-    assert.equal(result.quantity, 5);
+    expect(createCalled).toBe(true);
+    expect(result.quantity).toBe(5);
+    expect(CartRepository.create).toHaveBeenCalledWith(1, 1, 5);
   });
 });
