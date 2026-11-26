@@ -1,10 +1,10 @@
-
 import { useEffect, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import AdminOrderManager from "../components/AdminOrderManager";
 import AdminUserManager from "../components/AdminUserManager";
 import AdminCategoryManager from "../components/AdminCategoryManager";
 import AdminProductManager from "../components/AdminProductManager";
+import AdminRevenueStats from "../components/AdminRevenueStats";
 import "./Admin.css";
 
 function Admin() {
@@ -58,6 +58,7 @@ function Admin() {
         { id: "categories", label: "Quản lý danh mục" },
         { id: "users", label: "Quản lý tài khoản" },
         { id: "orders", label: "Quản lý đơn hàng" },
+        { id: "revenue", label: "Thống kê doanh thu" },
     ];
 
     return (
@@ -82,6 +83,7 @@ function Admin() {
             {activeTab === "categories" && <AdminCategoryManager />}
             {activeTab === "users" && <AdminUserManager />}
             {activeTab === "orders" && <AdminOrderManager />}
+            {activeTab === "revenue" && <AdminRevenueStats />}
         </main>
     );
 }
