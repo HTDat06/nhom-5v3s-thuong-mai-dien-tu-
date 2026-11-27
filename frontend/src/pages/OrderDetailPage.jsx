@@ -8,8 +8,6 @@ import {
     submitReturnRequest,
 } from "../services/myOrderService";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "";
-
 const STATUS_LABEL = {
     pending: "Chờ xác nhận",
     confirmed: "Đã xác nhận",
@@ -20,10 +18,25 @@ const STATUS_LABEL = {
     cancelled: "Đã hủy",
 };
 
+const API_BASE_URL = (
+    import.meta.env.VITE_API_URL || "http://localhost:5000"
+).replace(/\/+$/, "");
+
 const resolveImageUrl = (image) => {
-    if (!image) return "https://via.placeholder.com/64?text=No+Image";
-    if (image.startsWith("http://") || image.startsWith("https://")) return image;
-    return `${API_BASE_URL}${image.startsWith("/") ? "" : "/"}${image}`;
+    if (!image) {
+        return "https://placehold.co/64x64?text=No+Image";
+    }
+
+    // Chuẩn hóa đường dẫn
+    image = String(image).replace(/\\/g, "/").trim();
+
+    // Nếu đã là URL đầy đủ thì giữ nguyên
+    if (image.startsWith("http://") || image.startsWith("https://")) {
+        return image;
+    }
+
+    // Ghép địa chỉ Backend với đường dẫn ảnh
+    return `${API_BASE_URL}/${image.replace(/^\/+/, "")}`;
 };
 
 function OrderDetailPage() {

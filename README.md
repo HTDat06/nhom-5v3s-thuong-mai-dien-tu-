@@ -166,6 +166,6 @@ Sau khi chạy lệnh `node prisma/seed.js`, hệ thống tự động tạo s�
    ```
 3. Commit và đẩy nhánh lên GitHub, sau đó tạo **Pull Request** gộp vào nhánh **`develop`** và nhờ thành viên khác trong nhóm review/approve trước khi merge.
 
-## Video Demo
+## Video Demo khách hàng vãng lai vào trang web đăng kí tài khoản và đặt đơn hàng
 
 [▶ Xem video demo dự án](https://youtu.be/inxDpYCTurA)
